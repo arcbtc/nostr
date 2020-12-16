@@ -10,7 +10,7 @@
 
     <q-form
     style="width:100%"
-      @submit="onSubmit"
+      @submit="PubonSubmit"
       class="q-gutter-md"
     >
 
@@ -29,10 +29,34 @@
             <img src="http://identicon.net/img/identicon.png">
           </q-avatar>
         </template>
-
+       
       </q-input>
+
+    <div class="column" v-if="activatevideo==true">
+      <div class="col-9 q-mx-auto">
+       <video v-show="!imageCaptured" playsinline ref="video" style="width:300px;" autoplay/>
+       <canvas v-show="imageCaptured" ref="canvas" height="240"/>
+      </div>
+      <div class="col-3 q-mx-auto">
+       
+        <q-btn flat class="float-right "  rounded unelevated color="primary" icon="cancel" @click="discamera()" size="lg" />
+        <q-btn flat class="float-right "  rounded unelevated color="primary" icon="camera" @click="captureimage()" size="lg" /> 
+      </div>
+    </div>
+      
+
+
+
+
       <div class="float-right" >
-       <q-btn  class="float-left q-mr-md"  round unelevated color="primary" icon="insert_emoticon" size="sm" /> <q-btn  class="float-left q-mr-md"  round unelevated color="primary" icon="camera" size="sm" /> <q-btn label="Publish" rounded unelevated type="submit" class="float-right" color="primary"/>
+       <q-btn  class="float-left q-mr-md"  round unelevated color="primary" icon="insert_emoticon" size="sm" /> 
+
+        <q-btn  class="float-left q-mr-md"  round unelevated color="primary" icon="insert_photo" size="sm" /> 
+
+        <q-btn  class="float-left q-mr-md"  round unelevated color="primary" icon="camera_alt" @click="initcamera()" size="sm" /> 
+
+
+               <q-btn label="Publish" rounded unelevated type="submit" class="float-right" color="primary"/>
    </div>
 
 
@@ -42,6 +66,12 @@
     </q-dialog>
 
 
+ 
+
+
+
+ 
+
     <div class="flex-center column">
           <div class="row" style="width: 100%; padding: 5px;">
             <div id="parent" class="fit row wrap justify-center items-start content-start" >
@@ -50,7 +80,9 @@
             <q-card-section >
               
 
-  <img src="https://i.ibb.co/KyS0KYX/nostr.png" style="width:40px">
+     <img
+      src="~/assets/nostr-logo.png"
+    />
   <div class="q-pa-md" >
     <q-list padding class="text-secondary" >
       <q-item
@@ -142,7 +174,7 @@
       color="primary"
       size="md"
       label="Publish"
-      @click="dialogpublish = true"
+      @click="dialoguestarted()"
     ></q-btn>
 
   </div>
@@ -186,7 +218,7 @@
         <div class="col-4  large-screen-only" >
           <q-card class="float-left no-shadow">
             <q-card-section>
-                   <q-input  dense rounded outlined v-model="text">
+                   <q-input  dense rounded outlined v-model="search">
                   <template v-slot:append>
           <q-btn round dense flat icon="search" />
         </template>
@@ -226,21 +258,86 @@
 
 
 <script>
-
+require('md-gum-polyfill');
 
 export default {
   name: 'MainLayout',
   data () {
     return {
      link: 'inbox',      
+     publishtext: '',
+     search:'',
      selectedTab: 'myAccount',
      splitterModel: 20,
-     dialogpublish: false
+     dialogpublish: false,
+     activatevideo:false,
+     imageCaptured: false,
+     newpost:{
+        user: '',
+        image: '',
+        message: '',
+        date: Date.now()
+      }
     }
+
+
   },
   methods: {
-    
+    captureimage(){
+      let video = this.$refs.video
+      let canvas = this.$refs.canvas
+      canvas.width = video.getBoundingClientRect().width
+      canvas.height = video.getBoundingClientRect().height
+      let context = canvas.getContext('2d')
+      context.drawImage(video, 0, 0, canvas.width, canvas.height)
+      this.imageCaptured = true
+      this.newpost.image = this.dataURItoBlob(canvas.toDataURL())
+      console.log(this.newpost.image)
+    },
+    dataURItoBlob(dataURI) {
+  var byteString = atob(dataURI.split(',')[1]);
+  var mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0]
+
+  var ab = new ArrayBuffer(byteString.length);
+
+  var ia = new Uint8Array(ab);
+
+
+  for (var i = 0; i < byteString.length; i++) {
+      ia[i] = byteString.charCodeAt(i);
   }
+
+  // write the ArrayBuffer to a blob, and you're done
+  var blob = new Blob([ab], {type: mimeString});
+  return blob;
+
+},
+
+
+    PubonSubmit(){
+
+    },
+    initcamera(){
+      this.activatevideo = true
+      navigator.mediaDevices.getUserMedia({
+        video: true
+      }).then(stream =>{
+         this.$refs.video.srcObject = stream
+      })
+    },
+    discamera(){
+      this.activatevideo = false
+      navigator.mediaDevices.getUserMedia({
+        video: false
+      })
+    },
+
+    dialoguestarted(){
+      this.dialogpublish = true 
+      this.video = false
+    }
+  },
+
 }
 
 

@@ -1,6 +1,6 @@
 <template>
-  <q-page class="flex">
-    Notifications
+  <q-page>
+   <h6 class="q-ma-none">Notifications</h6>
   </q-page>
 </template>
 

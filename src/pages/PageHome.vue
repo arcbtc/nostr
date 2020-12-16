@@ -9,7 +9,8 @@
 
 
     <q-form
-    style="width:100%"
+    
+    style="width:100%;" 
       @submit="onSubmit"
       class="q-gutter-md"
     >
@@ -32,7 +33,7 @@
 
       </q-input>
       <div class="float-right" >
-       <q-btn  class="float-left q-mr-md"  round color="primary" icon="insert_emoticon" size="sm" /> <q-btn  class="float-left q-mr-md"  round color="primary" icon="camera" size="sm" /> <q-btn label="Publish" rounded type="submit" class="float-right" color="primary"/>
+       <q-btn  class="float-left q-mr-md"  round unelevated color="primary" icon="insert_emoticon" size="sm" /> <q-btn  class="float-left q-mr-md"  round unelevated color="primary" icon="camera" size="sm" /> <q-btn label="Publish" rounded unelevated type="submit" class="float-right" color="primary"/>
    </div>
 
 

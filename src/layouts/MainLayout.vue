@@ -1,8 +1,49 @@
 <template>
   <q-layout >
 
+
+
+  
+    <q-dialog v-model="dialogpublish" >
+      <q-card style="width:500px" class="q-pa-md q-pt-lg">
+
+
+    <q-form
+    style="width:100%"
+      @submit="onSubmit"
+      class="q-gutter-md"
+    >
+
+
+     <q-input
+     style="font-size: 20px;"
+      v-model="publishtext"
+      autogrow
+      label="Say something"
+      lazy-rules
+      :rules="[ val => val !== null && val.length > 280 || 'Less than 280 characters'
+            ]"
+      >
+                    <template v-slot:before>
+          <q-avatar>
+            <img src="http://identicon.net/img/identicon.png">
+          </q-avatar>
+        </template>
+
+      </q-input>
+      <div class="float-right" >
+       <q-btn  class="float-left q-mr-md"  round unelevated color="primary" icon="insert_emoticon" size="sm" /> <q-btn  class="float-left q-mr-md"  round unelevated color="primary" icon="camera" size="sm" /> <q-btn label="Publish" rounded unelevated type="submit" class="float-right" color="primary"/>
+   </div>
+
+
+      </q-form>
+
+      </q-card>
+    </q-dialog>
+
+
     <div class="flex-center column">
-          <div class="row" style="min-height: 400px; width: 100%; padding: 5px;">
+          <div class="row" style="width: 100%; padding: 5px;">
             <div id="parent" class="fit row wrap justify-center items-start content-start" >
               <div class="col-4 large-screen-only" style="overflow: auto;">
           <q-card no-box-shadow class="float-right q-pr-md" style="font-size: 20px;">
@@ -96,11 +137,12 @@
       <br/>
     </q-list>
         <q-btn
-      rounded
+      rounded unelevated
       style="width: 140px !important;height: 41px !important;"
       color="primary"
       size="md"
       label="Publish"
+      @click="dialogpublish = true"
     ></q-btn>
 
   </div>
@@ -162,20 +204,26 @@
 
 
 
-      <q-footer bordered class="bg-white small-screen-only" >
-      <q-tabs class="text-primary">
-        <q-route-tab name="notifications" icon="notifications" to="/notifications"/>
-        <q-route-tab name="messages" icon="email" to="/messages"/>
-        <q-route-tab name="settings" icon="settings" to="/settings"/>
-        <q-route-tab name="help" icon="help" to="/help"/>
-
-
-
+      <q-footer bordered style="bottom: 0%;position: fixed;" class="bg-white small-screen-only" >
+        <center>
+          <q-tabs class="text-primary">
+        <q-route-tab  style="width: 20%;" name="home" icon="home" to="/"/>
+        <q-route-tab  style="width: 20%;" name="notifications" icon="notifications" to="/notifications"/>
+        <q-route-tab style="width: 20%;" name="messages" icon="email" to="/messages"/>
+        <q-route-tab style="width: 20%;" name="settings" icon="settings" to="/settings"/>
+        <q-route-tab style="width: 20%;" name="help" icon="help" to="/help"/>
       </q-tabs>
+    </center>
       </q-footer>
 
   </q-layout>
+
+
 </template>
+
+
+
+
 
 <script>
 
@@ -187,8 +235,11 @@ export default {
      link: 'inbox',      
      selectedTab: 'myAccount',
      splitterModel: 20,
-     publishtext: ""
+     dialogpublish: false
     }
+  },
+  methods: {
+    
   }
 }
 
@@ -214,7 +265,4 @@ body.body--dark
     display: none
   @media (min-width: $breakpoint-sm-min)
     display: block
-.constrain
-  max-width:975px
-  margin: 0 auto
 </style>

@@ -1,0 +1,220 @@
+<template>
+  <q-layout >
+
+    <div class="flex-center column">
+          <div class="row" style="min-height: 400px; width: 100%; padding: 5px;">
+            <div id="parent" class="fit row wrap justify-center items-start content-start" >
+              <div class="col-4 large-screen-only" style="overflow: auto;">
+          <q-card no-box-shadow class="float-right q-pr-md" style="font-size: 20px;">
+            <q-card-section >
+              
+
+  <img src="https://i.ibb.co/KyS0KYX/nostr.png" style="width:40px">
+  <div class="q-pa-md" >
+    <q-list padding class="text-secondary" >
+      <q-item
+        clickable
+        v-ripple
+        :active="link === 'home'"
+        @click="link = 'home'"
+        active-class="my-menu-link"
+        :to="'/'"
+        style="padding: 15px;"
+      >
+        <q-item-section avatar>
+          <q-icon name="home"></q-icon>
+        </q-item-section>
+
+        <q-item-section>Home</q-item-section>
+      </q-item>
+
+      <q-item
+        clickable
+        v-ripple
+        :active="link === 'notifications'"
+        @click="link = 'notifications'"
+        active-class="my-menu-link"
+        :to="'/notifications'"
+        style="padding: 15px;"
+      >
+        <q-item-section avatar>
+          <q-icon name="notifications"></q-icon>
+        </q-item-section>
+
+        <q-item-section>Notifications</q-item-section>
+      </q-item>
+
+      <q-item
+        clickable
+        v-ripple
+        :active="link === 'messages'"
+        @click="link = 'messages'"
+        active-class="my-menu-link"
+        :to="'/messages'"
+        style="padding: 15px;"
+      >
+        <q-item-section avatar>
+          <q-icon name="email"></q-icon>
+        </q-item-section>
+
+        <q-item-section>Messages</q-item-section>
+      </q-item>
+
+   
+
+      <q-item
+        clickable
+        v-ripple
+        :active="link === 'settings'"
+        @click="link = 'settings'"
+        active-class="my-menu-link"
+        :to="'/settings'"
+        style="padding: 15px;"
+      >
+        <q-item-section avatar>
+          <q-icon name="settings"></q-icon>
+        </q-item-section>
+
+        <q-item-section>Settings</q-item-section>
+      </q-item>
+
+      <q-item
+        clickable
+        v-ripple
+        :active="link === 'help'"
+        @click="link = 'help'"
+        active-class="my-menu-link"
+        :to="'/help'"
+        style="padding: 15px;"
+      >
+        <q-item-section avatar>
+          <q-icon name="help"></q-icon>
+        </q-item-section>
+
+        <q-item-section>Help</q-item-section>
+      </q-item>
+      <br/>
+    </q-list>
+        <q-btn
+      rounded
+      style="width: 140px !important;height: 41px !important;"
+      color="primary"
+      size="md"
+      label="Publish"
+    ></q-btn>
+
+  </div>
+
+
+            </q-card-section>
+          </q-card>
+
+        </div>
+
+        <div class="col-4 large-screen-only">
+          <q-card>
+            <q-card-section>
+
+                 <q-page-container>
+      <router-view />
+
+    </q-page-container>
+
+            </q-card-section>
+          </q-card>
+          
+        </div>
+
+
+        <div class="col-12 small-screen-only" >
+          <q-card>
+            <q-card-section>
+
+                 <q-page-container>
+      <router-view />
+
+    </q-page-container>
+
+            </q-card-section>
+          </q-card>
+          
+        </div>
+
+
+        <div class="col-4  large-screen-only" >
+          <q-card class="float-left no-shadow">
+            <q-card-section>
+                   <q-input  dense rounded outlined v-model="text">
+                  <template v-slot:append>
+          <q-btn round dense flat icon="search" />
+        </template>
+      </q-input>
+
+   
+      </q-card-section>
+          </q-card>
+
+        </div>
+            </div>
+          </div>
+        </div>
+
+
+
+
+      <q-footer bordered class="bg-white small-screen-only" >
+      <q-tabs class="text-primary">
+        <q-route-tab name="notifications" icon="notifications" to="/notifications"/>
+        <q-route-tab name="messages" icon="email" to="/messages"/>
+        <q-route-tab name="settings" icon="settings" to="/settings"/>
+        <q-route-tab name="help" icon="help" to="/help"/>
+
+
+
+      </q-tabs>
+      </q-footer>
+
+  </q-layout>
+</template>
+
+<script>
+
+
+export default {
+  name: 'MainLayout',
+  data () {
+    return {
+     link: 'inbox',      
+     selectedTab: 'myAccount',
+     splitterModel: 20,
+     publishtext: ""
+    }
+  }
+}
+
+
+
+</script>
+
+<style lang="sass">
+
+.my-menu-link
+  color: primary
+
+body.body--dark
+    background: #1d2d2d
+
+.small-screen-only
+  @media (max-width: $breakpoint-xs-max)
+    display: block
+  @media (min-width: $breakpoint-sm-min)
+    display: none
+.large-screen-only
+  @media (max-width: $breakpoint-xs-max)
+    display: none
+  @media (min-width: $breakpoint-sm-min)
+    display: block
+.constrain
+  max-width:975px
+  margin: 0 auto
+</style>

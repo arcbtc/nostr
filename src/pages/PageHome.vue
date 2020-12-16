@@ -33,6 +33,13 @@
           </q-avatar>
         </template>
 
+        <template v-if="homeembedimage" v-slot:append>
+       
+            <img width="50" :src="newpost.imagetemp">
+        
+        </template>
+        
+
 
 
 
@@ -49,6 +56,7 @@
       <div class="col-3 q-mx-auto">
        
         <q-btn flat class="float-right "  rounded unelevated color="primary" icon="cancel" @click="discamerahome()" size="lg" />
+                <q-btn flat class="float-right "  rounded unelevated color="primary" icon="check_circle" @click="photoverify()" size="lg" /> 
         <q-btn flat class="float-right "  rounded unelevated color="primary" icon="camera" @click="captureimage()" size="lg" /> 
       </div>
     </div>
@@ -117,6 +125,7 @@ export default {
       publishtext: '',
       activatevideohome: false,
       imageCaptured: false,
+      homeembedimage: false,
       newpost:{
         user: '',
         message: '',
@@ -162,8 +171,10 @@ export default {
       let context = canvas.getContext('2d')
       context.drawImage(video, 0, 0, canvas.width, canvas.height)
       this.imageCaptured = true
+      this.newpost.imagetemp = canvas.toDataURL()
       this.newpost.image = this.dataURItoBlob(canvas.toDataURL())
       console.log(this.newpost.image)
+      
     },
     dataURItoBlob(dataURI) {
   var byteString = atob(dataURI.split(',')[1]);
@@ -196,6 +207,14 @@ export default {
       })
     },
     discamerahome(){
+      this.activatevideohome = false
+      navigator.mediaDevices.getUserMedia({
+        video: false
+      })
+      this.homeembedimage = false
+    },
+    photoverify(){
+      this.homeembedimage = true
       this.activatevideohome = false
       navigator.mediaDevices.getUserMedia({
         video: false

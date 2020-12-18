@@ -17,17 +17,14 @@
       class="q-gutter-md"
     >
      <center>
-          <div class="column" style="height: 170px;width:220px; border: 2px solid #26A69A; border-radius: 5px;"   v-show="homeembedimage">
-      <div class="col">
+          <div class="column"  style="width:200px" v-show="homeembedimage">
+      <div class="col" >
         
-        <q-btn flat round color="red" icon="clear" size="sm" @click="discamerahome()"  class="float-right" />
+        <q-btn flat round color="red" icon="clear" size="sm" class="float-right" @click="discamerahome()"/>
       </div>
       <div class="col-12">
-           
-                
-       
+          
             <img width="200" class="q-ma-sm" :src="newpost.imagetemp">
-      
       </div>
 
     </div>
@@ -40,22 +37,13 @@
       v-model="publishtext"
       autogrow
       label="Say something"
-      lazy-rules
-      :rules="[ val => val !== null && val.length > 280 || 'Less than 280 characters'
-            ]"
+      maxlength="280"
       >
       	            <template v-slot:before>
           <q-avatar>
             <img src="http://identicon.net/img/identicon.png">
           </q-avatar>
         </template>
-
-
-        
-
-
-
-
 
 
       </q-input>
@@ -78,13 +66,33 @@
 
 
       <div class="float-right" >
-       <q-btn  class="float-left q-mr-md" round unelevated color="primary" icon="insert_emoticon" size="sm">
+       <q-btn v-if="publishtext.length < 280" class="float-left q-mr-md" round unelevated color="primary" icon="insert_emoticon" size="sm">
+
                <q-popup-proxy>
- <picker set="twitter" title="Pick an emoji!" emoji="point_up"/>
+  <q-btn @click="publishtext = publishtext + '😂'" flat rounded :size="sm" unelevated dense>😂</q-btn>
+  <q-btn @click="publishtext = publishtext + '😃'" flat rounded :size="sm" unelevated dense>😃</q-btn>
+  <q-btn @click="publishtext = publishtext + '😍'" flat rounded :size="sm" unelevated dense>😍</q-btn>
+  <q-btn @click="publishtext = publishtext + '😘'" flat rounded :size="sm" unelevated dense>😘</q-btn>
+  <q-btn @click="publishtext = publishtext + '😭'" flat rounded :size="sm" unelevated dense>😭</q-btn>
+  <q-btn @click="publishtext = publishtext + '😂'" flat rounded :size="sm" unelevated dense>😂</q-btn>
+  <q-btn @click="publishtext = publishtext + '🤣'" flat rounded :size="sm" unelevated dense>🤣</q-btn>
+  <q-btn @click="publishtext = publishtext + '🧐'" flat rounded :size="sm" unelevated dense>🧐</q-btn>
+  <q-btn @click="publishtext = publishtext + '👊'" flat rounded :size="sm" unelevated dense>👊</q-btn>
+  <q-btn @click="publishtext = publishtext + '🤘'" flat rounded :size="sm" unelevated dense>🤘</q-btn>
+  <br/>
+  <q-btn @click="publishtext = publishtext + '👌'" flat rounded :size="sm" unelevated dense>👌</q-btn>
+  <q-btn @click="publishtext = publishtext + '🙌'" flat rounded :size="sm" unelevated dense>🙌</q-btn>
+  <q-btn @click="publishtext = publishtext + '🤦'" flat rounded :size="sm" unelevated dense>🤦</q-btn>
+  <q-btn @click="publishtext = publishtext + '🎅'" flat rounded :size="sm" unelevated dense>🎅</q-btn>
+  <q-btn @click="publishtext = publishtext + '🚀'" flat rounded :size="sm" unelevated dense>🚀</q-btn>
+  <q-btn @click="publishtext = publishtext + '🔥'" flat rounded :size="sm" unelevated dense>🔥</q-btn>
+  <q-btn @click="publishtext = publishtext + '💯'" flat rounded :size="sm" unelevated dense>💯</q-btn>
+  <q-btn @click="publishtext = publishtext + '⚡'" flat rounded :size="sm" unelevated dense>⚡</q-btn>
+  <q-btn @click="publishtext = publishtext + '🌑'" flat rounded :size="sm" unelevated dense>🌑</q-btn>
       </q-popup-proxy>
         
        </q-btn>
-
+<q-btn v-else disable class="float-left q-mr-md" round unelevated color="primary" icon="insert_emoticon" size="sm"/>
     
         <q-file ref="myFileInput" accept="image/*" @input="captureimageupload" style="display:none" v-model="imagefile" type="file" label="Standard" ></q-file>
         <q-btn  class="float-left q-mr-md"  round unelevated color="primary" @click="getFile" icon="insert_photo" size="sm" /> 
@@ -170,6 +178,7 @@ export default {
         image: null,
         date: Date.now()
       },
+
       posts:[
       { id:1,
         user: "943fn139rvn",

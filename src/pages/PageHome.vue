@@ -16,8 +16,25 @@
       @submit="PublishonSubmit"
       class="q-gutter-md"
     >
+     <center>
+          <div class="column" style="height: 170px;width:220px; border: 2px solid #26A69A; border-radius: 5px;"   v-show="homeembedimage">
+      <div class="col">
+        
+        <q-btn flat round color="red" icon="clear" size="sm" @click="discamerahome()"  class="float-right" />
+      </div>
+      <div class="col-12">
+           
+                
+       
+            <img width="200" class="q-ma-sm" :src="newpost.imagetemp">
+      
+      </div>
 
+    </div>
 
+</center>
+
+      
      <q-input
      style="font-size: 20px;"
       v-model="publishtext"
@@ -33,12 +50,9 @@
           </q-avatar>
         </template>
 
-        <template v-if="homeembedimage" v-slot:append>
-       
-            <img width="50" :src="newpost.imagetemp">
+
         
-        </template>
-        
+
 
 
 
@@ -47,7 +61,7 @@
       </q-input>
 
 
-    <div class="column" v-if="activatevideohome==true">
+    <div class="column" v-show="activatevideohome==true">
       <div class="col-9 q-mx-auto">
 
         <video v-show="!imageCaptured" playsinline ref="video" style="width:300px;" autoplay/>
@@ -56,16 +70,28 @@
       <div class="col-3 q-mx-auto">
        
         <q-btn flat class="float-right "  rounded unelevated color="primary" icon="cancel" @click="discamerahome()" size="lg" />
-                <q-btn flat class="float-right "  rounded unelevated color="primary" icon="check_circle" @click="photoverify()" size="lg" /> 
+                
         <q-btn flat class="float-right "  rounded unelevated color="primary" icon="camera" @click="captureimage()" size="lg" /> 
+        <q-btn v-show="imageCaptured" flat class="float-right "  rounded unelevated color="primary" icon="check_circle" @click="photoverify()" size="lg" /> 
       </div>
     </div>
 
 
       <div class="float-right" >
-       <q-btn  class="float-left q-mr-md"  round unelevated color="primary" icon="insert_emoticon" size="sm" /> 
+       <q-btn  class="float-left q-mr-md" round unelevated color="primary" icon="insert_emoticon" size="sm">
+               <q-popup-proxy>
+ <picker set="emojione" />
+      </q-popup-proxy>
+        
+       </q-btn>
 
-        <q-btn  class="float-left q-mr-md"  round unelevated color="primary" icon="insert_photo" size="sm" /> 
+    
+        <q-file ref="myFileInput" accept="image/*" @input="captureimageupload" style="display:none" v-model="imagefile" type="file" label="Standard" ></q-file>
+        <q-btn  class="float-left q-mr-md"  round unelevated color="primary" @click="getFile" icon="insert_photo" size="sm" /> 
+
+
+
+       
 
         <q-btn  class="float-left q-mr-md"  round unelevated color="primary" icon="camera_alt" @click="initcamerahome()" size="sm" /> 
 
@@ -89,6 +115,10 @@
            <q-avatar class="no-shadow">
             <img :src="post.avatar">
           </q-avatar>
+
+
+
+
 
         </q-card-section>
 
@@ -118,17 +148,26 @@
 <script>
   import { date } from 'quasar'
   require('md-gum-polyfill');
+import { Picker } from 'emoji-mart-vue'
+
 export default {
   name: 'PageHome',
+  components:{
+    Picker
+  },
   data() {
     return {
       publishtext: '',
+      emojiOn: false,
       activatevideohome: false,
-      imageCaptured: false,
+      imageCaptured: false, 
+      hasCamerasuport: true,
       homeembedimage: false,
+      imagefile: '',
       newpost:{
         user: '',
         message: '',
+        image: null,
         date: Date.now()
       },
       posts:[
@@ -163,7 +202,7 @@ export default {
     }
   },
   methods: {
-        captureimage(){
+  captureimage(){
       let video = this.$refs.video
       let canvas = this.$refs.canvas
       canvas.width = video.getBoundingClientRect().width
@@ -172,9 +211,41 @@ export default {
       context.drawImage(video, 0, 0, canvas.width, canvas.height)
       this.imageCaptured = true
       this.newpost.imagetemp = canvas.toDataURL()
-      this.newpost.image = this.dataURItoBlob(canvas.toDataURL())
-      console.log(this.newpost.image)
+      this.newpost.image = this.dataURItoBlob(canvas.toDataURL()) 
+      const vid = document.querySelector('video');
+      const mediaStream = vid.srcObject;
+      const tracks = mediaStream.getTracks();
+      tracks.forEach(track => track.stop())
+    },
+    captureimageupload(file){
+      console.log(this.imagefile)
+      this.newpost.image = file
       
+
+      let canvas = this.$refs.canvas
+      let context = canvas.getContext('2d')
+
+      var reader = new FileReader()
+      reader.onload = event => {
+        var img = new Image()
+        img.onload = () => {
+
+            canvas.width = 350 * (img.width / img.height)
+            canvas.height = 350
+            
+
+            context.drawImage(img,0,0, canvas.width, canvas.height)
+            this.imageCaptured = true
+            this.homeembedimage = true
+            this.newpost.imagetemp = canvas.toDataURL()
+            console.log(this.newpost.imagetemp)
+
+        }
+        img.src = event.target.result
+    }
+    reader.readAsDataURL(file)
+   
+     
     },
     dataURItoBlob(dataURI) {
   var byteString = atob(dataURI.split(',')[1]);
@@ -195,7 +266,12 @@ export default {
 
 },
 
+
     VideoonSubmit(){
+
+    },
+    getFile () {
+      this.$refs.myFileInput.$el.click()
 
     },
     initcamerahome(){
@@ -204,25 +280,31 @@ export default {
         video: true
       }).then(stream =>{
          this.$refs.video.srcObject = stream
+      }).catch(error =>{
+        activatevideohome = false
+        this.$q.notify({
+        message: 'No camera found :(',
+        color: 'secondary'
+      })
       })
     },
     discamerahome(){
+
       this.activatevideohome = false
-      navigator.mediaDevices.getUserMedia({
-        video: false
-      })
       this.homeembedimage = false
+      this.newpost.imagetemp = ''
+      this.newpost.image = ''
+      this.imageCaptured = false
+
     },
     photoverify(){
       this.homeembedimage = true
       this.activatevideohome = false
-      navigator.mediaDevices.getUserMedia({
-        video: false
-      })
     },
     PublishonSubmit(){
 
     }
+
   },
   filters: {
     //prefer handle over user

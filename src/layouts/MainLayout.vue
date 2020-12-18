@@ -283,7 +283,7 @@ export default {
 
   },
   methods: {
-    captureimage(){
+  captureimage(){
       let video = this.$refs.video
       let canvas = this.$refs.canvas
       canvas.width = video.getBoundingClientRect().width
@@ -291,8 +291,10 @@ export default {
       let context = canvas.getContext('2d')
       context.drawImage(video, 0, 0, canvas.width, canvas.height)
       this.imageCaptured = true
+      this.newpost.imagetemp = canvas.toDataURL()
       this.newpost.image = this.dataURItoBlob(canvas.toDataURL())
       console.log(this.newpost.image)
+      
     },
     dataURItoBlob(dataURI) {
   var byteString = atob(dataURI.split(',')[1]);
@@ -312,6 +314,13 @@ export default {
   return blob;
 
 },
+    photoverify(){
+      this.embedimage = true
+      this.activatevideo = false
+      navigator.mediaDevices.getUserMedia({
+        video: false
+      })
+    },
 
 
     PubonSubmit(){
@@ -325,11 +334,13 @@ export default {
          this.$refs.video.srcObject = stream
       })
     },
-    discamera(){
+    discamerahome(){
       this.activatevideo = false
-      navigator.mediaDevices.getUserMedia({
-        video: false
-      })
+      this.embedimage = false
+      this.newpost.imagetemp = ''
+      this.newpost.image = ''
+ 
+      
     },
 
     dialoguestarted(){

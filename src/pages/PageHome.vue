@@ -80,7 +80,7 @@
       <div class="float-right" >
        <q-btn  class="float-left q-mr-md" round unelevated color="primary" icon="insert_emoticon" size="sm">
                <q-popup-proxy>
- <picker set="emojione" />
+ <picker set="twitter" title="Pick an emoji!" emoji="point_up"/>
       </q-popup-proxy>
         
        </q-btn>

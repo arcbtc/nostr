@@ -68,7 +68,72 @@
 
  
 
+    <q-dialog v-model="dialoggenerate" >
+      <q-card class="q-pa-md q-pt-lg">
 
+
+      <q-stepper
+      v-model="step"
+      vertical
+      color="primary"
+      animated
+    >
+      <q-step
+        :name="1"
+        title="Generate/Restore"
+        icon="settings"
+        :done="step > 1"
+      > Nostr uses a private/public keypair to secure your account. 
+      <br/>
+      The private key is used to sign/publish posts (keep it safe!). 
+      <br/>
+      The public key allows other people to read your posts and follow you.
+      <br/><br/>
+      A word list of 24 words is used to create your keys, you can enter your own (seperated by spaces), or hit generate to create a fresh one.
+     <q-input
+      v-model="user.passphrase"
+      autogrow
+      type="textarea"
+      label="Word list"
+      ></q-input><br/>
+       <q-btn @click="createKeys()" color="primary" label="Generate" class="q-mr-md" />  <q-btn @click="step = 2" color="primary" label="Restore" />
+        <q-stepper-navigation v-if="passphrasegenerated">
+          <q-btn @click="step = 2" color="primary" label="Generate" />
+        </q-stepper-navigation>
+      </q-step>
+
+      <q-step
+        :name="2"
+        title="Your keys"
+        icon="vpn_key"
+        :done="step > 2"
+      >
+        An ad group contains one or more ads which target a shared set of keywords.
+
+        <q-stepper-navigation>
+          <q-btn @click="step = 4" color="primary" label="Continue" />
+          <q-btn flat @click="step = 1" color="primary" label="Back" class="q-ml-sm" />
+        </q-stepper-navigation>
+      </q-step>
+
+      <q-step
+        :name="3"
+        title="Key storage"
+        icon="lock"
+      >
+        Try out different ad text to see what brings in the most customers, and learn how to
+        enhance your ads using features like ad extensions. If you run into any problems with
+        your ads, find out how to tell if they're running and how to resolve approval issues.
+
+        <q-stepper-navigation>
+          <q-btn color="primary" label="Finish" />
+          <q-btn flat @click="step = 2" color="primary" label="Back" class="q-ml-sm" />
+        </q-stepper-navigation>
+      </q-step>
+    </q-stepper>
+
+      </q-card>
+    </q-dialog>
 
  
 
@@ -85,7 +150,21 @@
     />
   <div class="q-pa-md" >
     <q-list padding class="text-secondary" >
+  
+
+     <q-item
+        v-if="disabled"
+        :disabled="disabled"
+        style="padding: 15px;"
+      >
+        <q-item-section avatar>
+          <q-icon name="home"></q-icon>
+        </q-item-section>
+
+        <q-item-section>Home</q-item-section>
+      </q-item>
       <q-item
+      v-else
         clickable
         v-ripple
         :active="link === 'home'"
@@ -101,7 +180,19 @@
         <q-item-section>Home</q-item-section>
       </q-item>
 
+     <q-item
+        v-if="disabled"
+        :disabled="disabled"
+        style="padding: 15px;"
+      >
+        <q-item-section avatar>
+          <q-icon name="notifications"></q-icon>
+        </q-item-section>
+
+        <q-item-section>Notifications</q-item-section>
+      </q-item>
       <q-item
+       v-else
         clickable
         v-ripple
         :active="link === 'notifications'"
@@ -117,7 +208,19 @@
         <q-item-section>Notifications</q-item-section>
       </q-item>
 
+     <q-item
+        v-if="disabled"
+        :disabled="disabled"
+        style="padding: 15px;"
+      >
+        <q-item-section avatar>
+          <q-icon name="email"></q-icon>
+        </q-item-section>
+
+        <q-item-section>Messages</q-item-section>
+      </q-item>
       <q-item
+        v-else
         clickable
         v-ripple
         :active="link === 'messages'"
@@ -134,8 +237,19 @@
       </q-item>
 
    
-
       <q-item
+        v-if="disabled"
+        :disabled="disabled"
+        style="padding: 15px;"
+      >
+        <q-item-section avatar>
+          <q-icon name="settings"></q-icon>
+        </q-item-section>
+
+        <q-item-section>Settings</q-item-section>
+      </q-item>
+      <q-item
+        v-else
         clickable
         v-ripple
         :active="link === 'settings'"
@@ -169,6 +283,7 @@
       <br/>
     </q-list>
         <q-btn
+      v-if="!disabled"
       rounded unelevated
       style="width: 140px !important;height: 41px !important;"
       color="primary"
@@ -176,7 +291,15 @@
       label="Publish"
       @click="dialoguestarted()"
     ></q-btn>
-
+       <q-btn
+      v-else
+      rounded unelevated
+      style="width: 200px !important;height: 82px !important;"
+      color="primary"
+      size="md"
+      label="Genrate/Restore User Account"
+      @click="dialoguegenerate()"
+    ></q-btn>
   </div>
 
 
@@ -258,20 +381,38 @@
 
 
 <script>
-require('md-gum-polyfill');
+require('md-gum-polyfill')
+var crypto = require('crypto')
+var bitcoin = require("bitcoinjs-lib")
+const bip39 = require('bip39')
+const bip32 = require('bip32')
+const bs58 = require('bs58')
+var wif = require("wif")
+const Buffer = require('safe-buffer').Buffer 
+const BigInteger = require('bigi')
+const schnorr = require('bip-schnorr')
+const convert = schnorr.convert
+import shajs from 'sha.js'
 
 export default {
   name: 'MainLayout',
   data () {
     return {
+     passphrasegenerated: false,
+     step: 1,
+     disabled: true,
      link: 'inbox',      
      publishtext: '',
      search:'',
      selectedTab: 'myAccount',
      splitterModel: 20,
      dialogpublish: false,
+     dialoggenerate: false,
      activatevideo:false,
      imageCaptured: false,
+     user:{
+      passphrase: ''
+     },
      newpost:{
         user: '',
         image: '',
@@ -314,6 +455,92 @@ export default {
   return blob;
 
 },
+
+  async publishMetadata(store, meta) {
+    let event = await publishEvent(
+      {
+        pubkey: store.getters.pubKeyHex,
+        created_at: Math.round(new Date().getTime() / 1000),
+        kind: KIND_METADATA,
+        content: JSON.stringify(meta)
+      },
+      store.state.key,
+      store.getters.writeServers
+    )
+
+  },
+  async publishNote(store, {text, reference}) {
+    let event = await publishEvent(
+      {
+        pubkey: store.getters.pubKeyHex,
+        created_at: Math.round(new Date().getTime() / 1000),
+        ref: reference,
+        kind: KIND_TEXTNOTE,
+        content: text.trim()
+      },
+      store.state.key,
+      store.getters.writeServers
+    )
+  },
+  async publishEvent(evt, key, hosts) {
+  let hash = shajs('sha256').update(serializeEvent(evt)).digest()
+  evt.id = hash.toString('hex')
+
+  evt.sig = schnorr
+    .sign(new BigInteger(key, 16), hash, makeRandom32())
+    .toString('hex')
+
+  return await broadcastEvent(evt, hosts)
+},
+broadcastEvent(evt, hosts) {
+  hosts.forEach(async host => {
+    if (host.length && host[host.length - 1] === '/') host = host.slice(0, -1)
+
+    let publishLogEntry = {
+      id: evt.id,
+      time: evt.created_at,
+      host
+    }
+
+    try {
+      let r = await window.fetch(host + '/save_event', {
+        method: 'POST',
+        headers: {'content-type': 'application/json'},
+        body: JSON.stringify(evt)
+      })
+      if (!r.ok) throw new Error('error publishing')
+
+      db.publishlog.put({...publishLogEntry, status: 'succeeded'})
+    } catch (err) {
+      console.log(`failed to publish ${evt} to ${host}`)
+      db.publishlog.put({...publishLogEntry, status: 'failed'})
+    }
+  })
+
+  return evt
+},
+createKeys(){
+  var  randomBytes = crypto.randomBytes(16)
+  var mnemonic = bip39.entropyToMnemonic(randomBytes.toString('hex')) 
+  const seed = bip39.mnemonicToSeedSync(mnemonic)
+  const root = bip32.fromSeed(seed)
+  const path = "m/0'/0/0"
+
+  const child1 = root.derivePath(path)
+
+  console.log(root.privateKey.toString('hex'))
+  console.log("cunt?".toString('hex'))
+
+
+
+  const privKey = BigInteger.fromHex(root.privateKey.toString('hex'));
+  
+  const message = Buffer.from(this.hexToBytes("Ooo, what a cunt".toString('hex')), 'hex');
+  const createdSignature = schnorr.sign(privKey, message);
+  console.log(createdSignature)
+  console.log('The signature is: ' + createdSignature.toString('hex'));
+
+  },
     photoverify(){
       this.embedimage = true
       this.activatevideo = false
@@ -343,11 +570,20 @@ export default {
       
     },
 
-    dialoguestarted(){
+    dialoguegenerate(){
+      this.dialoggenerate = true 
+      this.video = false
+    },
+        dialoguestarted(){
       this.dialogpublish = true 
       this.video = false
     }
   },
+    created: function () {
+      if (this.disabled){
+        window.location.href = "/#/help";
+      }
+  }
 
 }
 

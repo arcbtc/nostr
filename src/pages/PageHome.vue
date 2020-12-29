@@ -69,26 +69,27 @@
        <q-btn v-if="publishtext.length < 280" class="float-left q-mr-md" round unelevated color="primary" icon="insert_emoticon" size="sm">
 
                <q-popup-proxy>
-  <q-btn @click="publishtext = publishtext + '😂'" flat rounded :size="sm" unelevated dense>😂</q-btn>
-  <q-btn @click="publishtext = publishtext + '😃'" flat rounded :size="sm" unelevated dense>😃</q-btn>
-  <q-btn @click="publishtext = publishtext + '😍'" flat rounded :size="sm" unelevated dense>😍</q-btn>
-  <q-btn @click="publishtext = publishtext + '😘'" flat rounded :size="sm" unelevated dense>😘</q-btn>
-  <q-btn @click="publishtext = publishtext + '😭'" flat rounded :size="sm" unelevated dense>😭</q-btn>
-  <q-btn @click="publishtext = publishtext + '😂'" flat rounded :size="sm" unelevated dense>😂</q-btn>
-  <q-btn @click="publishtext = publishtext + '🤣'" flat rounded :size="sm" unelevated dense>🤣</q-btn>
-  <q-btn @click="publishtext = publishtext + '🧐'" flat rounded :size="sm" unelevated dense>🧐</q-btn>
-  <q-btn @click="publishtext = publishtext + '👊'" flat rounded :size="sm" unelevated dense>👊</q-btn>
-  <q-btn @click="publishtext = publishtext + '🤘'" flat rounded :size="sm" unelevated dense>🤘</q-btn>
+  <q-btn @click="publishtext = publishtext + '😂'" flat rounded unelevated dense>😂</q-btn>
+  <q-btn @click="publishtext = publishtext + '😃'" flat rounded unelevated dense>😃</q-btn>
+  <q-btn @click="publishtext = publishtext + '😍'" flat rounded unelevated dense>😍</q-btn>
+  <q-btn @click="publishtext = publishtext + '😘'" flat rounded unelevated dense>😘</q-btn>
+  <q-btn @click="publishtext = publishtext + '😭'" flat rounded unelevated dense>😭</q-btn>
+  <q-btn @click="publishtext = publishtext + '😂'" flat rounded unelevated dense>😂</q-btn>
+  <q-btn @click="publishtext = publishtext + '🤣'" flat rounded unelevated dense>🤣</q-btn>
+  <q-btn @click="publishtext = publishtext + '🧐'" flat rounded unelevated dense>🧐</q-btn>
+  <q-btn @click="publishtext = publishtext + '👊'" flat rounded unelevated dense>👊</q-btn>
+  <q-btn @click="publishtext = publishtext + '🤘'" flat rounded unelevated dense>🤘</q-btn>
   <br/>
-  <q-btn @click="publishtext = publishtext + '👌'" flat rounded :size="sm" unelevated dense>👌</q-btn>
-  <q-btn @click="publishtext = publishtext + '🙌'" flat rounded :size="sm" unelevated dense>🙌</q-btn>
-  <q-btn @click="publishtext = publishtext + '🤦'" flat rounded :size="sm" unelevated dense>🤦</q-btn>
-  <q-btn @click="publishtext = publishtext + '🎅'" flat rounded :size="sm" unelevated dense>🎅</q-btn>
-  <q-btn @click="publishtext = publishtext + '🚀'" flat rounded :size="sm" unelevated dense>🚀</q-btn>
-  <q-btn @click="publishtext = publishtext + '🔥'" flat rounded :size="sm" unelevated dense>🔥</q-btn>
-  <q-btn @click="publishtext = publishtext + '💯'" flat rounded :size="sm" unelevated dense>💯</q-btn>
-  <q-btn @click="publishtext = publishtext + '⚡'" flat rounded :size="sm" unelevated dense>⚡</q-btn>
-  <q-btn @click="publishtext = publishtext + '🌑'" flat rounded :size="sm" unelevated dense>🌑</q-btn>
+  <q-btn @click="publishtext = publishtext + '👌'" flat rounded unelevated dense>👌</q-btn>
+  <q-btn @click="publishtext = publishtext + '🙌'" flat rounded unelevated dense>🙌</q-btn>
+  <q-btn @click="publishtext = publishtext + '🤦'" flat rounded unelevated dense>🤦</q-btn>
+  <q-btn @click="publishtext = publishtext + '🎅'" flat rounded unelevated dense>🎅</q-btn>
+  <q-btn @click="publishtext = publishtext + '🚀'" flat rounded unelevated dense>🚀</q-btn>
+  <q-btn @click="publishtext = publishtext + '🔥'" flat rounded unelevated dense>🔥</q-btn>
+  <q-btn @click="publishtext = publishtext + '💯'" flat rounded unelevated dense>💯</q-btn>
+  <q-btn @click="publishtext = publishtext + '⚡'" flat rounded unelevated dense>⚡</q-btn>
+  <q-btn @click="publishtext = publishtext + '🏴󠁧󠁢󠁷󠁬󠁳󠁿 '" flat rounded unelevated dense>🏴󠁧󠁢󠁷󠁬󠁳󠁿</q-btn>
+  <q-btn @click="publishtext = publishtext + '🌑'" flat rounded unelevated dense>🌑</q-btn>
       </q-popup-proxy>
         
        </q-btn>
@@ -180,33 +181,7 @@ export default {
       },
 
       posts:[
-      { id:1,
-        user: "943fn139rvn",
-        handle: "@benarc",
-        avatar: "http://identicon.net/img/identicon.png",
-        message:'@twitter, I will make you obsolete.',
-        date: 1608148010951,
-        likes: 5,
-        retweets: 6
-      },
-      { id:2,
-        user: "943fn139rvn",
-        handle: "@benarc",
-        avatar: "http://identicon.net/img/identicon.png",
-        message:'Nostr is very badass, and sounds like "nos da", which means goodnight in Welsh.',
-        date: 1608148010951,
-        likes: 5,
-        retweets: 6
-      },
-      { id:3,
-        user: "943fn139rvn",
-        handle: "@benarc",
-        avatar: "http://identicon.net/img/identicon.png",
-        message:'Images needed. Nostr wont work unless they can post pictures of badly cooked steak.',
-        date: 1608148010951,
-        likes: 5,
-        retweets: 6
-      }
+
     ]
     }
   },

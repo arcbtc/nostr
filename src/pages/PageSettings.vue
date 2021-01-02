@@ -64,7 +64,10 @@
         <q-btn unelevated label="Submit" type="submit" color="primary"/>
       </div>
     </q-form>
-
+ <br/><br/>
+<q-separator />
+<br/><br/>
+<q-btn unelevated label="Delete Local Storage" @click="deletels" color="negative"/>
   </div>
 
 
@@ -133,6 +136,10 @@ export default {
       this.name = null
       this.age = null
       this.accept = false
+    },
+    deletels(){
+      this.$q.localStorage.clear()
+      window.location.reload()
     }
 
   }

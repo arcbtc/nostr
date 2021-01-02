@@ -106,7 +106,7 @@
         icon="vpn_key"
         :done="step > 2"
       >
-      BACKUP YOUR KEYS NOW!<br/>
+      In this client you can restore from a word list but for other clients you will need to use your keys as well.<br/><br/>
       Your private key is used to sign/publish posts. 
        <br/>
       <q-input v-model="user.privatekey" filled :type="user.isPwd ? 'password' : 'text'">
@@ -138,7 +138,6 @@
         </template>
       </q-input>
         
-
         <q-stepper-navigation>
           <q-btn @click="step = 3" color="primary" label="Continue" />
           <q-btn flat @click="step = 1" color="primary" label="Back" class="q-ml-sm" />
@@ -161,7 +160,7 @@
          </div>
         </template>
         <q-stepper-navigation>
-          <q-btn color="primary" label="Finish" />
+          <q-btn color="primary" @click="finalgenerate" label="Finish" />
           <q-btn flat @click="step = 2" color="primary" label="Back" class="q-ml-sm" />
         </q-stepper-navigation>
       </q-step>
@@ -454,7 +453,7 @@ export default {
     return {
      passphrasegenerated: false,
      step: 1,
-     disabled: true,
+     disabled: false,
      link: 'inbox',      
      publishtext: '',
      search:'',
@@ -491,9 +490,16 @@ export default {
     this.showInstallBanner = true
    })
    }
- 
   },
   methods: {
+    getUrlVars() {
+    var vars = {};
+    var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
+        vars[key] = value;
+    });
+
+    return vars;
+    },
     installApp(){
      this.showInstallBanner = false
      deferredPrompt.prompt()
@@ -504,6 +510,32 @@ export default {
       console.log('User dismissed the install prompt')
      }
     })
+    },
+    finalgenerate(){
+      var stored = this.user.keystoreoption
+
+      if(stored == "external"){
+        this.$q.localStorage.set('exernal', true)
+        this.$q.localStorage.set('pubkey', this.user.publickey)
+        this.$router.push("/")
+        this.disabled = false
+        this.link = "home"
+      }
+      else if(stored == "url"){
+        this.$router.push("/" + "?pub=" + this.user.publickey + "&prv=" + this.user.privatekey)
+        this.disabled = false
+        this.link = "home" 
+      }
+      else{
+        this.$q.localStorage.set('privkey', this.user.privatekey)
+        this.$q.localStorage.set('pubkey', this.user.publickey)
+        this.$q.localStorage.set('mnemonic', this.user.passphrase)
+        this.$router.push("/")
+        this.disabled = false
+        this.link = "home"
+      }
+
+
     },
     neverInstallApp(){
       this.showInstallBanner = false
@@ -640,7 +672,7 @@ createKeys(){
   console.log(privKey)
 //  const pubkey = pointToBuffer(G.multiply(privKey)).toString('hex')
   const pubkey = G.multiply(privKey).getEncoded(true).slice(1).toString('hex')
-  this.user.publickey = root.privateKey.toString('hex')
+  this.user.publickey = pubkey
   
   console.log(pubkey)
   //console.log(privKey.toString('hex'))
@@ -694,12 +726,135 @@ createKeys(){
         dialoguestarted(){
       this.dialogpublish = true 
       this.video = false
+    },
+
+
+    /////////helpers/////////
+  makeRandom32() {
+  var array = new Uint32Array(32)
+  window.crypto.getRandomValues(array)
+  return Buffer.from(array)
+  },
+
+  pubkeyFromPrivate(privateHex) {
+  return schnorr.convert
+    .pubKeyFromPrivate(new BigInteger(privateHex, 16))
+    .toString('hex')
+  },
+
+  verifySignature(evt) {
+  try {
+    schnorr.verify(
+      Buffer.from(evt.pubkey, 'hex'),
+      Buffer.from(evt.id, 'hex'),
+      Buffer.from(evt.sig, 'hex')
+    )
+    return true
+  } catch (err) {
+    return false
+  }
+  },
+
+  async publishEvent(evt, key, hosts) {
+  let hash = shajs('sha256').update(serializeEvent(evt)).digest()
+  evt.id = hash.toString('hex')
+
+  evt.sig = schnorr
+    .sign(new BigInteger(key, 16), hash, makeRandom32())
+    .toString('hex')
+
+  return await broadcastEvent(evt, hosts)
+  },
+
+  broadcastEvent(evt, hosts) {
+  hosts.forEach(async host => {
+    if (host.length && host[host.length - 1] === '/') host = host.slice(0, -1)
+
+    let publishLogEntry = {
+      id: evt.id,
+      time: evt.created_at,
+      host
     }
+
+    try {
+      let r = await window.fetch(host + '/save_event', {
+        method: 'POST',
+        headers: {'content-type': 'application/json'},
+        body: JSON.stringify(evt)
+      })
+      if (!r.ok) throw new Error('error publishing')
+
+      db.publishlog.put({...publishLogEntry, status: 'succeeded'})
+    } catch (err) {
+      console.log(`failed to publish ${evt} to ${host}`)
+      db.publishlog.put({...publishLogEntry, status: 'failed'})
+    }
+  })
+
+  return evt
+  },
+
+ serializeEvent(evt) {
+  let version = Buffer.alloc(1)
+  version.writeUInt8(0)
+
+  let pubkey = Buffer.from(evt.pubkey, 'hex')
+
+  let time = Buffer.alloc(4)
+  time.writeUInt32BE(evt.created_at)
+
+  let kind = Buffer.alloc(1)
+  kind.writeUInt8(evt.kind)
+
+  let reference = Buffer.alloc(0)
+  if (evt.ref) {
+    reference = Buffer.from(evt.ref, 'hex')
+  }
+
+  let content = Buffer.from(evt.content)
+
+  return Buffer.concat([version, pubkey, time, kind, reference, content])
+ },
+
+ async overwriteEvent(conditions, event) {
+  let events = await db.events.where(conditions).toArray()
+
+  for (let i = 0; i < events.length; i++) {
+    // only save if it's newer than what we have
+    let evt = events[i]
+    if (evt.created_at > event.created_at) {
+      // we found a newer one
+      return true
+    }
+
+    // this is older, delete it
+    db.events.delete(evt.id)
+  }
+
+  // we didn't find a newer one
+  await db.events.put(event)
+
+  return false
+ }
+//////////end of helpers////////////
   },
     created: function () {
-      if (this.disabled){
-        window.location.href = "/#/help";
-      }
+     var pubkey
+     pubkey = this.getUrlVars()["pub"]
+     var privkey 
+     privkey = this.getUrlVars()["prv"]
+
+     if(pubkey){
+      this.$q.localStorage.set('pubkey', pubkey)    
+     }
+     pubkey = this.$q.localStorage.getItem('pubkey')
+     if(!pubkey){
+      this.disabled = true
+     }
+
+     if (this.disabled){
+      this.$router.push("/help")
+     }
   }
 
 }

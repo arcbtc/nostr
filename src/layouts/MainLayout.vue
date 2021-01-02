@@ -723,13 +723,19 @@ createKeys(){
       this.dialoggenerate = true 
       this.video = false
     },
-        dialoguestarted(){
+    dialoguestarted(){
       this.dialogpublish = true 
       this.video = false
     },
 
 
-    /////////helpers/////////
+
+
+////////////////////////////
+////////////helpers/////////
+////////////////////////////
+
+  
   makeRandom32() {
   var array = new Uint32Array(32)
   window.crypto.getRandomValues(array)
@@ -836,7 +842,14 @@ createKeys(){
 
   return false
  }
+
+
+//////////////////////////////////// 
 //////////end of helpers////////////
+////////////////////////////////////
+
+
+
   },
     created: function () {
      var pubkey

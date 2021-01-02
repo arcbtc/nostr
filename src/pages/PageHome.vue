@@ -105,7 +105,7 @@
         <q-btn  class="float-left q-mr-md"  round unelevated color="primary" icon="camera_alt" @click="initcamerahome()" size="sm" /> 
 
 
-        <q-btn label="Publish" rounded unelevated type="submit" class="float-right" color="primary"/>
+        <q-btn label="Publish" rounded unelevated @click="postEvent('',publishtext)" class="float-right" color="primary"/>
    </div>
 
 
@@ -287,7 +287,137 @@ export default {
     },
     PublishonSubmit(){
 
+    },
+
+
+
+////////////////////////////
+////////////helpers/////////
+////////////////////////////
+
+    postEvent(ref, text){
+    var eventp = {
+     "pubkey": this.$q.localStorage.getItem('pubkey'),
+     "created_at": Date.now(),
+     "kind": "text_note",
+     "ref": ref,
+     "content": text}
+     var serialised = this.serializeEvent(eventp)
+     console.log(serialised)
+
+    },
+  makeRandom32() {
+  var array = new Uint32Array(32)
+  window.crypto.getRandomValues(array)
+  return Buffer.from(array)
+  },
+
+  pubkeyFromPrivate(privateHex) {
+  return schnorr.convert
+    .pubKeyFromPrivate(new BigInteger(privateHex, 16))
+    .toString('hex')
+  },
+
+  verifySignature(evt) {
+  try {
+    schnorr.verify(
+      Buffer.from(evt.pubkey, 'hex'),
+      Buffer.from(evt.id, 'hex'),
+      Buffer.from(evt.sig, 'hex')
+    )
+    return true
+  } catch (err) {
+    return false
+  }
+  },
+
+  async publishEvent(evt, key, hosts) {
+  let hash = shajs('sha256').update(serializeEvent(evt)).digest()
+  evt.id = hash.toString('hex')
+
+  evt.sig = schnorr
+    .sign(new BigInteger(key, 16), hash, makeRandom32())
+    .toString('hex')
+
+  return await broadcastEvent(evt, hosts)
+  },
+
+  broadcastEvent(evt, hosts) {
+  hosts.forEach(async host => {
+    if (host.length && host[host.length - 1] === '/') host = host.slice(0, -1)
+
+    let publishLogEntry = {
+      id: evt.id,
+      time: evt.created_at,
+      host
     }
+
+    try {
+      let r = await window.fetch(host + '/save_event', {
+        method: 'POST',
+        headers: {'content-type': 'application/json'},
+        body: JSON.stringify(evt)
+      })
+      if (!r.ok) throw new Error('error publishing')
+
+      db.publishlog.put({...publishLogEntry, status: 'succeeded'})
+    } catch (err) {
+      console.log(`failed to publish ${evt} to ${host}`)
+      db.publishlog.put({...publishLogEntry, status: 'failed'})
+    }
+  })
+
+  return evt
+  },
+
+ serializeEvent(evt) {
+  let version = Buffer.alloc(1)
+  version.writeUInt8(0)
+
+  let pubkey = Buffer.from(evt.pubkey, 'hex')
+
+  let time = Buffer.alloc(4)
+  time.writeUInt32BE(evt.created_at)
+
+  let kind = Buffer.alloc(1)
+  kind.writeUInt8(evt.kind)
+
+  let reference = Buffer.alloc(0)
+  if (evt.ref) {
+    reference = Buffer.from(evt.ref, 'hex')
+  }
+
+  let content = Buffer.from(evt.content)
+
+  return Buffer.concat([version, pubkey, time, kind, reference, content])
+ },
+
+ async overwriteEvent(conditions, event) {
+  let events = await db.events.where(conditions).toArray()
+
+  for (let i = 0; i < events.length; i++) {
+    // only save if it's newer than what we have
+    let evt = events[i]
+    if (evt.created_at > event.created_at) {
+      // we found a newer one
+      return true
+    }
+
+    // this is older, delete it
+    db.events.delete(evt.id)
+  }
+
+  // we didn't find a newer one
+  await db.events.put(event)
+
+  return false
+ }
+
+
+//////////////////////////////////// 
+//////////end of helpers////////////
+////////////////////////////////////
+
 
   },
   filters: {

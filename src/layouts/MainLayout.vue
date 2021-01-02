@@ -83,23 +83,21 @@
         title="Generate/Restore"
         icon="settings"
         :done="step > 1"
-      > Nostr uses a private/public keypair to secure your account. 
-      <br/>
-      The private key is used to sign/publish posts (keep it safe!). 
-      <br/>
-      The public key allows other people to read your posts and follow you.
-      <br/><br/>
-      A word list of 24 words is used to create your keys, you can enter your own (seperated by spaces), or hit generate to create a fresh one.
+      > 
+      Nostr.org uses a word list of 12 words is used to create your keys, to restore either enter a word list or a Nostr private key.
      <q-input
+     :loading="user.loading"
       v-model="user.passphrase"
       autogrow
       type="textarea"
-      label="Word list"
+      label="Word List/Private Key"
       ></q-input><br/>
-       <q-btn @click="createKeys()" color="primary" label="Generate" class="q-mr-md" />  <q-btn @click="step = 2" color="primary" label="Restore" />
-        <q-stepper-navigation v-if="passphrasegenerated">
-          <q-btn @click="step = 2" color="primary" label="Generate" />
-        </q-stepper-navigation>
+      
+       <q-btn @click="createKeys()" color="primary" label="Generate" class="q-mr-md" />  <q-btn @click="step = 2" color="primary" label="Restore" class="q-mr-md" />
+       
+
+          <q-btn v-if="passphrasegenerated" @click="step=2" color="primary" label="Continue" /> 
+
       </q-step>
 
       <q-step
@@ -108,10 +106,41 @@
         icon="vpn_key"
         :done="step > 2"
       >
-        An ad group contains one or more ads which target a shared set of keywords.
+      BACKUP YOUR KEYS NOW!<br/>
+      Your private key is used to sign/publish posts. 
+       <br/>
+      <q-input v-model="user.privatekey" filled :type="user.isPwd ? 'password' : 'text'">
+          <template v-slot:prepend>
+          <q-icon
+            name="content_copy"
+            class="cursor-pointer"
+            @click="copytoclip(user.privatekey)"
+          ></q-icon>
+        </template>
+        <template v-slot:append>
+          <q-icon
+            :name="user.isPwd ? 'visibility_off' : 'visibility'"
+            class="cursor-pointer"
+            @click="user.isPwd = !user.isPwd"
+          ></q-icon>
+        </template>
+       </q-input>
+      <br/>
+      Your public key allows other people to read your posts, follow you, and send you private messages.
+      <br/>
+      <q-input v-model="user.publickey" filled type="text">
+        <template v-slot:prepend>
+          <q-icon
+            name="content_copy"
+            class="cursor-pointer"
+            @click="copytoclip(user.publickey)"
+          ></q-icon>
+        </template>
+      </q-input>
+        
 
         <q-stepper-navigation>
-          <q-btn @click="step = 4" color="primary" label="Continue" />
+          <q-btn @click="step = 3" color="primary" label="Continue" />
           <q-btn flat @click="step = 1" color="primary" label="Back" class="q-ml-sm" />
         </q-stepper-navigation>
       </q-step>
@@ -120,11 +149,17 @@
         :name="3"
         title="Key storage"
         icon="lock"
-      >
-        Try out different ad text to see what brings in the most customers, and learn how to
-        enhance your ads using features like ad extensions. If you run into any problems with
-        your ads, find out how to tell if they're running and how to resolve approval issues.
-
+      > 
+        To publish your posts this client needs to sign messages with your private key. Choose how this client will access your private key.
+        <template>
+         <div class="q-pa-md q-gutter-sm">
+          <div class="q-gutter-sm">
+           <q-radio dense v-model="user.keystoreoption" val="local" label="Local Storage (Recommended)" /><br/>
+           <q-radio dense v-model="user.keystoreoption" val="url" label="URL (Bookmark to save)" /><br/>
+           <q-radio dense v-model="user.keystoreoption" val="external" label="Externally (Highly experimental)" /><br/>
+          </div>
+         </div>
+        </template>
         <q-stepper-navigation>
           <q-btn color="primary" label="Finish" />
           <q-btn flat @click="step = 2" color="primary" label="Back" class="q-ml-sm" />
@@ -359,9 +394,25 @@
 
 
 
-      <q-footer bordered style="bottom: 0%;position: fixed;" class="bg-white small-screen-only" >
+      <q-footer bordered style="bottom: 0%;position: fixed;" class="bg-white" >
+
+            <q-banner v-if="showInstallBanner" inline-actions dense class="bg-primary text-white">
+
+              <template v-slot:avatar>
+                <q-avatar>
+      <img src="/icons/favicon-16x16.png">
+    </q-avatar>
+              </template>
+     <b> INSTALL NOSTR?</b>
+
+      <template v-slot:action>
+        <q-btn flat @click="installApp" dense class="q-px-sm" label="Yes"></q-btn>
+        <q-btn flat @click="showInstallBanner = false" dense class="q-px-sm" label="Later"></q-btn>
+        <q-btn flat @click="neverInstallApp" dense class="q-px-sm" label="Never"></q-btn>
+      </template>
+    </q-banner>
         <center>
-          <q-tabs class="text-primary">
+          <q-tabs class="text-primary small-screen-only">
         <q-route-tab  style="width: 20%;" name="home" icon="home" to="/"/>
         <q-route-tab  style="width: 20%;" name="notifications" icon="notifications" to="/notifications"/>
         <q-route-tab style="width: 20%;" name="messages" icon="email" to="/messages"/>
@@ -377,10 +428,8 @@
 </template>
 
 
-
-
-
 <script>
+let deferredPrompt
 require('md-gum-polyfill')
 var crypto = require('crypto')
 var bitcoin = require("bitcoinjs-lib")
@@ -389,10 +438,15 @@ const bip32 = require('bip32')
 const bs58 = require('bs58')
 var wif = require("wif")
 const Buffer = require('safe-buffer').Buffer 
-const BigInteger = require('bigi')
-const schnorr = require('bip-schnorr')
+
 const convert = schnorr.convert
 import shajs from 'sha.js'
+import BigInteger from 'bigi'
+import schnorr from 'bip-schnorr'
+import { copyToClipboard } from 'quasar'
+const ecurve = require('ecurve');
+const curve = ecurve.getCurveByName('secp256k1')
+const G = curve.G
 
 export default {
   name: 'MainLayout',
@@ -410,8 +464,12 @@ export default {
      dialoggenerate: false,
      activatevideo:false,
      imageCaptured: false,
+     showInstallBanner: false,
      user:{
-      passphrase: ''
+      isPwd: true,
+      passphrase: '',
+      keystoreoption: 'local',
+      loading: false
      },
      newpost:{
         user: '',
@@ -423,7 +481,49 @@ export default {
 
 
   },
+  mounted(){
+  let value = this.$q.localStorage.getItem('neverShowBanner')
+  if(!value){
+  window.addEventListener('beforeinstallprompt', (e) => {
+   e.preventDefault()
+   deferredPrompt = e
+   
+    this.showInstallBanner = true
+   })
+   }
+ 
+  },
   methods: {
+    installApp(){
+     this.showInstallBanner = false
+     deferredPrompt.prompt()
+     deferredPrompt.userChoice.then((choiceResult) => {
+     if (choiceResult.outcome === 'accepted') {
+      console.log('User accepted the install prompt')
+     } else {
+      console.log('User dismissed the install prompt')
+     }
+    })
+    },
+    neverInstallApp(){
+      this.showInstallBanner = false
+      try {
+       this.$q.localStorage.set('neverShowBanner', true)
+      } catch (e) {
+       console.log(e)
+      }
+    },
+    copytoclip(text){
+      copyToClipboard(text)
+      .then(() => {
+       this.$q.notify({
+        message: 'COPIED'})
+      })
+      .catch(() => {
+        this.$q.notify({type: 'negative',
+        message: 'FAILED'})
+      })
+    },
   captureimage(){
       let video = this.$refs.video
       let canvas = this.$refs.canvas
@@ -520,25 +620,42 @@ broadcastEvent(evt, hosts) {
   return evt
 },
 createKeys(){
+
   var  randomBytes = crypto.randomBytes(16)
   var mnemonic = bip39.entropyToMnemonic(randomBytes.toString('hex')) 
+
+  this.user.passphrase = mnemonic
+  this.$q.notify({
+        message: 'MAKE SURE YOU BACKUP YOUR WORD LIST'})
+
   const seed = bip39.mnemonicToSeedSync(mnemonic)
   const root = bip32.fromSeed(seed)
   const path = "m/0'/0/0"
-
   const child1 = root.derivePath(path)
-
+  this.passphrasegenerated = true
   console.log(root.privateKey.toString('hex'))
-  console.log("cunt?".toString('hex'))
-
-
-
-  const privKey = BigInteger.fromHex(root.privateKey.toString('hex'));
+  this.user.privatekey = root.privateKey.toString('hex')
   
-  const message = Buffer.from(this.hexToBytes("Ooo, what a cunt".toString('hex')), 'hex');
-  const createdSignature = schnorr.sign(privKey, message);
-  console.log(createdSignature)
-  console.log('The signature is: ' + createdSignature.toString('hex'));
+  const privKey = BigInteger.fromHex(root.privateKey.toString('hex'));
+  console.log(privKey)
+//  const pubkey = pointToBuffer(G.multiply(privKey)).toString('hex')
+  const pubkey = G.multiply(privKey).getEncoded(true).slice(1).toString('hex')
+  this.user.publickey = root.privateKey.toString('hex')
+  
+  console.log(pubkey)
+  //console.log(privKey.toString('hex'))
+  const mess = ("what a cunt").toString('hex');
+//  const message = pointToBuffer('243F6A8885A308D313198A2E03707344A4093822299F31D0082EFA98EC4E6C89', 'hex');
+//  const createdSignature = schnorr.sign(privKey, message);
+//  console.log('The signature is: ' + createdSignature.toString('hex'));
+
+//  console.log(privKey)
+
+  
+ // const message = Buffer.from(this.hexToBytes("Ooo, what a cunt".toString('hex')), 'hex');
+ // const createdSignature = schnorr.sign(privKey, message);
+ // console.log(createdSignature)
+ // console.log('The signature is: ' + createdSignature.toString('hex'));
 
   },
     photoverify(){

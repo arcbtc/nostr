@@ -92,7 +92,13 @@ module.exports = function (/* ctx */) {
       // directives: [],
 
       // Quasar plugins
-      plugins: []
+      plugins: [
+      'LocalStorage',
+      'Notify'
+      ],
+      config: {
+        loading: { /* look at QUASARCONFOPTIONS from the API card (bottom of page) */ }
+      }
     },
 
     // animations: 'all', // --- includes all animations
@@ -109,13 +115,13 @@ module.exports = function (/* ctx */) {
       workboxPluginMode: 'GenerateSW', // 'GenerateSW' or 'InjectManifest'
       workboxOptions: {}, // only for GenerateSW
       manifest: {
-        name: `Nostr`,
+        name: `Nostr - Decentralised Twitter`,
         short_name: `Nostr`,
         description: `280 character limited social network using the nostr protocol`,
         display: 'standalone',
         orientation: 'portrait',
         background_color: '#ffffff',
-        theme_color: '#027be3',
+        theme_color: '#26A69A',
         icons: [
           {
             src: 'icons/icon-128x128.png',

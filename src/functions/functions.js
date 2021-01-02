@@ -1,15 +1,6 @@
-<template>
-  <div id="q-app">
-    <router-view />
-  </div>
-</template>
-<script>
-export default {
-  name: 'App',
-    created () {
-    this.$q.dark.set(true)
-  }
-}
+import shajs from 'sha.js'
+import BigInteger from 'bigi'
+import schnorr from 'bip-schnorr'
 
 export function makeRandom32() {
   var array = new Uint32Array(32)
@@ -21,10 +12,6 @@ export function pubkeyFromPrivate(privateHex) {
   return schnorr.convert
     .pubKeyFromPrivate(new BigInteger(privateHex, 16))
     .toString('hex')
-}
-
-export function willy() {
-  console.log("willytastic")
 }
 
 export function verifySignature(evt) {
@@ -121,5 +108,3 @@ export async function overwriteEvent(conditions, event) {
 
   return false
 }
-
-</script>

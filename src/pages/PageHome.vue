@@ -25,7 +25,6 @@
               </div>
             </div>
           </center>
-
           <q-input
             style="font-size: 20px;"
             v-model="publishtext"
@@ -100,22 +99,24 @@
               <q-popup-proxy>
                 <q-btn
                   v-for="emoji in emojis1"
-                  @click="publishtext = publishtext + emoji"
+                  :key="emoji.item"
+                  @click="publishtext = publishtext + emoji.item"
                   flat
                   rounded
                   unelevated
                   dense
-                  >{{ emoji }}</q-btn
+                  >{{ emoji.item }}</q-btn
                 >
                 <br />
                 <q-btn
                   v-for="emoji in emojis2"
-                  @click="publishtext = publishtext + emoji"
+                  :key="emoji.item"
+                  @click="publishtext = publishtext + emoji.item"
                   flat
                   rounded
                   unelevated
                   dense
-                  >{{ emoji }}</q-btn
+                  >{{ emoji.item }}</q-btn
                 >
               </q-popup-proxy>
             </q-btn>
@@ -272,8 +273,28 @@ export default {
         image: null,
         date: Date.now(),
       },
-      emojis1: ["😂", "😃", "😍", "😘", "😭", "😂", "🤣", "🧐", "👊", "🤘"],
-      emojis2: ["👌", "🙌", "🤦", "🎅", "🚀", "🔥", "💯", "⚡", "🏴󠁧󠁢󠁷󠁬󠁳󠁿", "🌑"],
+      emojis1: [
+        { item: "😂" },
+        { item: "😃" },
+        { item: "😍" },
+        { item: "😘" },
+        { item: "😭" },
+        { item: "🤣" },
+        { item: "🧐" },
+        { item: "👊" },
+        { item: "🤘" },
+      ],
+      emojis2: [
+        { item: "👌" },
+        { item: "🙌" },
+        { item: "🤦" },
+        { item: "🚀" },
+        { item: "🔥" },
+        { item: "💯" },
+        { item: "⚡" },
+        { item: "🏴󠁧󠁢󠁷󠁬󠁳󠁿" },
+        { item: "🌑" },
+      ],
       posts: [],
     };
   },

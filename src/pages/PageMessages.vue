@@ -40,7 +40,8 @@
 </template>
 
 <script>
-const Cryptr = require("cryptr");
+const crypto = require("crypto");
+const secp = require("noble-secp256k1");
 
 import { myHelpers } from "../boot/helpers.js";
 
@@ -58,6 +59,22 @@ export default {
 	},
 	mixins: [myHelpers],
 	methods: {
+		sendDM() {
+			const sk1 =
+				"2ed253ab0ad9aa18d77257c88b29b718e6b911fd37cdf5c81d4c0adb1ab7fa82";
+			const pk1 = secp.getPublicKey(sk1);
+
+			console.log(pk1);
+
+			const sk2 =
+				"6b911fd37cdf5c81d4c0adb1ab7fa822ed253ab0ad9aa18d77257c88b29b718e";
+			const pk2 = secp.getPublicKey(sk2);
+
+			console.log(pk2);
+
+			console.log(secp.getSharedSecret(sk1, pk2));
+			console.log(secp.getSharedSecret(sk2, pk1));
+		},
 		MessageonSubmit() {
 			if (this.accept !== true) {
 				this.$q.notify({

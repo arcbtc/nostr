@@ -2,48 +2,29 @@
 	<q-page>
 		<h6 class="q-ma-none">Messages</h6>
 		<br />
-
-		<q-form
-			@submit="MessageonSubmit"
-			style="max-width: 400px"
-			class="q-gutter-md"
-		>
-			<p>
-				All private messages are end-to-end encrypted.
-			</p>
-			<q-input
-				filled
-				type="text"
-				v-model="message.message"
-				hint="500 char message"
-			/>
-
-			<q-select
-				filled
-				v-model="message.publickey"
-				:options="follows"
-				use-input
-				multiple
-				option-value="pub"
-				option-label="name"
-				use-chips
-				stack-label
-				input-debounce="0"
-				label="Simple filter"
-				@filter="filterFn"
-				style="width: 300px"
-			>
-				<template v-slot:after>
-					<q-btn
-						unelevated
-						label="Send"
-						@click="sendDM()"
-						type="submit"
-						color="primary"
-					/>
-				</template>
-			</q-select>
-		</q-form>
+		<div class="column" style="height: 700px">
+			<div class="col-11 col-md-11"></div>
+			<div class="col-1 col-md-1">
+				<q-form @submit="MessageonSubmit" style="max-width: 400px">
+					<q-input
+						filled
+						type="text"
+						v-model="message.message"
+						hint="500 char message"
+					>
+						<template v-slot:after>
+							<q-btn
+								unelevated
+								label="Send"
+								@click="sendDM()"
+								type="submit"
+								color="primary"
+							/>
+						</template>
+					</q-input>
+				</q-form>
+			</div>
+		</div>
 	</q-page>
 </template>
 

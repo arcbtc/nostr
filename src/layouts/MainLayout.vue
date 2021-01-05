@@ -2,18 +2,35 @@
   <q-layout>
     <q-dialog v-model="dialogpublish">
       <q-card style="width:500px" class="q-pa-md q-pt-lg">
-        <q-form style="width:100%" @submit="PubonSubmit" class="q-gutter-md">
+        <q-form
+          style="width:100%;"
+          @submit="PublishonSubmit"
+          class="q-gutter-md"
+        >
+          <center>
+            <div class="column" style="width:200px" v-show="homeembedimage">
+              <div class="col">
+                <q-btn
+                  flat
+                  round
+                  color="red"
+                  icon="clear"
+                  size="sm"
+                  class="float-right"
+                  @click="discamerahome()"
+                />
+              </div>
+              <div class="col-12">
+                <img width="200" class="q-ma-sm" :src="newpost.imagetemp" />
+              </div>
+            </div>
+          </center>
           <q-input
             style="font-size: 20px;"
             v-model="publishtext"
             autogrow
             label="Say something"
-            lazy-rules
-            :rules="[
-              (val) =>
-                (val !== null && val.length > 280) ||
-                'Less than 280 characters',
-            ]"
+            maxlength="280"
           >
             <template v-slot:before>
               <q-avatar>
@@ -22,7 +39,7 @@
             </template>
           </q-input>
 
-          <div class="column" v-if="activatevideo == true">
+          <div class="column" v-show="activatevideohome == true">
             <div class="col-9 q-mx-auto">
               <video
                 v-show="!imageCaptured"
@@ -41,9 +58,10 @@
                 unelevated
                 color="primary"
                 icon="cancel"
-                @click="discamera()"
+                @click="discamerahome()"
                 size="lg"
               />
+
               <q-btn
                 flat
                 class="float-right "
@@ -54,11 +72,57 @@
                 @click="captureimage()"
                 size="lg"
               />
+              <q-btn
+                v-show="imageCaptured"
+                flat
+                class="float-right "
+                rounded
+                unelevated
+                color="primary"
+                icon="check_circle"
+                @click="photoverify()"
+                size="lg"
+              />
             </div>
           </div>
 
           <div class="float-right">
             <q-btn
+              v-if="publishtext.length < 280"
+              class="float-left q-mr-md"
+              round
+              unelevated
+              color="primary"
+              icon="insert_emoticon"
+              size="sm"
+            >
+              <q-popup-proxy>
+                <q-btn
+                  v-for="emoji in emojis1"
+                  :key="emoji.item"
+                  @click="publishtext = publishtext + emoji.item"
+                  flat
+                  rounded
+                  unelevated
+                  dense
+                  >{{ emoji.item }}</q-btn
+                >
+                <br />
+                <q-btn
+                  v-for="emoji in emojis2"
+                  :key="emoji.item"
+                  @click="publishtext = publishtext + emoji.item"
+                  flat
+                  rounded
+                  unelevated
+                  dense
+                  >{{ emoji.item }}</q-btn
+                >
+              </q-popup-proxy>
+            </q-btn>
+            <q-btn
+              v-else
+              disable
               class="float-left q-mr-md"
               round
               unelevated
@@ -67,30 +131,39 @@
               size="sm"
             />
 
+            <q-file
+              ref="myFileInput"
+              accept="image/*"
+              @input="captureimageupload"
+              style="display:none"
+              v-model="imagefile"
+              type="file"
+              label="Standard"
+            ></q-file>
+
             <q-btn
               class="float-left q-mr-md"
               round
               unelevated
               color="primary"
+              @click="getFile"
               icon="insert_photo"
               size="sm"
             />
-
             <q-btn
               class="float-left q-mr-md"
               round
               unelevated
               color="primary"
               icon="camera_alt"
-              @click="initcamera()"
+              @click="initcamerahome()"
               size="sm"
             />
-
             <q-btn
               label="Publish"
               rounded
               unelevated
-              type="submit"
+              @click="postEvent('', publishtext)"
               class="float-right"
               color="primary"
             />
@@ -275,34 +348,6 @@
                       </q-item-section>
 
                       <q-item-section>Home</q-item-section>
-                    </q-item>
-
-                    <q-item
-                      v-if="disabled"
-                      :disabled="disabled"
-                      style="padding: 15px;"
-                    >
-                      <q-item-section avatar>
-                        <q-icon name="notifications"></q-icon>
-                      </q-item-section>
-
-                      <q-item-section>Notifications</q-item-section>
-                    </q-item>
-                    <q-item
-                      v-else
-                      clickable
-                      v-ripple
-                      :active="link === 'notifications'"
-                      @click="link = 'notifications'"
-                      active-class="my-menu-link"
-                      :to="'/notifications'"
-                      style="padding: 15px;"
-                    >
-                      <q-item-section avatar>
-                        <q-icon name="notifications"></q-icon>
-                      </q-item-section>
-
-                      <q-item-section>Notifications</q-item-section>
                     </q-item>
 
                     <q-item
@@ -549,12 +594,42 @@ export default {
         keystoreoption: "local",
         loading: false,
       },
+      publishtext: "",
+      emojiOn: false,
+      activatevideohome: false,
+      imageCaptured: false,
+      hasCamerasuport: true,
+      homeembedimage: false,
+      imagefile: "",
       newpost: {
         user: "",
-        image: "",
         message: "",
+        image: null,
         date: Date.now(),
       },
+      emojis1: [
+        { item: "😂" },
+        { item: "😃" },
+        { item: "😍" },
+        { item: "😘" },
+        { item: "😭" },
+        { item: "🤣" },
+        { item: "🧐" },
+        { item: "👊" },
+        { item: "🤘" },
+      ],
+      emojis2: [
+        { item: "👌" },
+        { item: "🙌" },
+        { item: "🤦" },
+        { item: "🚀" },
+        { item: "🔥" },
+        { item: "💯" },
+        { item: "⚡" },
+        { item: "🏴󠁧󠁢󠁷󠁬󠁳󠁿" },
+        { item: "🌑" },
+      ],
+      posts: [],
     };
   },
   mounted() {

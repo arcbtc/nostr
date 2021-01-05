@@ -1,6 +1,20 @@
 export const myHelpers = {
 	data() {
-		return {};
+		return {
+			follows: [
+				{
+					name: "@satoshi",
+					pub:
+						"9e10c85f4baf021b88b4d19534ac25b81a5ca2a1fc99c8fe2e3bb40e85f9d10",
+				},
+				{
+					name:
+						"d4b773cf863db6f66d6db69b70e841272abb1ca483d67a3fdf8a57977515a80f",
+					pub:
+						"d4b773cf863db6f66d6db69b70e841272abb1ca483d67a3fdf8a57977515a80f",
+				},
+			],
+		};
 	},
 	methods: {
 		sendDM(message) {

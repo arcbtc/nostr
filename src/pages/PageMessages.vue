@@ -27,7 +27,7 @@
 							<q-btn
 								unelevated
 								label="Send"
-								@click="sendDM()"
+								@click="sendDM(message.message)"
 								type="submit"
 								color="primary"
 							/>
@@ -40,10 +40,11 @@
 </template>
 
 <script>
-const Cryptr = require("cryptr");
+
 
 import { myHelpers } from "../boot/helpers.js";
-
+const crypto = require('crypto')
+const openpgp = require('openpgp'); // use as CommonJS, AMD, ES6 module or via window.openpgp
 export default {
 	name: "PageSettings",
 	data() {
@@ -58,6 +59,24 @@ export default {
 	},
 	mixins: [myHelpers],
 	methods: {
+
+
+	async sendDM(message) {
+	  const pubkey = this.$q.localStorage.getItem("pubkey")
+	  const privkey = this.$q.localStorage.getItem("privkey")
+      let sodium = await SodiumPlus.auto()
+      let Keypair = await sodium.crypto_box_keypair(pubkey, privkey)
+      let secretKey = await sodium.crypto_box_secretkey(Keypair)
+      let publicKey = await sodium.crypto_box_publickey(Keypair)
+      let encrypted = await sodium.crypto_box_seal(message, publicKey)
+      let decrypted = await sodium.crypto_box_seal_open(encrypted, publicKey, secretKey)
+      var string = new TextDecoder("utf-8").decode(decrypted)
+      console.log(string)
+    },
+
+		async workeron(){
+           await openpgp.initWorker({ path: 'openpgp.worker.js' });
+		},
 		MessageonSubmit() {
 			if (this.accept !== true) {
 				this.$q.notify({

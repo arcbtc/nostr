@@ -10,9 +10,16 @@
   },
   "dependencies": {
     "@quasar/extras": "^1.0.0",
+    "asymmetric-crypto": "^1.0.2",
     "axios": "^0.18.1",
+    "bluebird": "^3.7.2",
     "core-js": "^3.6.5",
+    "js-crypto-key-utils": "^1.0.0",
+    "libsodium": "^0.7.8",
     "md-gum-polyfill": "^1.0.0",
+    "node-rsa": "^1.1.1",
+    "nostr-tools": "0.0.2",
+    "openpgp": "^4.10.9",
     "quasar": "^1.14.7"
   },
   "devDependencies": {

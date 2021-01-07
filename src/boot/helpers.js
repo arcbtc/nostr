@@ -17,18 +17,7 @@ export const myHelpers = {
 		};
 	},
 	methods: {
-		sendDM(message) {
-			const cryptr = new Cryptr(
-				this.$q.localStorage.getItem("privatekey")
-			);
-			const encryptedString = cryptr.encrypt(message);
-		},
-		readDM(message) {
-			const cryptr = new Cryptr(
-				this.$q.localStorage.getItem("privatekey")
-			);
-			const encryptedString = cryptr.encrypt(message);
-		},
+
 		captureimage() {
 			let video = this.$refs.video;
 			let canvas = this.$refs.canvas;

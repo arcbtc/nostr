@@ -231,10 +231,9 @@
 
 <script>
 import { date } from "quasar";
-require("md-gum-polyfill");
-import { Picker } from "emoji-mart-vue";
+require("md-gum-polyfill")
 let deferredPrompt;
-require("md-gum-polyfill");
+
 var crypto = require("crypto");
 var bitcoin = require("bitcoinjs-lib");
 const bip39 = require("bip39");
@@ -251,13 +250,14 @@ import { copyToClipboard } from "quasar";
 const ecurve = require("ecurve");
 const curve = ecurve.getCurveByName("secp256k1");
 const G = curve.G;
+import {relayConnect} from 'nostr-tools'
 import { myHelpers } from "../boot/helpers.js";
+
+
 
 export default {
   name: "PageHome",
-  components: {
-    Picker,
-  },
+
   data() {
     return {
       publishtext: "",

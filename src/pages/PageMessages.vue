@@ -48,9 +48,7 @@
 <script>
 const crypto = require("crypto");
 const secp = require("noble-secp256k1");
-import {relayConnect} from 'nostr-tools'
-import {pubkeyFromPrivate} from 'nostr-tools'
-import {signEvent} from 'nostr-tools'
+import { relayPool } from "nostr-tools";
 import { myHelpers } from "../boot/helpers.js";
 
 export default {
@@ -68,45 +66,43 @@ export default {
 	mixins: [myHelpers],
 
 	methods: {
-	 sendDM(message, pubkey) {
-        console.log(this.$q.localStorage.getItem("privkey"))
-	 	var pub = pubkeyFromPrivate(this.$q.localStorage.getItem("privkey"))
-	 	console.log(pub)
-	    console.log('got event with context')
-		console.log(message)
-		console.log(pubkey)
-		var context = "n"
-		var preEventSig = [0,"373838592a228bb188c4100e12aa14366c3d6748fa98cef30c26df75dda20734".toString("hex"),Math.floor(Date.now() / 1000),1,[],"Hello world"]
-		console.log(preEventSig)
-        var postEventSig = signEvent(preEventSig, this.$q.localStorage.getItem("privkey"))
-        console.log(postEventSig)
-		const relay = relayConnect('https://nostr-relay.bigsun.xyz/', ("p", 
-         postEventSig
-			) => {
-	    console.log('got event with context', event, context)})
+		async sendDM(message, pubkey) {
+			const pool = relayPool();
 
-		console.log(relay.url)
-		relay.subkey('<hexkey>')
-		relay.homeFeed()
-		relay.sendEvent(event)
+			pool.setPrivateKey(this.$q.localStorage.getItem("privkey")); // optional
 
-		},
-		MessageonSubmit() {
-			if (this.accept !== true) {
-				this.$q.notify({
-					color: "red-5",
-					textColor: "white",
-					icon: "warning",
-					message: "You need to accept the license and terms first",
-				});
-			} else {
-				this.$q.notify({
-					color: "green-4",
-					textColor: "white",
-					icon: "cloud_done",
-					message: "Submitted",
-				});
-			}
+			pool.addRelay("wss://nostr-relay.bigsun.xyz", {
+				read: true,
+				write: true,
+			});
+
+			pool.onEvent((event, context, relay) => {
+				console.log(
+					`got a relay with context ${context} from ${relay.url} which is already validated.`,
+					event
+				);
+			});
+			console.log(pool);
+			// subscribing to users and requesting specific users or events:
+			pool.subKey(
+				"f9e10c85f4baf021b88b4d19534ac25b81a5ca2a1fc99c8fe2e3bb40e85f9d10"
+			);
+
+			await pool.reqFeed();
+			//pool.reqEvent({id: '<hex>'})
+			//pool.reqKey({key: '<hex>'})
+			// upon request the events will be received on .onEvent above
+
+			// publishing events:
+			//pool.publish(<event object>)
+			// it will be signed automatically with the key supplied above
+			// or pass an already signed event to bypass this
+
+			// subscribing to a new relay
+			//pool.addRelay('<url>')
+			// will automatically subscribe to the all the keys called with .subKey above
+
+			console.log(pool);
 		},
 
 		MessageonReset() {

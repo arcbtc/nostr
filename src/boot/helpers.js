@@ -17,7 +17,6 @@ export const myHelpers = {
 		};
 	},
 	methods: {
-
 		captureimage() {
 			let video = this.$refs.video;
 			let canvas = this.$refs.canvas;
@@ -109,153 +108,32 @@ export const myHelpers = {
 			this.homeembedimage = true;
 			this.activatevideohome = false;
 		},
-		PublishonSubmit() {},
-
-		////////////////////////////
-		////////////helpers/////////
-		////////////////////////////
-
-		postEvent(ref, text) {
-			console.log(text);
-			var eventp = {
-				pubkey: this.$q.localStorage.getItem("pubkey"),
-				created_at: Math.floor(Date.now() / 1000),
-				kind: 1,
-				ref: ref,
-				content: text,
-			};
-			console.log(eventp);
-			this.publishEvent(
-				eventp,
-				this.$q.localStorage.getItem("privatekey"),
-				["https://nostr-relay.bigsun.xyz", "https://nostr.coinos.io"]
-			);
-		},
-		makeRandom32() {
-			var array = new Uint32Array(32);
-			window.crypto.getRandomValues(array);
-			return Buffer.from(array);
-		},
-
-		pubkeyFromPrivate(privateHex) {
-			return schnorr.convert
-				.pubKeyFromPrivate(new BigInteger(privateHex, 16))
-				.toString("hex");
-		},
-
-		verifySignature(evt) {
-			try {
-				schnorr.verify(
-					Buffer.from(evt.pubkey, "hex"),
-					Buffer.from(evt.id, "hex"),
-					Buffer.from(evt.sig, "hex")
-				);
-				return true;
-			} catch (err) {
-				return false;
-			}
-		},
-
-		async publishEvent(evt, key, hosts) {
-			let hash = shajs("sha256")
-				.update(this.serializeEvent(evt))
-				.digest();
-			evt.id = hash.toString("hex");
-			console.log(evt);
-			evt.sig = schnorr
-				.sign(new BigInteger(key, 16), hash, this.makeRandom32())
-				.toString("hex");
-
-			return await this.broadcastEvent(evt, hosts);
-		},
-
-		broadcastEvent(evt, hosts) {
-			hosts.forEach(async (host) => {
-				if (host.length && host[host.length - 1] === "/")
-					host = host.slice(0, -1);
-
-				let publishLogEntry = {
-					id: evt.id,
-					time: evt.created_at,
-					host,
-				};
-
-				try {
-					let r = await window.fetch(host + "/save_event", {
-						method: "POST",
-						headers: { "content-type": "application/json" },
-						body: JSON.stringify(evt),
-					});
-					if (!r.ok) throw new Error("error publishing");
-
-					db.publishlog.put({
-						...publishLogEntry,
-						status: "succeeded",
-					});
-				} catch (err) {
-					console.log(`failed to publish ${evt} to ${host}`);
-					db.publishlog.put({ ...publishLogEntry, status: "failed" });
-				}
-			});
-
-			return evt;
-		},
-
-		serializeEvent(evt) {
-			let version = Buffer.alloc(1);
-			version.writeUInt8(0);
-
-			let pubkey = Buffer.from(evt.pubkey, "hex");
-
-			let time = Buffer.alloc(4);
-			console.log(time);
-			time.writeUInt32BE(evt.created_at);
-
-			console.log(time);
-
-			let kind = Buffer.alloc(1);
-			kind.writeUInt8(evt.kind);
-
-			let reference = Buffer.alloc(0);
-			if (evt.ref) {
-				reference = Buffer.from(evt.ref, "hex");
-			}
-
-			let content = Buffer.from(evt.content);
-			console.log(content);
-			return Buffer.concat([
-				version,
-				pubkey,
-				time,
-				kind,
-				reference,
-				content,
-			]);
-		},
-
-		async overwriteEvent(conditions, event) {
-			let events = await db.events.where(conditions).toArray();
-
-			for (let i = 0; i < events.length; i++) {
-				// only save if it's newer than what we have
-				let evt = events[i];
-				if (evt.created_at > event.created_at) {
-					// we found a newer one
-					return true;
-				}
-
-				// this is older, delete it
-				db.events.delete(evt.id);
-			}
-
-			// we didn't find a newer one
-			await db.events.put(event);
-
-			return false;
-		},
 
 		////////////////////////////////////
-		//////////end of helpers////////////
+		//////////start nostr helpers///////
+		////////////////////////////////////
+		PublishonSubmit() {},
+
+		async sendPost(message) {
+			const pool = relayPool();
+
+			pool.setPrivateKey(this.$q.localStorage.getItem("privkey")); // optional
+
+			pool.addRelay("wss://nostr-relay.bigsun.xyz", {
+				read: true,
+				write: true,
+			});
+
+			pool.onEvent((event, context, relay) => {
+				console.log(
+					`got a relay with context ${context} from ${relay.url} which is already validated.`,
+					event
+				);
+			});
+			console.log(pool);
+		},
+		////////////////////////////////////
+		////////////end nostr helpers///////
 		////////////////////////////////////
 	},
 	filters: {

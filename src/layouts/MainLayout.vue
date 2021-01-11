@@ -568,7 +568,7 @@ import { copyToClipboard } from "quasar";
 const ecurve = require("ecurve");
 const curve = ecurve.getCurveByName("secp256k1");
 const G = curve.G;
-
+import { relayConnect } from "nostr-tools";
 import { myHelpers } from "../boot/helpers.js";
 
 export default {

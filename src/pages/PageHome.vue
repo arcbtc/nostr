@@ -4,7 +4,7 @@
       <div class="row" style="width:100%">
         <q-form
           style="width:100%;"
-          @submit="PublishonSubmit"
+          @submit="sendPost(publishtext)"
           class="q-gutter-md"
         >
           <center>
@@ -163,7 +163,7 @@
               label="Publish"
               rounded
               unelevated
-              @click="postEvent('', publishtext)"
+              type="submit"
               class="float-right"
               color="primary"
             />
@@ -231,7 +231,7 @@
 
 <script>
 import { date } from "quasar";
-require("md-gum-polyfill")
+require("md-gum-polyfill");
 let deferredPrompt;
 
 var crypto = require("crypto");
@@ -242,18 +242,17 @@ const bs58 = require("bs58");
 var wif = require("wif");
 const Buffer = require("safe-buffer").Buffer;
 
-const convert = schnorr.convert;
-import shajs from "sha.js";
-import BigInteger from "bigi";
-import schnorr from "bip-schnorr";
+//const convert = schnorr.convert;
+import { relayPool } from "nostr-tools";
+//import shajs from "sha.js";
+//import BigInteger from "bigi";
+//import schnorr from "bip-schnorr";
 import { copyToClipboard } from "quasar";
 const ecurve = require("ecurve");
 const curve = ecurve.getCurveByName("secp256k1");
 const G = curve.G;
-import {relayConnect} from 'nostr-tools'
+
 import { myHelpers } from "../boot/helpers.js";
-
-
 
 export default {
   name: "PageHome",
@@ -299,6 +298,48 @@ export default {
     };
   },
   mixins: [myHelpers],
-  methods: {},
+  methods: {
+    async sendPost(message) {
+      const pool = relayPool();
+
+      pool.setPrivateKey(this.$q.localStorage.getItem("privkey")); // optional
+
+      pool.addRelay("wss://nostr-relay.bigsun.xyz", {
+        read: true,
+        write: true,
+      });
+
+      pool.onEvent((event, context, relay) => {
+        console.log(
+          `got a relay with context ${context} from ${relay.url} which is already validated.`,
+          event
+        );
+      });
+      console.log(pool);
+
+      const timest = Math.floor(Date.now() / 1000);
+      var eventObject = {
+        pubkey: String(this.$q.localStorage.getItem("pubkey")),
+        created_at: timest,
+        kind: 1,
+        tags: [],
+        content: message,
+      };
+      console.log(eventObject);
+      pool.subKey(String(this.$q.localStorage.getItem("pubkey")));
+      console.log("over");
+      pool.publish(eventObject);
+      // publishing events:
+      // it will be signed automatically with the key supplied above
+      // or pass an already signed event to bypass this
+
+      // subscribing to a new relay
+      //pool.addRelay('<url>')
+      // will automatically subscribe to the all the keys called with .subKey above
+      // subscribing to users and requesting specific users or events:
+
+      await pool.reqFeed();
+    },
+  },
 };
 </script>

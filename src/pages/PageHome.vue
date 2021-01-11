@@ -341,5 +341,20 @@ export default {
       await pool.reqFeed();
     },
   },
+  filters: {
+    //prefer handle over user
+    handler(value, value2) {
+      if (value != "") {
+        return value;
+      } else {
+        return value2;
+      }
+    },
+    //make timestamp look nice
+    niceDate(value) {
+      let formattedString = date.formatDate(value, "YYYY MMM D h:mm A");
+      return formattedString;
+    },
+  },
 };
 </script>

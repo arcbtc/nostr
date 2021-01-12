@@ -471,11 +471,40 @@
           <div class="col-4  large-screen-only">
             <q-card class="float-left no-shadow">
               <q-card-section>
-                <q-input dense rounded outlined v-model="search">
+                <q-input dense rounded outlined v-model="addPubkey">
                   <template v-slot:append>
-                    <q-btn round dense flat icon="search" />
+                    <q-btn
+                      round
+                      dense
+                      flat
+                      icon="add"
+                      @click="addPubFollow(addPubkey)"
+                    />
                   </template>
                 </q-input>
+              </q-card-section>
+              <q-card-section v-if="followlist">
+                <h6 class="q-ma-none">Following</h6>
+                <div class="q-pa-md" style="max-width: 350px">
+                  <q-list separator>
+                    <q-item
+                      clickable
+                      v-ripple
+                      v-for="followed in following"
+                      :key="followed.id"
+                    >
+                      <q-item-section avatar>
+                        <q-avatar rounded>
+                          <img :src="followed.avatar" />
+                        </q-avatar>
+                      </q-item-section>
+
+                      <q-item-section>{{
+                        followed.pubkey.substring(0, 10) + "..."
+                      }}</q-item-section>
+                    </q-item>
+                  </q-list>
+                </div>
               </q-card-section>
             </q-card>
           </div>
@@ -568,70 +597,13 @@ import { copyToClipboard } from "quasar";
 const ecurve = require("ecurve");
 const curve = ecurve.getCurveByName("secp256k1");
 const G = curve.G;
-import { relayConnect } from "nostr-tools";
+import { relayPool } from "nostr-tools";
 import { myHelpers } from "../boot/helpers.js";
 
 export default {
   name: "MainLayout",
-  data() {
-    return {
-      passphrasegenerated: false,
-      step: 1,
-      disabled: false,
-      link: "inbox",
-      publishtext: "",
-      search: "",
-      selectedTab: "myAccount",
-      splitterModel: 20,
-      dialogpublish: false,
-      dialoggenerate: false,
-      activatevideo: false,
-      imageCaptured: false,
-      showInstallBanner: false,
-      user: {
-        isPwd: true,
-        passphrase: "",
-        keystoreoption: "local",
-        loading: false,
-      },
-      publishtext: "",
-      emojiOn: false,
-      activatevideohome: false,
-      imageCaptured: false,
-      hasCamerasuport: true,
-      homeembedimage: false,
-      imagefile: "",
-      newpost: {
-        user: "",
-        message: "",
-        image: null,
-        date: Date.now(),
-      },
-      emojis1: [
-        { item: "😂" },
-        { item: "😃" },
-        { item: "😍" },
-        { item: "😘" },
-        { item: "😭" },
-        { item: "🤣" },
-        { item: "🧐" },
-        { item: "👊" },
-        { item: "🤘" },
-      ],
-      emojis2: [
-        { item: "👌" },
-        { item: "🙌" },
-        { item: "🤦" },
-        { item: "🚀" },
-        { item: "🔥" },
-        { item: "💯" },
-        { item: "⚡" },
-        { item: "🏴󠁧󠁢󠁷󠁬󠁳󠁿" },
-        { item: "🌑" },
-      ],
-      posts: [],
-    };
-  },
+  following: [],
+
   mounted() {
     let value = this.$q.localStorage.getItem("neverShowBanner");
     if (!value) {
@@ -645,6 +617,13 @@ export default {
   },
   mixins: [myHelpers],
   methods: {
+    avatarMake(theData) {
+      const avicon = shajs("sha256")
+        .update(theData)
+        .digest("hex");
+      console.log(avicon);
+      return identicon.generateSync({ id: avicon, size: 40 });
+    },
     getUrlVars() {
       var vars = {};
       var parts = window.location.href.replace(
@@ -686,6 +665,13 @@ export default {
         this.$q.localStorage.set("privkey", this.user.privatekey);
         this.$q.localStorage.set("pubkey", this.user.publickey);
         this.$q.localStorage.set("mnemonic", this.user.passphrase);
+        this.$q.localStorage.set(
+          "relays",
+          JSON.stringify(["wss://nostr-relay.bigsun.xyz"])
+        );
+        this.$q.localStorage.set("posts", JSON.stringify([]));
+        this.addPubFollow(this.user.publickey);
+
         this.$router.push("/");
         this.disabled = false;
         this.link = "home";
@@ -832,6 +818,18 @@ export default {
 
     if (this.disabled) {
       this.$router.push("/help");
+    }
+    var follows = JSON.parse(this.$q.localStorage.getItem("follow"));
+    if (follows.length > 1) {
+      this.followlist = true;
+      for (var i = 0; i < follows.length; i++) {
+        console.log("work");
+        var img = this.following.unshift({
+          id: i,
+          pubkey: follows[i],
+          avatar: this.avatarMake(follows[i]),
+        });
+      }
     }
   },
 };

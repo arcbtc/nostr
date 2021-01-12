@@ -34,7 +34,7 @@
           >
             <template v-slot:before>
               <q-avatar>
-                <img src="http://identicon.net/img/identicon.png" />
+                <img :src="myavatar" />
               </q-avatar>
             </template>
           </q-input>
@@ -189,8 +189,10 @@
 
         <q-card-section class="col no-shadow">
           <q-item-label
-            >{{ (post.handle, post.user | handler) }}
-            <small> {{ post.date | niceDate }}</small></q-item-label
+            >{{ post.user | handler }}
+            <small style="color:grey">{{
+              post.date | niceDate
+            }}</small></q-item-label
           >
           {{ post.message }}
           <div>
@@ -244,14 +246,14 @@ const Buffer = require("safe-buffer").Buffer;
 
 //const convert = schnorr.convert;
 import { relayPool } from "nostr-tools";
-//import shajs from "sha.js";
+import shajs from "sha.js";
 //import BigInteger from "bigi";
 //import schnorr from "bip-schnorr";
 import { copyToClipboard } from "quasar";
 const ecurve = require("ecurve");
 const curve = ecurve.getCurveByName("secp256k1");
 const G = curve.G;
-
+const identicon = require("identicon");
 import { myHelpers } from "../boot/helpers.js";
 
 export default {
@@ -260,6 +262,7 @@ export default {
   data() {
     return {
       publishtext: "",
+      myavatar: "",
       emojiOn: false,
       activatevideohome: false,
       imageCaptured: false,
@@ -294,28 +297,49 @@ export default {
         { item: "🏴󠁧󠁢󠁷󠁬󠁳󠁿" },
         { item: "🌑" },
       ],
-      posts: [],
     };
   },
   mixins: [myHelpers],
   methods: {
+    avatarMake(theData) {
+      // Synchronous API
+
+      const avicon = shajs("sha256")
+        .update(theData)
+        .digest("hex");
+      console.log(avicon);
+      return identicon.generateSync({ id: avicon, size: 40 });
+    },
     async sendPost(message) {
       const pool = relayPool();
 
       pool.setPrivateKey(this.$q.localStorage.getItem("privkey")); // optional
 
-      pool.addRelay("wss://nostr-relay.bigsun.xyz", {
-        read: true,
-        write: true,
-      });
+      var relays = JSON.parse(this.$q.localStorage.getItem("relays"));
+      for (var i = 0; i < relays.length; i++) {
+        pool.addRelay(relays[i], {
+          read: true,
+          write: true,
+        });
+      }
 
       pool.onEvent((event, context, relay) => {
-        console.log(
-          `got a relay with context ${context} from ${relay.url} which is already validated.`,
-          event
-        );
+        if (this.$q.localStorage.getItem(event.id) === null) {
+          var postss = JSON.parse(this.$q.localStorage.getItem("posts"));
+          this.$q.localStorage.set(event.id, JSON.stringify(event));
+          postss.unshift(event.id);
+          this.$q.localStorage.set("posts", JSON.stringify(postss));
+          this.posts.unshift({
+            id: event.id,
+            message: event.content,
+            avatar: this.avatarMake(event.pubkey),
+            date: event.created_at * 1000,
+            user: event.pubkey,
+            handle: null,
+          }); // what to push unto the rows array?
+        }
+        this.publishtext = "";
       });
-      console.log(pool);
 
       const timest = Math.floor(Date.now() / 1000);
       var eventObject = {
@@ -325,21 +349,32 @@ export default {
         tags: [],
         content: message,
       };
-      console.log(eventObject);
+
       pool.subKey(String(this.$q.localStorage.getItem("pubkey")));
-      console.log("over");
+
       pool.publish(eventObject);
-      // publishing events:
-      // it will be signed automatically with the key supplied above
-      // or pass an already signed event to bypass this
-
-      // subscribing to a new relay
-      //pool.addRelay('<url>')
-      // will automatically subscribe to the all the keys called with .subKey above
-      // subscribing to users and requesting specific users or events:
-
-      await pool.reqFeed();
     },
+  },
+  filters: {
+    //prefer handle over user
+    handler(value) {
+      return "@" + value.substring(0, 15) + "....";
+    },
+    //make timestamp look nice
+    niceDate(value) {
+      let formattedString = date.formatDate(value, "YYYY MMM D h:mm A");
+      return formattedString;
+    },
+  },
+  created() {
+    try {
+      this.myavatar = JSON.parse(
+        this.$q.localStorage.getItem("profile")
+      ).picture;
+    } catch {
+      this.myavatar = this.avatarMake(this.$q.localStorage.getItem("pubkey"));
+    }
+    this.getAllPosts();
   },
 };
 </script>

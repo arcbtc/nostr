@@ -1,22 +1,163 @@
+import { relayPool } from "nostr-tools";
 export const myHelpers = {
 	data() {
 		return {
-			follows: [
-				{
-					name: "@satoshi",
-					pub:
-						"9e10c85f4baf021b88b4d19534ac25b81a5ca2a1fc99c8fe2e3bb40e85f9d10",
-				},
-				{
-					name:
-						"d4b773cf863db6f66d6db69b70e841272abb1ca483d67a3fdf8a57977515a80f",
-					pub:
-						"d4b773cf863db6f66d6db69b70e841272abb1ca483d67a3fdf8a57977515a80f",
-				},
+			profile: {
+				pubkey: null,
+				privkey: null,
+				avatar: null,
+				about: null,
+				handle: null,
+				follows: [],
+			},
+			following: [],
+			passphrasegenerated: false,
+			step: 1,
+			disabled: false,
+			link: "inbox",
+			publishtext: "",
+			search: "",
+			selectedTab: "myAccount",
+			splitterModel: 20,
+			dialogpublish: false,
+			dialoggenerate: false,
+			activatevideo: false,
+			imageCaptured: false,
+			showInstallBanner: false,
+			user: {
+				isPwd: true,
+				passphrase: "",
+				keystoreoption: "local",
+				loading: false,
+			},
+			publishtext: "",
+			emojiOn: false,
+			activatevideohome: false,
+			imageCaptured: false,
+			hasCamerasuport: true,
+			homeembedimage: false,
+			imagefile: "",
+			newpost: {
+				user: "",
+				message: "",
+				image: null,
+				date: Date.now(),
+			},
+			emojis1: [
+				{ item: "😂" },
+				{ item: "😃" },
+				{ item: "😍" },
+				{ item: "😘" },
+				{ item: "😭" },
+				{ item: "🤣" },
+				{ item: "🧐" },
+				{ item: "👊" },
+				{ item: "🤘" },
 			],
+			emojis2: [
+				{ item: "👌" },
+				{ item: "🙌" },
+				{ item: "🤦" },
+				{ item: "🚀" },
+				{ item: "🔥" },
+				{ item: "💯" },
+				{ item: "⚡" },
+				{ item: "🏴󠁧󠁢󠁷󠁬󠁳󠁿" },
+				{ item: "🌑" },
+			],
+			posts: [],
+			followlist: false,
 		};
 	},
 	methods: {
+		addPubFollow(pubKeyFollow) {
+			console.log(pubKeyFollow);
+			if (!this.$q.localStorage.getItem("follow")) {
+				this.$q.localStorage.set(
+					"follow",
+					JSON.stringify([this.$q.localStorage.getItem("pubkey")])
+				);
+			}
+			var follows = JSON.parse(this.$q.localStorage.getItem("follow"));
+			console.log(follows.includes("pubKeyFollow"));
+			if (!follows.includes(pubKeyFollow)) {
+				follows.push(pubKeyFollow);
+				console.log(follows);
+				this.$q.localStorage.set("follow", JSON.stringify(follows));
+				this.$q.localStorage.set(
+					pubKeyFollow,
+					JSON.stringify({
+						handle: pubKeyFollow,
+						about: "",
+						avatar: "",
+					})
+				);
+			} else {
+				this.$q.notify({
+					message: "Already following",
+					color: "secondary",
+				});
+			}
+
+			this.getAllPosts();
+		},
+		getAllPosts() {
+			this.getRelayPosts();
+			var postss = JSON.parse(this.$q.localStorage.getItem("posts"));
+
+			for (var i = 0; i < postss.length; i++) {
+				var singlePost = JSON.parse(
+					this.$q.localStorage.getItem(postss[i])
+				);
+
+				if (singlePost.kind == 1) {
+					this.posts.push({
+						id: singlePost.id,
+						message: singlePost.content,
+						avatar: this.avatarMake(singlePost.pubkey),
+						date: singlePost.created_at * 1000,
+						user: singlePost.pubkey,
+						handle: null,
+					});
+				}
+			}
+		},
+		getRelayPosts() {
+			const pool = relayPool();
+
+			var relays = JSON.parse(this.$q.localStorage.getItem("relays"));
+			for (var i = 0; i < relays.length; i++) {
+				pool.addRelay(relays[i], {
+					read: true,
+					write: true,
+				});
+			}
+			pool.onEvent((event, context, relay) => {
+				if (this.$q.localStorage.getItem(event.id) === null) {
+					var postss = JSON.parse(
+						this.$q.localStorage.getItem("posts")
+					);
+					this.$q.localStorage.set(event.id, JSON.stringify(event));
+					postss.unshift(event.id);
+					this.$q.localStorage.set("posts", JSON.stringify(postss));
+					this.posts.unshift({
+						id: event.id,
+						message: event.content,
+						avatar: this.avatarMake(event.pubkey),
+						date: event.created_at * 1000,
+						user: event.pubkey,
+						handle: null,
+					}); // what to push unto the rows array?
+				}
+				this.publishtext = "";
+			});
+			var follows = JSON.parse(this.$q.localStorage.getItem("follow"));
+			for (var i = 0; i < follows.length; i++) {
+				pool.subKey(follows[i]);
+			}
+			pool.reqFeed();
+		},
+
 		captureimage() {
 			let video = this.$refs.video;
 			let canvas = this.$refs.canvas;
@@ -43,8 +184,8 @@ export const myHelpers = {
 			reader.onload = (event) => {
 				var img = new Image();
 				img.onload = () => {
-					canvas.width = 350 * (img.width / img.height);
-					canvas.height = 350;
+					canvas.width = 240 * (img.width / img.height);
+					canvas.height = 240;
 
 					context.drawImage(img, 0, 0, canvas.width, canvas.height);
 					this.imageCaptured = true;
@@ -113,28 +254,6 @@ export const myHelpers = {
 		//////////start nostr helpers///////
 		////////////////////////////////////
 		PublishonSubmit() {},
-
-		async sendPost(message) {
-			const pool = relayPool();
-
-			pool.setPrivateKey(this.$q.localStorage.getItem("privkey")); // optional
-
-			pool.addRelay("wss://nostr-relay.bigsun.xyz", {
-				read: true,
-				write: true,
-			});
-
-			pool.onEvent((event, context, relay) => {
-				console.log(
-					`got a relay with context ${context} from ${relay.url} which is already validated.`,
-					event
-				);
-			});
-			console.log(pool);
-		},
-		////////////////////////////////////
-		////////////end nostr helpers///////
-		////////////////////////////////////
 	},
 	filters: {
 		//prefer handle over user

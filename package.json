@@ -20,6 +20,7 @@
     "bs58": "^4.0.1",
     "core-js": "^3.8.2",
     "ecurve": "^1.0.6",
+    "identicon": "^3.0.1",
     "md-gum-polyfill": "^1.0.0",
     "noble-secp256k1": "^1.1.1",
     "nostr-tools": "^0.1.3",

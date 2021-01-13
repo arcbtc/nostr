@@ -172,8 +172,7 @@
       </div>
     </template>
     <q-card
-      v-for="post in posts"
-      v-if="post.tags.includes('dm')"
+      v-for="post in profilePosts"
       :key="post.id"
       class="my-card"
       flat
@@ -298,10 +297,86 @@ export default {
         { item: "🏴󠁧󠁢󠁷󠁬󠁳󠁿" },
         { item: "🌑" },
       ],
+      profilePosts: [],
     };
   },
   mixins: [myHelpers],
-  methods: {},
+  methods: {
+    avatarMake(theData) {
+      // Synchronous API
+
+      const avicon = shajs("sha256")
+        .update(theData)
+        .digest("hex");
+      console.log(avicon);
+      return identicon.generateSync({ id: avicon, size: 40 });
+    },
+    async sendPost(message) {
+      const pool = relayPool();
+
+      pool.setPrivateKey(this.$q.localStorage.getItem("privkey")); // optional
+
+      var relays = JSON.parse(this.$q.localStorage.getItem("relays"));
+      for (var i = 0; i < relays.length; i++) {
+        pool.addRelay(relays[i], {
+          read: true,
+          write: true,
+        });
+      }
+
+      pool.onEvent((event, context, relay) => {
+        if (this.$q.localStorage.getItem(event.id) === null) {
+          var postss = JSON.parse(this.$q.localStorage.getItem("posts"));
+          this.$q.localStorage.set(event.id, JSON.stringify(event));
+          postss.unshift(event.id);
+          this.$q.localStorage.set("posts", JSON.stringify(postss));
+          this.posts.unshift({
+            id: event.id,
+            message: event.content,
+            avatar: this.avatarMake(event.pubkey),
+            date: event.created_at * 1000,
+            user: event.pubkey,
+            handle: null,
+          }); // what to push unto the rows array?
+        }
+        this.publishtext = "";
+      });
+
+      const timest = Math.floor(Date.now() / 1000);
+      var eventObject = {
+        pubkey: String(this.$q.localStorage.getItem("pubkey")),
+        created_at: timest,
+        kind: 1,
+        tags: [],
+        content: message,
+      };
+
+      pool.subKey(String(this.$q.localStorage.getItem("pubkey")));
+
+      pool.publish(eventObject);
+    },
+    getuserPosts(user) {
+      this.getRelayPosts();
+      console.log("poo");
+      var postss = JSON.parse(this.$q.localStorage.getItem("posts"));
+
+      for (var i = 0; i < postss.length; i++) {
+        var singlePost = JSON.parse(this.$q.localStorage.getItem(postss[i]));
+        console.log(singlePost.kind);
+
+        if (singlePost.kind == 1 && singlePost.pubkey == user) {
+          this.profilePosts.push({
+            id: singlePost.id,
+            message: singlePost.content,
+            avatar: this.avatarMake(singlePost.pubkey),
+            date: singlePost.created_at * 1000,
+            user: singlePost.pubkey,
+            handle: null,
+          });
+        }
+      }
+    },
+  },
   filters: {
     //prefer handle over user
     handler(value) {
@@ -314,14 +389,9 @@ export default {
     },
   },
   created() {
-    try {
-      this.myavatar = JSON.parse(
-        this.$q.localStorage.getItem("profile")
-      ).picture;
-    } catch {
-      this.myavatar = this.avatarMake(this.$q.localStorage.getItem("pubkey"));
-    }
-    this.getAllPosts();
+    this.getuserPosts(
+      this.$route.path.split("/")[this.$route.path.split("/").length - 1]
+    );
   },
 };
 </script>

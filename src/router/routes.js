@@ -5,7 +5,11 @@ const routes = [
     children: [
       { path: "", component: () => import("pages/PageHome.vue") },
       { path: "/messages", component: () => import("pages/PageMessages.vue") },
-      { path: "/chat", component: () => import("pages/PageChat.vue") },
+      { path: "/chat/:id", component: () => import("pages/PageChat.vue") },
+      {
+        path: "/user/:id",
+        component: () => import("pages/PageProfile.vue"),
+      },
       {
         path: "/notifications",
         component: () => import("pages/PageNotifications.vue"),

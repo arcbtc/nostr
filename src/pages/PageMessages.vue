@@ -1,47 +1,59 @@
 <template>
 	<q-page>
-		<h6 class="q-ma-none">Messages</h6>
+		<h6 class="q-ma-none">Private Messages</h6>
 		<br />
 
-		<q-form
-			@submit="MessageonSubmit"
-			style="max-width: 400px"
-			class="q-gutter-md"
-		>
-			<p>
-				All private messages are end-to-end encrypted.
-			</p>
-			<q-input
-				filled
-				type="text"
-				v-model="message.message"
-				hint="500 char message"
-			/>
-
-			<q-select
-				filled
-				v-model="message.publickey"
-				:options="follows"
-				use-input
-				multiple
-				option-value="pub"
-				option-label="name"
-				use-chips
-				stack-label
-				input-debounce="0"
-				style="width: 300px"
+		<q-list>
+			<q-item
+				clickable
+				v-ripple
+				v-for="followed in following"
+				:key="followed.id"
+				:to="'/chat/' + followed.pubkey"
 			>
-				<template v-slot:after>
-					<q-btn
-						unelevated
-						label="Send"
-						@click="sendDM(message.message, message.publickey[1])"
-						type="submit"
-						color="primary"
-					/>
-				</template>
-			</q-select>
-		</q-form>
+				<q-item-section avatar>
+					<q-avatar round>
+						<img :src="avatarMake(followed.pubkey)" />
+					</q-avatar>
+				</q-item-section>
+
+				<q-item-section>{{
+					followed.pubkey.substring(0, 10) + "..."
+				}}</q-item-section>
+			</q-item>
+		</q-list>
+
+		<q-footer class="bg-dark q-mb-lg">
+			<q-form
+				@submit="MessageonSubmit"
+				style="max-width: 400px"
+				class="q-gutter-md"
+			>
+				<p>
+					All private messages are end-to-end encrypted.
+				</p>
+
+				<div class="row">
+					<div class="col-9">
+						<q-input
+							filled
+							type="text"
+							v-model="newMessage"
+							hint="Public key"
+						></q-input>
+					</div>
+					<div class="col-3">
+						<q-btn
+							unelevated
+							class="q-ma-sm"
+							label="Start"
+							type="submit"
+							color="primary"
+						/>
+					</div>
+				</div>
+			</q-form>
+		</q-footer>
 	</q-page>
 </template>
 
@@ -110,6 +122,20 @@ export default {
 			this.age = null;
 			this.accept = false;
 		},
+	},
+	created: function() {
+		var follows = JSON.parse(this.$q.localStorage.getItem("follow"));
+		if (follows.length > 1) {
+			this.followlist = true;
+			//  var user = JSON.parse(this.$q.localStorage.getItem(follows[i]));
+
+			for (var i = 0; i < follows.length; i++) {
+				this.following.push({
+					id: i,
+					pubkey: follows[i],
+				});
+			}
+		}
 	},
 };
 </script>

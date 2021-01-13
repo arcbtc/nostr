@@ -486,16 +486,17 @@
               <q-card-section v-if="followlist">
                 <h6 class="q-ma-none">Following</h6>
                 <div class="q-pa-md" style="max-width: 350px">
-                  <q-list separator>
+                  <q-list>
                     <q-item
                       clickable
                       v-ripple
                       v-for="followed in following"
                       :key="followed.id"
+                      :to="'/user/' + followed.pubkey"
                     >
                       <q-item-section avatar>
-                        <q-avatar rounded>
-                          <img :src="followed.avatar" />
+                        <q-avatar round>
+                          <img :src="avatarMake(followed.pubkey)" />
                         </q-avatar>
                       </q-item-section>
 
@@ -553,12 +554,7 @@
       <center>
         <q-tabs class="text-primary small-screen-only">
           <q-route-tab style="width: 20%;" name="home" icon="home" to="/" />
-          <q-route-tab
-            style="width: 20%;"
-            name="notifications"
-            icon="notifications"
-            to="/notifications"
-          />
+
           <q-route-tab
             style="width: 20%;"
             name="messages"
@@ -579,30 +575,11 @@
 </template>
 
 <script>
-let deferredPrompt;
-require("md-gum-polyfill");
-var crypto = require("crypto");
-var bitcoin = require("bitcoinjs-lib");
-const bip39 = require("bip39");
-const bip32 = require("bip32");
-const bs58 = require("bs58");
-var wif = require("wif");
-const Buffer = require("safe-buffer").Buffer;
-
-const convert = schnorr.convert;
-import shajs from "sha.js";
-import BigInteger from "bigi";
-import schnorr from "bip-schnorr";
-import { copyToClipboard } from "quasar";
-const ecurve = require("ecurve");
-const curve = ecurve.getCurveByName("secp256k1");
-const G = curve.G;
 import { relayPool } from "nostr-tools";
 import { myHelpers } from "../boot/helpers.js";
 
 export default {
   name: "MainLayout",
-  following: [],
 
   mounted() {
     let value = this.$q.localStorage.getItem("neverShowBanner");
@@ -617,13 +594,6 @@ export default {
   },
   mixins: [myHelpers],
   methods: {
-    avatarMake(theData) {
-      const avicon = shajs("sha256")
-        .update(theData)
-        .digest("hex");
-      console.log(avicon);
-      return identicon.generateSync({ id: avicon, size: 40 });
-    },
     getUrlVars() {
       var vars = {};
       var parts = window.location.href.replace(
@@ -646,37 +616,7 @@ export default {
         }
       });
     },
-    finalgenerate() {
-      var stored = this.user.keystoreoption;
 
-      if (stored == "external") {
-        this.$q.localStorage.set("exernal", true);
-        this.$q.localStorage.set("pubkey", this.user.publickey);
-        this.$router.push("/");
-        this.disabled = false;
-        this.link = "home";
-      } else if (stored == "url") {
-        this.$router.push(
-          "/" + "?pub=" + this.user.publickey + "&prv=" + this.user.privatekey
-        );
-        this.disabled = false;
-        this.link = "home";
-      } else {
-        this.$q.localStorage.set("privkey", this.user.privatekey);
-        this.$q.localStorage.set("pubkey", this.user.publickey);
-        this.$q.localStorage.set("mnemonic", this.user.passphrase);
-        this.$q.localStorage.set(
-          "relays",
-          JSON.stringify(["wss://nostr-relay.bigsun.xyz"])
-        );
-        this.$q.localStorage.set("posts", JSON.stringify([]));
-        this.addPubFollow(this.user.publickey);
-
-        this.$router.push("/");
-        this.disabled = false;
-        this.link = "home";
-      }
-    },
     neverInstallApp() {
       this.showInstallBanner = false;
       try {
@@ -727,92 +667,16 @@ export default {
       var blob = new Blob([ab], { type: mimeString });
       return blob;
     },
-    createKeys() {
-      var randomBytes = crypto.randomBytes(16);
-      var mnemonic = bip39.entropyToMnemonic(randomBytes.toString("hex"));
-
-      this.user.passphrase = mnemonic;
-      this.$q.notify({
-        message: "MAKE SURE YOU BACKUP YOUR WORD LIST",
-      });
-
-      const seed = bip39.mnemonicToSeedSync(mnemonic);
-      const root = bip32.fromSeed(seed);
-      const path = "m/0'/0/0";
-      const child1 = root.derivePath(path);
-      this.passphrasegenerated = true;
-      console.log(root.privateKey.toString("hex"));
-      this.user.privatekey = root.privateKey.toString("hex");
-
-      const privKey = BigInteger.fromHex(root.privateKey.toString("hex"));
-      console.log(privKey);
-      //  const pubkey = pointToBuffer(G.multiply(privKey)).toString('hex')
-      const pubkey = G.multiply(privKey)
-        .getEncoded(true)
-        .slice(1)
-        .toString("hex");
-      this.user.publickey = pubkey;
-
-      console.log(pubkey);
-      //console.log(privKey.toString('hex'))
-      const mess = "what a cunt".toString("hex");
-      //  const message = pointToBuffer('243F6A8885A308D313198A2E03707344A4093822299F31D0082EFA98EC4E6C89', 'hex');
-      //  const createdSignature = schnorr.sign(privKey, message);
-      //  console.log('The signature is: ' + createdSignature.toString('hex'));
-
-      //  console.log(privKey)
-
-      // const message = Buffer.from(this.hexToBytes("Ooo, what a cunt".toString('hex')), 'hex');
-      // const createdSignature = schnorr.sign(privKey, message);
-      // console.log(createdSignature)
-      // console.log('The signature is: ' + createdSignature.toString('hex'));
-    },
-    photoverify() {
-      this.embedimage = true;
-      this.activatevideo = false;
-      navigator.mediaDevices.getUserMedia({
-        video: false,
-      });
-    },
-
-    PubonSubmit() {},
-    initcamera() {
-      this.activatevideo = true;
-      navigator.mediaDevices
-        .getUserMedia({
-          video: true,
-        })
-        .then((stream) => {
-          this.$refs.video.srcObject = stream;
-        });
-    },
-    discamerahome() {
-      this.activatevideo = false;
-      this.embedimage = false;
-      this.newpost.imagetemp = "";
-      this.newpost.image = "";
-    },
-
-    dialoguegenerate() {
-      this.dialoggenerate = true;
-      this.video = false;
-    },
-    dialoguestarted() {
-      this.dialogpublish = true;
-      this.video = false;
-    },
   },
   created: function() {
-    var pubkey;
-    pubkey = this.getUrlVars()["pub"];
-    var privkey;
-    privkey = this.getUrlVars()["prv"];
+    this.profile.pubkey = this.getUrlVars()["pub"];
+    this.profile.privkey = this.getUrlVars()["prv"];
 
-    if (pubkey) {
+    if (this.profile.pubkey) {
       this.$q.localStorage.set("pubkey", pubkey);
     }
-    pubkey = this.$q.localStorage.getItem("pubkey");
-    if (!pubkey) {
+    this.profile.pubkey = this.$q.localStorage.getItem("pubkey");
+    if (!this.profile.pubkey) {
       this.disabled = true;
     }
 
@@ -822,15 +686,16 @@ export default {
     var follows = JSON.parse(this.$q.localStorage.getItem("follow"));
     if (follows.length > 1) {
       this.followlist = true;
+      //  var user = JSON.parse(this.$q.localStorage.getItem(follows[i]));
+
       for (var i = 0; i < follows.length; i++) {
-        console.log("work");
-        var img = this.following.unshift({
+        this.following.push({
           id: i,
           pubkey: follows[i],
-          avatar: this.avatarMake(follows[i]),
         });
       }
     }
+    console.log(this.following);
   },
 };
 </script>

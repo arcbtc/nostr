@@ -1,6 +1,18 @@
 <template>
 	<q-page>
-		<h6 class="q-ma-none">Help</h6>
+		<center>
+			<strong class="text-h6 q-pa-lg fixed-top">Help</strong>
+		</center>
+		<br />
+		<q-btn
+			flat
+			color="white"
+			icon="arrow_back"
+			label="back"
+			class="small-screen-only fixed-top-left"
+			v-go-back.single
+		/>
+
 		<br />
 		<strong>What is Nostr?</strong>
 		<p>
@@ -21,7 +33,7 @@
 		</p>
 		<center>
 			<q-btn
-				v-if="!disabled"
+				v-if="disabled"
 				dense
 				flat
 				class="small-screen-only q-pa-lg"

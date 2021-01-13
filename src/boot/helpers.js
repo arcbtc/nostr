@@ -9,7 +9,7 @@ const bip32 = require("bip32");
 const bs58 = require("bs58");
 var wif = require("wif");
 const Buffer = require("safe-buffer").Buffer;
-
+const pool = relayPool();
 const identicon = require("identicon");
 const convert = schnorr.convert;
 import shajs from "sha.js";
@@ -88,12 +88,11 @@ export const myHelpers = {
 			],
 			posts: [],
 			followlist: false,
+			openQrShow: false,
 		};
 	},
 	methods: {
-		async sendPost(message, tags) {
-			const pool = relayPool();
-
+		async sendPost(message, tags = []) {
 			pool.setPrivateKey(this.$q.localStorage.getItem("privkey")); // optional
 
 			var relays = JSON.parse(this.$q.localStorage.getItem("relays"));
@@ -106,6 +105,7 @@ export const myHelpers = {
 
 			pool.onEvent((event, context, relay) => {
 				if (this.$q.localStorage.getItem(event.id) === null) {
+					console.log(event);
 					var postss = JSON.parse(
 						this.$q.localStorage.getItem("posts")
 					);
@@ -118,7 +118,8 @@ export const myHelpers = {
 						avatar: this.avatarMake(event.pubkey),
 						date: event.created_at * 1000,
 						user: event.pubkey,
-						tags: event.tags,
+						kind: 1,
+
 						handle: null,
 					}); // what to push unto the rows array?
 				}
@@ -130,25 +131,70 @@ export const myHelpers = {
 				pubkey: String(this.$q.localStorage.getItem("pubkey")),
 				created_at: timest,
 				kind: 1,
-				tags: [
-					"dm",
-					"f9e10c85f4baf021b88b4d19534ac25b81a5ca2a1fc99c8fe2e3bb40e85f9d10",
-					"wss://nostr-relay.bigsun.xyz",
-				],
+				tags: tags,
 				content: message,
 			};
+			console.log(tags);
 
 			pool.subKey(String(this.$q.localStorage.getItem("pubkey")));
 
 			pool.publish(eventObject);
 		},
-		avatarMake(theData) {
-			// Synchronous API
+		async sendDM(message, tags = []) {
+			pool.setPrivateKey(this.$q.localStorage.getItem("privkey")); // optional
 
+			var relays = JSON.parse(this.$q.localStorage.getItem("relays"));
+			for (var i = 0; i < relays.length; i++) {
+				pool.addRelay(relays[i], {
+					read: true,
+					write: true,
+				});
+			}
+
+			pool.onEvent((event, context, relay) => {
+				if (this.$q.localStorage.getItem(event.id) === null) {
+					console.log(event);
+					var postss = JSON.parse(
+						this.$q.localStorage.getItem("posts")
+					);
+					this.$q.localStorage.set(event.id, JSON.stringify(event));
+					postss.unshift(event.id);
+					this.$q.localStorage.set("posts", JSON.stringify(postss));
+					this.posts.unshift({
+						id: event.id,
+						message: event.content,
+						avatar: this.avatarMake(event.pubkey),
+						date: event.created_at * 1000,
+						user: event.pubkey,
+						kind: 4,
+
+						handle: null,
+					}); // what to push unto the rows array?
+				}
+				this.publishtext = "";
+			});
+			console.log(tags);
+			const timest = Math.floor(Date.now() / 1000);
+			var eventObject = {
+				pubkey: String(this.$q.localStorage.getItem("pubkey")),
+				created_at: timest,
+				kind: 4,
+				tags: tags,
+				content: message,
+			};
+			console.log(tags);
+
+			pool.subKey(String(this.$q.localStorage.getItem("pubkey")));
+
+			pool.publish(eventObject);
+		},
+		openQr() {
+			this.openQrShow = true;
+		},
+		avatarMake(theData) {
 			const avicon = shajs("sha256")
 				.update(theData)
 				.digest("hex");
-			console.log(avicon);
 			return identicon.generateSync({ id: avicon, size: 40 });
 		},
 		addPubFollow(pubKeyFollow) {
@@ -160,7 +206,6 @@ export const myHelpers = {
 				);
 			}
 			var follows = JSON.parse(this.$q.localStorage.getItem("follow"));
-			console.log(follows.includes("pubKeyFollow"));
 			if (!follows.includes(pubKeyFollow)) {
 				follows.push(pubKeyFollow);
 
@@ -183,7 +228,15 @@ export const myHelpers = {
 			this.getAllPosts();
 		},
 		getAllPosts() {
-			this.getRelayPosts();
+			try {
+				this.getRelayPosts();
+			} catch (err) {
+				this.$q.notify({
+					message: "Not able to connect to relay",
+					color: "secondary",
+				});
+			}
+
 			var postss = JSON.parse(this.$q.localStorage.getItem("posts"));
 
 			for (var i = 0; i < postss.length; i++) {
@@ -192,6 +245,7 @@ export const myHelpers = {
 				);
 
 				if (singlePost.kind == 1) {
+					console.log(singlePost);
 					this.posts.push({
 						id: singlePost.id,
 						message: singlePost.content,
@@ -199,6 +253,7 @@ export const myHelpers = {
 						date: singlePost.created_at * 1000,
 						user: singlePost.pubkey,
 						tags: singlePost.tags,
+						kind: 1,
 						handle: null,
 					});
 				}
@@ -206,8 +261,6 @@ export const myHelpers = {
 		},
 
 		getRelayPosts() {
-			const pool = relayPool();
-
 			var relays = JSON.parse(this.$q.localStorage.getItem("relays"));
 			for (var i = 0; i < relays.length; i++) {
 				pool.addRelay(relays[i], {
@@ -217,6 +270,7 @@ export const myHelpers = {
 			}
 			pool.onEvent((event, context, relay) => {
 				if (this.$q.localStorage.getItem(event.id) === null) {
+					//console.log(event);
 					var postss = JSON.parse(
 						this.$q.localStorage.getItem("posts")
 					);
@@ -230,6 +284,7 @@ export const myHelpers = {
 						date: event.created_at * 1000,
 						user: event.pubkey,
 						tags: event.tags,
+						kind: event.kind,
 						handle: null,
 					}); // what to push unto the rows array?
 				}

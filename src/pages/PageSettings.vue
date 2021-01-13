@@ -1,7 +1,24 @@
 <template>
 	<q-page>
-		<h6 class="q-ma-none">Settings</h6>
-		<div class="q-pa-md" style="max-width: 400px">
+		<center>
+			<strong class="text-h6 q-pa-lg fixed-top">Settings</strong>
+		</center>
+		<q-btn
+			flat
+			color="white"
+			icon="arrow_back"
+			label="back"
+			class="small-screen-only fixed-top-left"
+			v-go-back.single
+		/>
+
+		<br /><br />
+
+		<div
+			class="q-mx-auto
+"
+			style="max-width: 400px"
+		>
 			<q-form @submit="sendMeta" class="q-gutter-md">
 				<p>
 					If your desired handle is available our relay will use
@@ -45,6 +62,7 @@
 					type="submit"
 					color="primary"
 				/>
+				<br />
 			</q-form>
 			<br /><br />
 			<q-separator />

@@ -1,180 +1,65 @@
 <template>
   <q-page>
-    <template>
-      <div class="row" style="width:100%">
-        <q-form
-          style="width:100%;"
-          @submit="sendPost(publishtext)"
-          class="q-gutter-md"
-        >
-          <center>
-            <div class="column" style="width:200px" v-show="homeembedimage">
-              <div class="col">
-                <q-btn
-                  flat
-                  round
-                  color="red"
-                  icon="clear"
-                  size="sm"
-                  class="float-right"
-                  @click="discamerahome()"
-                />
-              </div>
-              <div class="col-12">
-                <img width="200" class="q-ma-sm" :src="newpost.imagetemp" />
-              </div>
-            </div>
-          </center>
-          <q-input
-            style="font-size: 20px;"
-            v-model="publishtext"
-            autogrow
-            label="Say something"
-            maxlength="280"
-          >
-            <template v-slot:before>
-              <q-avatar>
-                <img :src="myavatar" />
-              </q-avatar>
-            </template>
-          </q-input>
+    <q-btn
+      flat
+      color="white"
+      icon="arrow_back"
+      label="back"
+      class="small-screen-only fixed-top-left q-ma-xs"
+      v-go-back.single
+    />
+    <center><strong class="text-h6 q-ma-sm fixed-top">Profile</strong></center>
 
-          <div class="column" v-show="activatevideohome == true">
-            <div class="col-9 q-mx-auto">
-              <video
-                v-show="!imageCaptured"
-                playsinline
-                ref="video"
-                style="width:300px;"
-                autoplay
-              />
-              <canvas v-show="imageCaptured" ref="canvas" height="240" />
-            </div>
-            <div class="col-3 q-mx-auto">
-              <q-btn
-                flat
-                class="float-right "
-                rounded
-                unelevated
-                color="primary"
-                icon="cancel"
-                @click="discamerahome()"
-                size="lg"
-              />
-
-              <q-btn
-                flat
-                class="float-right "
-                rounded
-                unelevated
-                color="primary"
-                icon="camera"
-                @click="captureimage()"
-                size="lg"
-              />
-              <q-btn
-                v-show="imageCaptured"
-                flat
-                class="float-right "
-                rounded
-                unelevated
-                color="primary"
-                icon="check_circle"
-                @click="photoverify()"
-                size="lg"
-              />
-            </div>
-          </div>
-
-          <div class="float-right">
-            <q-btn
-              v-if="publishtext.length < 280"
-              class="float-left q-mr-md"
-              round
-              unelevated
-              color="primary"
-              icon="insert_emoticon"
-              size="sm"
-            >
-              <q-popup-proxy>
-                <q-btn
-                  v-for="emoji in emojis1"
-                  :key="emoji.item"
-                  @click="publishtext = publishtext + emoji.item"
-                  flat
-                  rounded
-                  unelevated
-                  dense
-                  >{{ emoji.item }}</q-btn
-                >
-                <br />
-                <q-btn
-                  v-for="emoji in emojis2"
-                  :key="emoji.item"
-                  @click="publishtext = publishtext + emoji.item"
-                  flat
-                  rounded
-                  unelevated
-                  dense
-                  >{{ emoji.item }}</q-btn
-                >
-              </q-popup-proxy>
-            </q-btn>
-            <q-btn
-              v-else
-              disable
-              class="float-left q-mr-md"
-              round
-              unelevated
-              color="primary"
-              icon="insert_emoticon"
-              size="sm"
-            />
-
-            <q-file
-              ref="myFileInput"
-              accept="image/*"
-              @input="captureimageupload"
-              style="display:none"
-              v-model="imagefile"
-              type="file"
-              label="Standard"
-            ></q-file>
-
-            <q-btn
-              class="float-left q-mr-md"
-              round
-              unelevated
-              color="primary"
-              @click="getFile"
-              icon="insert_photo"
-              size="sm"
-            />
-            <q-btn
-              class="float-left q-mr-md"
-              round
-              unelevated
-              color="primary"
-              icon="camera_alt"
-              @click="initcamerahome()"
-              size="sm"
-            />
-            <q-btn
-              label="Publish"
-              rounded
-              unelevated
-              type="submit"
-              class="float-right"
-              color="primary"
-            />
-          </div>
-        </q-form>
+    <div class="row">
+      <div class="col-3">
+        <q-avatar size="100px" round>
+          <img
+            round
+            :src="
+              avatarMake(
+                $route.path.split('/')[this.$route.path.split('/').length - 1]
+              )
+            "
+          />
+        </q-avatar>
       </div>
-    </template>
+      <div class="col-7">
+        <br />
+        <strong
+          ><p>
+            {{
+              $route.path
+                .split("/")
+                [this.$route.path.split("/").length - 1].substring(0, 30)
+            }}<br />
+            {{
+              $route.path
+                .split("/")
+                [this.$route.path.split("/").length - 1].substring(30)
+            }}
+          </p></strong
+        >
+      </div>
+      <div class="col-2">
+        <q-btn
+          class="q-ma-md"
+          round
+          flat
+          :to="
+            '/chat/' +
+              $route.path.split('/')[this.$route.path.split('/').length - 1]
+          "
+          unelevated
+          color="primary"
+          icon="message"
+        />
+      </div>
+    </div>
+
     <q-card
       v-for="post in profilePosts"
       :key="post.id"
-      class="my-card"
+      class="my-card q-mt-xl"
       flat
       style="border:none;"
     >

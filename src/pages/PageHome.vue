@@ -4,7 +4,7 @@
       <div class="row" style="width:100%">
         <q-form
           style="width:100%;"
-          @submit="sendPost(publishtext)"
+          @submit="sendPost(publishtext, [], 1)"
           class="q-gutter-md"
         >
           <center>
@@ -34,7 +34,9 @@
           >
             <template v-slot:before>
               <q-avatar>
-                <img :src="myavatar" />
+                               <img
+                  :src="avatarMake($q.localStorage.getItem('pubkey'))"
+                />
               </q-avatar>
             </template>
           </q-input>
@@ -62,27 +64,6 @@
                 size="lg"
               />
 
-              <q-btn
-                flat
-                class="float-right "
-                rounded
-                unelevated
-                color="primary"
-                icon="camera"
-                @click="captureimage()"
-                size="lg"
-              />
-              <q-btn
-                v-show="imageCaptured"
-                flat
-                class="float-right "
-                rounded
-                unelevated
-                color="primary"
-                icon="check_circle"
-                @click="photoverify()"
-                size="lg"
-              />
             </div>
           </div>
 
@@ -131,34 +112,7 @@
               size="sm"
             />
 
-            <q-file
-              ref="myFileInput"
-              accept="image/*"
-              @input="captureimageupload"
-              style="display:none"
-              v-model="imagefile"
-              type="file"
-              label="Standard"
-            ></q-file>
 
-            <q-btn
-              class="float-left q-mr-md"
-              round
-              unelevated
-              color="primary"
-              @click="getFile"
-              icon="insert_photo"
-              size="sm"
-            />
-            <q-btn
-              class="float-left q-mr-md"
-              round
-              unelevated
-              color="primary"
-              icon="camera_alt"
-              @click="initcamerahome()"
-              size="sm"
-            />
             <q-btn
               label="Publish"
               rounded
@@ -173,7 +127,7 @@
     </template>
     <q-card
       v-for="post in posts"
-      v-if="post.tags.includes('dm')"
+      v-if="post.kind == 1 ? true : false""
       :key="post.id"
       class="my-card"
       flat
@@ -234,27 +188,7 @@
 
 <script>
 import { date } from "quasar";
-require("md-gum-polyfill");
-let deferredPrompt;
 
-var crypto = require("crypto");
-var bitcoin = require("bitcoinjs-lib");
-const bip39 = require("bip39");
-const bip32 = require("bip32");
-const bs58 = require("bs58");
-var wif = require("wif");
-const Buffer = require("safe-buffer").Buffer;
-
-//const convert = schnorr.convert;
-import { relayPool } from "nostr-tools";
-import shajs from "sha.js";
-//import BigInteger from "bigi";
-//import schnorr from "bip-schnorr";
-import { copyToClipboard } from "quasar";
-const ecurve = require("ecurve");
-const curve = ecurve.getCurveByName("secp256k1");
-const G = curve.G;
-const identicon = require("identicon");
 import { myHelpers } from "../boot/helpers.js";
 
 export default {
@@ -262,6 +196,7 @@ export default {
 
   data() {
     return {
+      checktest: false,
       publishtext: "",
       myavatar: "",
       emojiOn: false,
@@ -300,9 +235,13 @@ export default {
       ],
     };
   },
+
   mixins: [myHelpers],
   methods: {},
   filters: {
+    tagCheck(post) {
+      return true;
+    },
     //prefer handle over user
     handler(value) {
       return "@" + value.substring(0, 15) + "....";
@@ -314,14 +253,9 @@ export default {
     },
   },
   created() {
-    try {
-      this.myavatar = JSON.parse(
-        this.$q.localStorage.getItem("profile")
-      ).picture;
-    } catch {
-      this.myavatar = this.avatarMake(this.$q.localStorage.getItem("pubkey"));
-    }
+
     this.getAllPosts();
+    console.log(this.posts)
   },
 };
 </script>

@@ -1,18 +1,27 @@
 <template>
 	<q-page>
+		<center>
+			<strong class="text-h6 q-pa-lg fixed-top">Chat</strong>
+		</center>
+		<q-btn
+			flat
+			color="white"
+			icon="arrow_back"
+			label="back"
+			class="small-screen-only fixed-top-left"
+			v-go-back.single
+		/>
 		<div class="row">
-			<q-btn
-				flat
-				color="white"
-				icon="arrow_back"
-				label="back"
-				class="small-screen-only fixed-top-left q-ma-sm"
-				v-go-back.single
-			/>
-
-			<div class="q-pa-md column row justify-end" style="width:100%">
+			<br />
+			<br />
+			<br />
+			<div
+				class="q-pa-md q-pt-xl column row justify-end"
+				style="width:100%"
+			>
 				<q-chat-message
 					v-for="message in messages"
+					:avatar="avatarMake($q.localStorage.getItem('pubkey'))"
 					:key="[message.text]"
 					:name="message.from"
 					:text="[message.text]"
@@ -69,10 +78,7 @@ export default {
 	data() {
 		return {
 			newMessage: "",
-			messages: [
-				{ text: "Hello", from: "me" },
-				{ text: "Fuck off", from: "them" },
-			],
+			messages: [],
 			name: null,
 			age: null,
 			message: {
@@ -87,7 +93,9 @@ export default {
 			console.log("cunt");
 			this.messages.push({
 				text: this.newMessage,
-				from: this.profile.avatar,
+				from:
+					this.$q.localStorage.getItem("pubkey").substring(0, 15) +
+					"....",
 			});
 			this.sendDM(this.newMessage);
 			this.newMessage = "";
@@ -120,14 +128,17 @@ export default {
 			console.log("decrypted :", decryptedMessage);
 			var tags = [
 				[
-					"dm",
-					this.$route.path.split("/")[
-						this.$route.path.split("/").length - 1
-					],
+					"p",
+					String(
+						this.$route.path.split("/")[
+							this.$route.path.split("/").length - 1
+						]
+					),
 					JSON.parse(this.$q.localStorage.getItem("relays"))[0],
 				],
 			];
-			this.sendPost(encryptedMessage, tags);
+			console.log(tags);
+			this.sendPost(encryptedMessage, tags, 1);
 		},
 
 		MessageonReset() {

@@ -491,6 +491,9 @@
                       clickable
                       v-ripple
                       v-for="followed in following"
+                      v-if="
+                        followed.pubkey != $q.localStorage.getItem('pubkey')
+                      "
                       :key="followed.id"
                       :to="'/user/' + followed.pubkey"
                     >
@@ -577,7 +580,7 @@
 <script>
 import { relayPool } from "nostr-tools";
 import { myHelpers } from "../boot/helpers.js";
-
+const pool = relayPool();
 export default {
   name: "MainLayout",
 

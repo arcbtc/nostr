@@ -1,7 +1,20 @@
 <template>
 	<q-page>
-		<h6 class="q-ma-none">Private Messages</h6>
-		<br />
+		<center>
+			<strong class="text-h6 q-pa-lg fixed-top"
+				>Encrypted Messages</strong
+			>
+		</center>
+		<q-btn
+			flat
+			color="white"
+			icon="arrow_back"
+			label="back"
+			class="small-screen-only fixed-top-left"
+			v-go-back.single
+		/>
+
+		<br /><br />
 
 		<q-list>
 			<q-item
@@ -34,7 +47,7 @@
 				</p>
 
 				<div class="row">
-					<div class="col-9">
+					<div class="col-10">
 						<q-input
 							filled
 							type="text"
@@ -42,7 +55,7 @@
 							hint="Public key"
 						></q-input>
 					</div>
-					<div class="col-3">
+					<div class="col-2">
 						<q-btn
 							unelevated
 							class="q-ma-sm"

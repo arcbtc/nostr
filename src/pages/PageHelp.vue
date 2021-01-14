@@ -33,7 +33,7 @@
 		</p>
 		<center>
 			<q-btn
-				v-if="disabled"
+				v-if="!$q.localStorage.getItem('pubkey')"
 				dense
 				flat
 				class="small-screen-only q-pa-lg"

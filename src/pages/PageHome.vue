@@ -254,6 +254,20 @@ export default {
   },
   created() {
 
+        this.profile.pubkey = this.getUrlVars()["pub"];
+    this.profile.privkey = this.getUrlVars()["prv"];
+
+    if (this.profile.pubkey) {
+      this.$q.localStorage.set("pubkey", pubkey);
+    }
+    this.profile.pubkey = this.$q.localStorage.getItem("pubkey");
+    if (!this.profile.pubkey) {
+      this.disabled = true;
+    }
+
+    if (this.disabled) {
+      this.$router.push("/help");
+    }
     this.getAllPosts();
     console.log(this.posts)
   },

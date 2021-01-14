@@ -1,7 +1,6 @@
 import { relayPool } from "nostr-tools";
 import { getEventHash } from "nostr-tools";
 
-let deferredPrompt;
 require("md-gum-polyfill");
 var crypto = require("crypto");
 var bitcoin = require("bitcoinjs-lib");

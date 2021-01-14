@@ -533,7 +533,7 @@
         <template v-slot:action>
           <q-btn
             flat
-            @click="installApp"
+            @click="installApp()"
             dense
             class="q-px-sm"
             label="Yes"
@@ -547,7 +547,7 @@
           ></q-btn>
           <q-btn
             flat
-            @click="neverInstallApp"
+            @click="neverInstallApp()"
             dense
             class="q-px-sm"
             label="Never"
@@ -578,12 +578,13 @@
 </template>
 
 <script>
+let deferredPrompt;
 import { relayPool } from "nostr-tools";
 import { myHelpers } from "../boot/helpers.js";
 const pool = relayPool();
 export default {
   name: "MainLayout",
-  showInstallBanner: false,
+  showInstallBanner: true,
 
   mounted() {
     let value = this.$q.localStorage.getItem("neverShowBanner");
@@ -622,11 +623,13 @@ export default {
     },
 
     neverInstallApp() {
+      console.log("pooo and");
       this.showInstallBanner = false;
       try {
         this.$q.localStorage.set("neverShowBanner", true);
       } catch (e) {
         console.log(e);
+        console.log("pooo and wee");
       }
     },
     copytoclip(text) {
@@ -673,6 +676,7 @@ export default {
     },
   },
   created: function() {
+<<<<<<< HEAD
     this.profile.pubkey = this.getUrlVars()["pub"];
     this.profile.privkey = this.getUrlVars()["prv"];
 
@@ -688,6 +692,21 @@ export default {
       this.$router.push("/help");
     }
     this.getFollowing();
+=======
+    var follows = JSON.parse(this.$q.localStorage.getItem("follow"));
+    if (follows.length > 1) {
+      this.followlist = true;
+      //  var user = JSON.parse(this.$q.localStorage.getItem(follows[i]));
+
+      for (var i = 0; i < follows.length; i++) {
+        this.following.push({
+          id: i,
+          pubkey: follows[i],
+        });
+      }
+    }
+    console.log(this.following);
+>>>>>>> main
   },
 };
 </script>

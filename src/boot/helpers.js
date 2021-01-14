@@ -44,7 +44,7 @@ export const myHelpers = {
 			dialoggenerate: false,
 			activatevideo: false,
 			imageCaptured: false,
-			showInstallBanner: false,
+
 			user: {
 				isPwd: true,
 				passphrase: "",
@@ -231,10 +231,12 @@ export const myHelpers = {
 			try {
 				this.getRelayPosts();
 			} catch (err) {
-				this.$q.notify({
-					message: "Not able to connect to relay",
-					color: "secondary",
-				});
+				if (!disabled) {
+					this.$q.notify({
+						message: "Not able to connect to relay",
+						color: "secondary",
+					});
+				}
 			}
 
 			var postss = JSON.parse(this.$q.localStorage.getItem("posts"));

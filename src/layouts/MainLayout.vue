@@ -583,6 +583,7 @@ import { myHelpers } from "../boot/helpers.js";
 const pool = relayPool();
 export default {
   name: "MainLayout",
+  showInstallBanner: false,
 
   mounted() {
     let value = this.$q.localStorage.getItem("neverShowBanner");

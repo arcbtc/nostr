@@ -8,11 +8,14 @@
       class="small-screen-only fixed-top-left q-ma-xs"
       v-go-back.single
     />
+
     <center><strong class="text-h6 q-ma-sm fixed-top">Profile</strong></center>
+    <br />
+    <br />
 
     <div class="row">
-      <div class="col-3">
-        <q-avatar size="100px" round>
+      <div class="col-2">
+        <q-avatar size="50px" round>
           <img
             round
             :src="
@@ -23,39 +26,50 @@
           />
         </q-avatar>
       </div>
-      <div class="col-7">
-        <br />
-        <strong
-          ><p>
-            {{
-              $route.path
-                .split("/")
-                [this.$route.path.split("/").length - 1].substring(0, 30)
-            }}<br />
-            {{
-              $route.path
-                .split("/")
-                [this.$route.path.split("/").length - 1].substring(30)
-            }}
-          </p></strong
+      <div class="col-8">
+        <p
+          class="text-caption"
+          style="width:100%;  word-break: break-all !important;"
         >
-      </div>
-      <div class="col-2">
-        <q-btn
-          class="q-ma-md"
-          round
-          flat
-          :to="
-            '/chat/' +
-              $route.path.split('/')[this.$route.path.split('/').length - 1]
-          "
-          unelevated
-          color="primary"
-          icon="message"
-        />
+          {{ $route.path.split("/")[this.$route.path.split("/").length - 1] }}
+        </p>
       </div>
     </div>
 
+    <div
+      v-if="
+        $route.path.split('/')[this.$route.path.split('/').length - 1] !=
+          this.$q.localStorage.getItem('pubkey')
+      "
+    >
+      <q-btn
+        class="float-right q-mr-xs"
+        round
+        unelevated
+        @click="
+          unfollow(
+            $route.path.split('/')[this.$route.path.split('/').length - 1]
+          )
+        "
+        color="primary"
+        flat
+        icon="cancel"
+        size="sm"
+      />
+      <q-btn
+        class="float-right q-mr-xs"
+        round
+        flat
+        :to="
+          '/chat/' +
+            $route.path.split('/')[this.$route.path.split('/').length - 1]
+        "
+        unelevated
+        color="primary"
+        icon="message"
+        size="sm"
+      />
+    </div>
     <q-card
       v-for="post in profilePosts"
       :key="post.id"

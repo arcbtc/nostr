@@ -687,19 +687,7 @@ export default {
     if (this.disabled) {
       this.$router.push("/help");
     }
-    var follows = JSON.parse(this.$q.localStorage.getItem("follow"));
-    if (follows.length > 1) {
-      this.followlist = true;
-      //  var user = JSON.parse(this.$q.localStorage.getItem(follows[i]));
-
-      for (var i = 0; i < follows.length; i++) {
-        this.following.push({
-          id: i,
-          pubkey: follows[i],
-        });
-      }
-    }
-    console.log(this.following);
+    this.getFollowing();
   },
 };
 </script>

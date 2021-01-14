@@ -21,6 +21,7 @@
 				clickable
 				v-ripple
 				v-for="followed in following"
+				v-if="followed.pubkey != $q.localStorage.getItem('pubkey')"
 				:key="followed.id"
 				:to="'/chat/' + followed.pubkey"
 			>

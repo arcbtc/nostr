@@ -33,11 +33,17 @@
             maxlength="280"
           >
             <template v-slot:before>
-              <q-avatar>
-                               <img
+
+                  <q-btn :to="'/user/' + $q.localStorage.getItem('pubkey')"round>
+      <q-avatar size="42px">
+       <img 
                   :src="avatarMake($q.localStorage.getItem('pubkey'))"
                 />
-              </q-avatar>
+      </q-avatar>
+    </q-btn>
+
+
+
             </template>
           </q-input>
 
@@ -149,19 +155,13 @@
               post.date | niceDate
             }}</small></q-item-label
           >
-          {{ post.message }}
+          {{ post.message }} 
           <div>
+          
+            <q-spinner-dots v-if="post.loading && !post.retry" color="primary" />
+
             <q-btn
-              class="float-right q-mr-md"
-              round
-              unelevated
-              color="primary"
-              flat
-              icon="chat_bubble_outline"
-              size="sm"
-            />
-            <q-btn
-              class="float-right q-mr-md"
+              class="float-right q-mr-xs"
               round
               unelevated
               color="primary"
@@ -169,9 +169,19 @@
               icon="repeat"
               size="sm"
             />
+            <q-btn
+              class="float-right q-mr-xs"
+              round
+              unelevated
+              color="primary"
+              flat
+              icon="chat_bubble_outline"
+              size="sm"
+            />
+
 
             <q-btn
-              class="float-right q-mr-md"
+              class="float-right q-mr-xs"
               round
               unelevated
               color="primary"
@@ -179,10 +189,32 @@
               icon="favorite_border"
               size="sm"
             />
+            <q-btn
+               v-if="post.loading && post.retry" 
+               class="float-right q-mr-xs"
+              round
+              unelevated
+              color="pink"
+              flat
+              @click="postAgain(post)"
+              icon="settings_backup_restore"
+              size="sm"
+            />
           </div>
         </q-card-section>
       </q-card-section>
     </q-card>
+        <q-infinite-scroll @load="onLoad" :offset="250">
+      <div v-for="(post, index) in posts" :key="index" class="caption">
+        <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Rerum repellendus sit voluptate voluptas eveniet porro. Rerum blanditiis perferendis totam, ea at omnis vel numquam exercitationem aut, natus minima, porro labore.</p>
+      </div>
+      <template v-slot:loading>
+        <div class="row justify-center q-my-md">
+          <q-spinner-dots color="primary" size="40px" />
+        </div>
+      </template>
+    </q-infinite-scroll>
+
   </q-page>
 </template>
 
@@ -233,11 +265,24 @@ export default {
         { item: "🏴󠁧󠁢󠁷󠁬󠁳󠁿" },
         { item: "🌑" },
       ],
+      items: [ {}, {}, {}, {}, {}, {}, {} ],
     };
   },
 
   mixins: [myHelpers],
-  methods: {},
+  mounted: {
+    
+  },
+  methods: {
+    onLoad (index, done) {
+      setTimeout(() => {
+        if (this.posts) {
+          this.getRelayPosts(10, 3)
+          done()
+        }
+      }, 2000)
+    },
+  },
   filters: {
     tagCheck(post) {
       return true;
@@ -253,23 +298,25 @@ export default {
     },
   },
   created() {
-
+this.getAllPosts();
         this.profile.pubkey = this.getUrlVars()["pub"];
     this.profile.privkey = this.getUrlVars()["prv"];
 
     if (this.profile.pubkey) {
       this.$q.localStorage.set("pubkey", pubkey);
     }
+  
     this.profile.pubkey = this.$q.localStorage.getItem("pubkey");
     if (!this.profile.pubkey) {
       this.disabled = true;
     }
+    console.log("hmm")
 
     if (this.disabled) {
       this.$router.push("/help");
     }
+    console.log("testing")
     this.getAllPosts();
-    console.log(this.posts)
   },
 };
 </script>

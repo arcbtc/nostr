@@ -72,7 +72,7 @@
 							class="q-mr-md"
 						/>
 						<q-btn
-							@click="step = 2"
+							@click="createKeys(user.passphrase)"
 							color="primary"
 							label="Restore"
 							class="q-mr-md"
@@ -156,26 +156,28 @@
 						access your private key.
 						<template>
 							<div class="q-pa-md q-gutter-sm">
-								<div class="q-gutter-sm">
-									<q-radio
-										dense
-										v-model="user.keystoreoption"
-										val="local"
-										label="Local Storage (Recommended)"
-									/><br />
-									<q-radio
-										dense
-										v-model="user.keystoreoption"
-										val="url"
-										label="URL (Bookmark to save)"
-									/><br />
-									<q-radio
-										dense
-										v-model="user.keystoreoption"
-										val="external"
-										label="Externally (Highly experimental)"
-									/><br />
-								</div>
+                <div class="q-gutter-sm">
+                  <q-radio
+                    dense
+                    v-model="user.keystoreoption"
+                    val="local"
+                    label="Local Storage (Recommended)"
+                  /><br />
+                  <q-radio
+                    dense
+                    disable
+                    v-model="user.keystoreoption"
+                    val="url"
+                    label="URL (coming soon)"
+                  /><br />
+                  <q-radio
+                    dense
+                    disable
+                    v-model="user.keystoreoption"
+                    val="external"
+                    label="Hardware wallet (coming soon)"
+                  /><br />
+                </div>
 							</div>
 						</template>
 						<q-stepper-navigation>

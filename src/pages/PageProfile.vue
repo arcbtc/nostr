@@ -31,15 +31,16 @@
           class="text-caption"
           style="width:100%;  word-break: break-all !important;"
         >
-          {{ $route.path.split("/")[this.$route.path.split("/").length - 1] }}
+          {{ $route.path.split('/')[$route.path.split('/').length - 1] }}
         </p>
       </div>
     </div>
 
     <div
+    class="q-pb-xl"
       v-if="
-        $route.path.split('/')[this.$route.path.split('/').length - 1] !=
-          this.$q.localStorage.getItem('pubkey')
+        $route.path.split('/')[$route.path.split('/').length - 1] !=
+          $q.localStorage.getItem('pubkey')
       "
     >
       <q-btn
@@ -47,9 +48,7 @@
         round
         unelevated
         @click="
-          unfollow(
-            $route.path.split('/')[this.$route.path.split('/').length - 1]
-          )
+          unfollow($route.path.split('/')[$route.path.split('/').length - 1])
         "
         color="primary"
         flat
@@ -70,10 +69,11 @@
         size="sm"
       />
     </div>
+
     <q-card
       v-for="post in profilePosts"
       :key="post.id"
-      class="my-card q-mt-xl"
+      class="my-card q-mt-sm"
       flat
       style="border:none;"
     >
@@ -255,7 +255,7 @@ export default {
       pool.publish(eventObject);
     },
     getuserPosts(user) {
-      this.getRelayPosts();
+      this.getRelayPosts(20, 0);
       console.log("poo");
       var postss = JSON.parse(this.$q.localStorage.getItem("posts"));
 
@@ -288,6 +288,13 @@ export default {
     },
   },
   created() {
+
+
+    this.getuserPosts(
+      this.$route.path.split("/")[this.$route.path.split("/").length - 1]
+    );
+
+        try{
     this.profile.pubkey = this.getUrlVars()["pub"];
     this.profile.privkey = this.getUrlVars()["prv"];
 
@@ -297,14 +304,14 @@ export default {
     this.profile.pubkey = this.$q.localStorage.getItem("pubkey");
     if (!this.profile.pubkey) {
       this.disabled = true;
-    }
+    }}
+    catch{}
 
     if (this.disabled) {
       this.$router.push("/help");
     }
-    this.getuserPosts(
-      this.$route.path.split("/")[this.$route.path.split("/").length - 1]
-    );
+
+
   },
 };
 </script>

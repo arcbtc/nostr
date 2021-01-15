@@ -199,7 +199,7 @@
               class="q-mr-md"
             />
             <q-btn
-              @click="step = 2"
+              @click="createKeys(user.passphrase)"
               color="primary"
               label="Restore"
               class="q-mr-md"
@@ -278,15 +278,17 @@
                   /><br />
                   <q-radio
                     dense
+                    disable
                     v-model="user.keystoreoption"
                     val="url"
-                    label="URL (Bookmark to save)"
+                    label="URL (coming soon)"
                   /><br />
                   <q-radio
                     dense
+                    disable
                     v-model="user.keystoreoption"
                     val="external"
-                    label="Externally (Highly experimental)"
+                    label="Hardware wallet (coming soon)"
                   /><br />
                 </div>
               </div>
@@ -492,19 +494,19 @@
                       v-ripple
                       v-for="followed in following"
                       v-if="
-                        followed.pubkey != $q.localStorage.getItem('pubkey')
+                        followed != $q.localStorage.getItem('pubkey')
                       "
-                      :key="followed.id"
-                      :to="'/user/' + followed.pubkey"
+                      :key="followed"
+                      :to="'/user/' + followed"
                     >
                       <q-item-section avatar>
                         <q-avatar round>
-                          <img :src="avatarMake(followed.pubkey)" />
+                          <img :src="avatarMake(followed)" />
                         </q-avatar>
                       </q-item-section>
 
                       <q-item-section>{{
-                        followed.pubkey.substring(0, 10) + "..."
+                        followed.substring(0, 10) + "..."
                       }}</q-item-section>
                     </q-item>
                   </q-list>
@@ -691,6 +693,7 @@ export default {
       this.$router.push("/help");
     }
     this.getFollowing();
+    this.launchPool()
   },
 };
 </script>

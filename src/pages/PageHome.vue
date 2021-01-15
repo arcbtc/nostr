@@ -158,7 +158,7 @@
           {{ post.message }} 
           <div>
           
-            <q-spinner-dots v-if="post.loading && !post.retry" color="primary" />
+            <q-spinner-dots v-if="post.loading" color="primary" />
 
             <q-btn
               class="float-right q-mr-xs"
@@ -178,8 +178,6 @@
               icon="chat_bubble_outline"
               size="sm"
             />
-
-
             <q-btn
               class="float-right q-mr-xs"
               round
@@ -190,7 +188,7 @@
               size="sm"
             />
             <q-btn
-               v-if="post.loading && post.retry" 
+               v-if="post.retry" 
                class="float-right q-mr-xs"
               round
               unelevated
@@ -204,10 +202,8 @@
         </q-card-section>
       </q-card-section>
     </q-card>
-        <q-infinite-scroll @load="onLoad" :offset="250">
-      <div v-for="(post, index) in posts" :key="index" class="caption">
-        <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Rerum repellendus sit voluptate voluptas eveniet porro. Rerum blanditiis perferendis totam, ea at omnis vel numquam exercitationem aut, natus minima, porro labore.</p>
-      </div>
+        <q-infinite-scroll v-if="posts.length > 20" @load="onLoad(posts.length + 10)" :offset="250">
+
       <template v-slot:loading>
         <div class="row justify-center q-my-md">
           <q-spinner-dots color="primary" size="40px" />
@@ -277,7 +273,7 @@ export default {
     onLoad (index, done) {
       setTimeout(() => {
         if (this.posts) {
-          this.getRelayPosts(10, 3)
+          this.getRelayPosts(index, this.posts.length)
           done()
         }
       }, 2000)
@@ -298,10 +294,12 @@ export default {
     },
   },
   created() {
-this.getAllPosts();
-        this.profile.pubkey = this.getUrlVars()["pub"];
-    this.profile.privkey = this.getUrlVars()["prv"];
 
+this.getAllPosts();
+console.log(this.following)
+       try{ this.profile.pubkey = this.getUrlVars()["pub"];
+    this.profile.privkey = this.getUrlVars()["prv"];
+}catch{}
     if (this.profile.pubkey) {
       this.$q.localStorage.set("pubkey", pubkey);
     }
@@ -310,13 +308,10 @@ this.getAllPosts();
     if (!this.profile.pubkey) {
       this.disabled = true;
     }
-    console.log("hmm")
-
     if (this.disabled) {
       this.$router.push("/help");
     }
-    console.log("testing")
-    this.getAllPosts();
+
   },
 };
 </script>

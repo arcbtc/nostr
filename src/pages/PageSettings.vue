@@ -67,20 +67,14 @@
 			<br /><br />
 			<q-separator />
 			<br /><br />
-			<q-form @submit="onSubmit" @reset="onReset" class="q-gutter-md">
-				<q-input
-					filled
-					type="text"
-					v-model="settings.follow"
-					autogrow
-					hint="Batch follow input seperated by spaces"
-				/>
+			<q-form @submit="sendMeta2()" class="q-gutter-md">
+
 				<q-input
 					filled
 					type="textarea"
 					v-model="settings.relays"
 					autogrow
-					hint="Relays seperated by spaces"
+					hint="Add a relay"
 				/>
 
 				<div>
@@ -130,9 +124,7 @@ export default {
 				image: null,
 				date: Date.now(),
 			},
-			settings: {
-				data: {},
-			},
+			settings: [],
 			accept: false,
 		};
 	},
@@ -187,6 +179,15 @@ export default {
 		deletels() {
 			this.$q.localStorage.clear();
 			window.location.reload();
+		},
+		async sendMeta2() {
+			if(this.settings.relays != null){
+              var relays = JSON.parse(this.$q.localStorage.getItem("relays"))
+              relays.push(this.settings.relays)
+              this.$q.localStorage.set("relays", JSON.stringify(relays))
+			}
+			this.settings.relays = ""
+
 		},
 		async sendMeta() {
 			const pool = relayPool();

@@ -87,8 +87,7 @@ export const myHelpers = {
 			var myProfile = JSON.parse(
 				this.$q.localStorage.getItem("myProfile")
 			);
-			await pool.setPrivateKey(myProfile.pubkey);
-			await pool.subKey(myProfile.privkey);
+			await pool.setPrivateKey(myProfile.privkey);
 			await this.relayPush();
 		},
 		async relayPush(theRelay = null) {
@@ -111,19 +110,35 @@ export const myHelpers = {
 				});
 			}
 		},
+		async getRelayPosts(theLimit, theOffset, pubKey = null) {
+			if (pubKey == null) {
+				var myProfile = JSON.parse(
+					this.$q.localStorage.getItem("myProfile")
+				);
+				var theirProfile = JSON.parse(
+					this.$q.localStorage.getItem("theirProfile")
+				);
+				for (var i = 0; i < theirProfile.length; i++) {
+					await pool.subKey(theirProfile[i].pubkey);
+				}
+				await pool.subKey(myProfile.pubkey);
+				await pool.reqFeed({ limit: theLimit, offset: theOffset });
+			} else {
+				await pool.reqKey({ key: pubKey });
+			}
+		},
 		async sendPost(message, theTags = [], theKind = 1) {
 			var myProfile = JSON.parse(
 				this.$q.localStorage.getItem("myProfile")
 			);
+
 			pool.onEvent((event, context, relay) => {
 				if (this.$q.localStorage.getItem(event.id) === null) {
 					for (var i = 0; i < this.posts.length; i++) {
 						if (this.posts[i].id == event.id) {
-							this.posts[i].avatar = this.avatarMake(
-								event.pubkey
-							);
-							this.posts[i].loading = false;
-							this.posts[i].retry = false;
+							this.posts.loading.push(event.id);
+							this.posts.retry.push(event.id);
+							console.log(this.posts[i]);
 						}
 					}
 					var postss = JSON.parse(
@@ -181,9 +196,6 @@ export const myHelpers = {
 			return identicon.generateSync({ id: avicon, size: 40 });
 		},
 		addPubFollow(pubKeyFollow) {
-			var myProfile = JSON.parse(
-				this.$q.localStorage.getItem("myProfile")
-			);
 			var theirProfile = JSON.parse(
 				this.$q.localStorage.getItem("theirProfile")
 			);
@@ -269,13 +281,7 @@ export const myHelpers = {
 				}
 			}
 		},
-		async getRelayPosts(theLimit, theOffset, pubKey = null) {
-			if (pubkey == null) {
-				await pool.reqFeed({ limit: theLimit, offset: theOffset });
-			} else {
-				await pool.reqKey({ key: pubKey });
-			}
-		},
+
 		getUserPosts(user) {
 			this.getRelayPosts(20, 0, user);
 			var postss = JSON.parse(this.$q.localStorage.getItem("Kind1"));
@@ -326,13 +332,11 @@ export const myHelpers = {
 			this.user.publickey = pubkey;
 		},
 		finalGenerate() {
-			console.log("stored");
 			var theRelays = [
 				"wss://nostr-relay.bigsun.xyz",
 				"wss://relay.nostr.org",
 			];
 			var stored = this.user.keystoreoption;
-			console.log(stored);
 			if (stored == "external") {
 				this.$q.localStorage.set(
 					"myProfile",
@@ -381,14 +385,12 @@ export const myHelpers = {
 						about: null,
 					})
 				);
+				this.$q.localStorage.set("theirProfile", JSON.stringify([]));
 				this.$q.localStorage.set("kind0", JSON.stringify([]));
 				this.$q.localStorage.set("kind1", JSON.stringify([]));
 				this.$q.localStorage.set("kind2", JSON.stringify([]));
 				this.$q.localStorage.set("kind3", JSON.stringify([]));
 				this.$q.localStorage.set("kind4", JSON.stringify([]));
-
-				this.addPubFollow(this.user.publickey);
-
 				this.$router.push("/");
 				this.disabled = false;
 				this.link = "home";

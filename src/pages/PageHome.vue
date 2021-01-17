@@ -4,27 +4,9 @@
       <div class="row" style="width:100%">
         <q-form
           style="width:100%;"
-          @submit="sendPost(publishtext, [], 1)"
+          @submit="sendPost(publishtext, [])"
           class="q-gutter-md"
         >
-          <center>
-            <div class="column" style="width:200px" v-show="homeembedimage">
-              <div class="col">
-                <q-btn
-                  flat
-                  round
-                  color="red"
-                  icon="clear"
-                  size="sm"
-                  class="float-right"
-                  @click="discamerahome()"
-                />
-              </div>
-              <div class="col-12">
-                <img width="200" class="q-ma-sm" :src="newpost.imagetemp" />
-              </div>
-            </div>
-          </center>
           <q-input
             style="font-size: 20px;"
             v-model="publishtext"
@@ -33,38 +15,25 @@
             maxlength="280"
           >
             <template v-slot:before>
-              <q-btn :to="'/user/' + $q.localStorage.getItem('pubkey')" round>
+              <q-btn
+                :to="
+                  '/user/' +
+                    JSON.parse($q.localStorage.getItem('myProfile')).pubkey
+                "
+                round
+              >
                 <q-avatar size="42px">
-                  <img :src="avatarMake($q.localStorage.getItem('pubkey'))" />
+                  <img
+                    :src="
+                      avatarMake(
+                        JSON.parse($q.localStorage.getItem('myProfile')).pubkey
+                      )
+                    "
+                  />
                 </q-avatar>
               </q-btn>
             </template>
           </q-input>
-
-          <div class="column" v-show="activatevideohome == true">
-            <div class="col-9 q-mx-auto">
-              <video
-                v-show="!imageCaptured"
-                playsinline
-                ref="video"
-                style="width:300px;"
-                autoplay
-              />
-              <canvas v-show="imageCaptured" ref="canvas" height="240" />
-            </div>
-            <div class="col-3 q-mx-auto">
-              <q-btn
-                flat
-                class="float-right "
-                rounded
-                unelevated
-                color="primary"
-                icon="cancel"
-                @click="discamerahome()"
-                size="lg"
-              />
-            </div>
-          </div>
 
           <div class="float-right">
             <q-btn

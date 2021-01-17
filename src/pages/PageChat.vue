@@ -88,6 +88,9 @@ export default {
 	mixins: [myHelpers],
 	methods: {
 		messageOnSubmit() {
+            const sk1 = this.$route.path.split("/")[
+				this.$route.path.split("/").length - 1
+			];
 
 			this.messages.push({
 				text: this.newMessage,
@@ -96,9 +99,6 @@ export default {
 					"....",
 			});
 
-			const sk1 = this.$route.path.split("/")[
-				this.$route.path.split("/").length - 1
-			];
 			const pk1 = secp.getPublicKey(sk1);
 			const sk2 = this.$q.localStorage.getItem("pubkey");
 			const pk2 = secp.getPublicKey(sk2);
@@ -117,6 +117,10 @@ export default {
             
 			console.log("encrypted :", encryptedMessage);
 			console.log("decrypted :", decryptedMessage);
+			
+            this.$q.localStorage.set("DM" + sk1, 
+			this.messages)
+
 			var tags = [
 				[
 					"p",

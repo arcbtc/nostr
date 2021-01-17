@@ -88,10 +88,9 @@ export default {
 	mixins: [myHelpers],
 	methods: {
 		messageOnSubmit() {
-            const sk1 = this.$route.path.split("/")[
+			const sk1 = this.$route.path.split("/")[
 				this.$route.path.split("/").length - 1
 			];
-
 			this.messages.push({
 				text: this.newMessage,
 				from:
@@ -108,18 +107,17 @@ export default {
 			var key = secp.getSharedSecret(sk2, pk1);
 			var cipher = crypto.createCipher("aes-256-cbc", key);
 			var decipher = crypto.createDecipher("aes-256-cbc", key);
-            console.log("pk2");
+			console.log("pk2");
 			cipher.update(this.newMessage, "utf8", "base64");
 			var encryptedMessage = cipher.final("base64");
-            console.log("pk2");
+			console.log("pk2");
 			decipher.update(encryptedMessage, "base64", "utf8");
 			var decryptedMessage = decipher.final("utf8");
-            
+
 			console.log("encrypted :", encryptedMessage);
 			console.log("decrypted :", decryptedMessage);
-			
-            this.$q.localStorage.set("DM" + sk1, 
-			this.messages)
+
+			this.$q.localStorage.set("DM" + sk1, this.messages);
 
 			var tags = [
 				[
@@ -144,19 +142,17 @@ export default {
 		},
 	},
 	created() {
-		this.profile.pubkey = this.getUrlVars()["pub"];
-		this.profile.privkey = this.getUrlVars()["prv"];
-
-		if (this.profile.pubkey) {
-			this.$q.localStorage.set("pubkey", pubkey);
-		}
-		this.profile.pubkey = this.$q.localStorage.getItem("pubkey");
-		if (!this.profile.pubkey) {
+		this.getAllPosts();
+		var myProfile = JSON.parse(this.$q.localStorage.getItem("myProfile"));
+		if (!myProfile) {
 			this.disabled = true;
-		}
-
-		if (this.disabled) {
 			this.$router.push("/help");
+		} else {
+			var theirProfile = JSON.parse(
+				this.$q.localStorage.getItem("theirProfile")
+			);
+			this.myprofile = myProfile;
+			this.theirProfile = theirProfile;
 		}
 	},
 };

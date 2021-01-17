@@ -90,7 +90,6 @@ export default {
 		};
 	},
 	mixins: [myHelpers],
-
 	methods: {
 		MessageonReset() {
 			this.name = null;
@@ -99,31 +98,17 @@ export default {
 		},
 	},
 	created: function() {
-		var follows = JSON.parse(this.$q.localStorage.getItem("follow"));
-		if (follows.length > 1) {
-			this.followlist = true;
-			//  var user = JSON.parse(this.$q.localStorage.getItem(follows[i]));
-
-			for (var i = 0; i < follows.length; i++) {
-				this.following.push({
-					id: i,
-					pubkey: follows[i],
-				});
-			}
-		}
-		this.profile.pubkey = this.getUrlVars()["pub"];
-		this.profile.privkey = this.getUrlVars()["prv"];
-
-		if (this.profile.pubkey) {
-			this.$q.localStorage.set("pubkey", pubkey);
-		}
-		this.profile.pubkey = this.$q.localStorage.getItem("pubkey");
-		if (!this.profile.pubkey) {
+		var myProfile = JSON.parse(this.$q.localStorage.getItem("myProfile"));
+		if (!myProfile) {
 			this.disabled = true;
-		}
-
-		if (this.disabled) {
 			this.$router.push("/help");
+		} else {
+			var theirProfile = JSON.parse(
+				this.$q.localStorage.getItem("theirProfile")
+			);
+			this.myprofile = myProfile;
+			this.theirProfile = theirProfile;
+			this.getAllPosts();
 		}
 	},
 };

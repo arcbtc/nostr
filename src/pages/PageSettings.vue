@@ -68,7 +68,6 @@
 			<q-separator />
 			<br /><br />
 			<q-form @submit="sendMeta2()" class="q-gutter-md">
-
 				<q-input
 					filled
 					type="textarea"
@@ -181,13 +180,12 @@ export default {
 			window.location.reload();
 		},
 		async sendMeta2() {
-			if(this.settings.relays != null){
-              var relays = JSON.parse(this.$q.localStorage.getItem("relays"))
-              relays.push(this.settings.relays)
-              this.$q.localStorage.set("relays", JSON.stringify(relays))
+			if (this.settings.relays != null) {
+				var relays = JSON.parse(this.$q.localStorage.getItem("relays"));
+				relays.push(this.settings.relays);
+				this.$q.localStorage.set("relays", JSON.stringify(relays));
 			}
-			this.settings.relays = ""
-
+			this.settings.relays = "";
 		},
 		async sendMeta() {
 			const pool = relayPool();
@@ -228,19 +226,16 @@ export default {
 		},
 	},
 	created() {
-		this.profile.pubkey = this.getUrlVars()["pub"];
-		this.profile.privkey = this.getUrlVars()["prv"];
-
-		if (this.profile.pubkey) {
-			this.$q.localStorage.set("pubkey", pubkey);
-		}
-		this.profile.pubkey = this.$q.localStorage.getItem("pubkey");
-		if (!this.profile.pubkey) {
+		var myProfile = JSON.parse(this.$q.localStorage.getItem("myProfile"));
+		if (!myProfile) {
 			this.disabled = true;
-		}
-
-		if (this.disabled) {
 			this.$router.push("/help");
+		} else {
+			var theirProfile = JSON.parse(
+				this.$q.localStorage.getItem("theirProfile")
+			);
+			this.myprofile = myProfile;
+			this.theirProfile = theirProfile;
 		}
 	},
 };

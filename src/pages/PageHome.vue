@@ -33,17 +33,11 @@
             maxlength="280"
           >
             <template v-slot:before>
-
-                  <q-btn :to="'/user/' + $q.localStorage.getItem('pubkey')"round>
-      <q-avatar size="42px">
-       <img 
-                  :src="avatarMake($q.localStorage.getItem('pubkey'))"
-                />
-      </q-avatar>
-    </q-btn>
-
-
-
+              <q-btn :to="'/user/' + $q.localStorage.getItem('pubkey')" round>
+                <q-avatar size="42px">
+                  <img :src="avatarMake($q.localStorage.getItem('pubkey'))" />
+                </q-avatar>
+              </q-btn>
             </template>
           </q-input>
 
@@ -69,7 +63,6 @@
                 @click="discamerahome()"
                 size="lg"
               />
-
             </div>
           </div>
 
@@ -118,7 +111,6 @@
               size="sm"
             />
 
-
             <q-btn
               label="Publish"
               rounded
@@ -133,7 +125,6 @@
     </template>
     <q-card
       v-for="post in posts"
-      v-if="post.kind == 1 ? true : false""
       :key="post.id"
       class="my-card"
       flat
@@ -142,7 +133,7 @@
       <q-card-section class="no-shadow" horizontal>
         <q-card-section class="no-shadow">
           <q-avatar class="no-shadow">
-            <img :src="post.avatar" />
+            <img :src="avatarMake(post.pubkey)" />
           </q-avatar>
         </q-card-section>
 
@@ -150,14 +141,13 @@
 
         <q-card-section class="col no-shadow">
           <q-item-label
-            >{{ post.user | handler }}
+            >{{ post.pubkey | handler }}
             <small style="color:grey">{{
-              post.date | niceDate
+              post.created_at | niceDate
             }}</small></q-item-label
           >
-          {{ post.message }} 
+          {{ post.content }}
           <div>
-          
             <q-spinner-dots v-if="post.loading" color="primary" />
 
             <q-btn
@@ -188,8 +178,8 @@
               size="sm"
             />
             <q-btn
-               v-if="post.retry" 
-               class="float-right q-mr-xs"
+              v-if="post.retry"
+              class="float-right q-mr-xs"
               round
               unelevated
               color="pink"
@@ -202,15 +192,17 @@
         </q-card-section>
       </q-card-section>
     </q-card>
-        <q-infinite-scroll v-if="posts.length > 20" @load="onLoad(posts.length + 10)" :offset="250">
-
+    <q-infinite-scroll
+      v-if="posts.length > 20"
+      @load="onLoad(posts.length + 10)"
+      :offset="250"
+    >
       <template v-slot:loading>
         <div class="row justify-center q-my-md">
           <q-spinner-dots color="primary" size="40px" />
         </div>
       </template>
     </q-infinite-scroll>
-
   </q-page>
 </template>
 
@@ -261,57 +253,41 @@ export default {
         { item: "🏴󠁧󠁢󠁷󠁬󠁳󠁿" },
         { item: "🌑" },
       ],
-      items: [ {}, {}, {}, {}, {}, {}, {} ],
+      items: [{}, {}, {}, {}, {}, {}, {}],
     };
   },
 
   mixins: [myHelpers],
-  mounted: {
-    
-  },
+  mounted: {},
   methods: {
-    onLoad (index, done) {
+    onLoad(index, done) {
       setTimeout(() => {
         if (this.posts) {
-          this.getRelayPosts(index, this.posts.length)
-          done()
+          this.getRelayPosts(index, this.posts.length);
+          done();
         }
-      }, 2000)
+      }, 2000);
     },
   },
   filters: {
     tagCheck(post) {
       return true;
     },
-    //prefer handle over user
-    handler(value) {
-      return "@" + value.substring(0, 15) + "....";
-    },
-    //make timestamp look nice
-    niceDate(value) {
-      let formattedString = date.formatDate(value, "YYYY MMM D h:mm A");
-      return formattedString;
-    },
   },
   created() {
-
-this.getAllPosts();
-console.log(this.following)
-       try{ this.profile.pubkey = this.getUrlVars()["pub"];
-    this.profile.privkey = this.getUrlVars()["prv"];
-}catch{}
-    if (this.profile.pubkey) {
-      this.$q.localStorage.set("pubkey", pubkey);
-    }
-  
-    this.profile.pubkey = this.$q.localStorage.getItem("pubkey");
-    if (!this.profile.pubkey) {
+    var myProfile = JSON.parse(this.$q.localStorage.getItem("myProfile"));
+    if (!myProfile) {
       this.disabled = true;
-    }
-    if (this.disabled) {
+      console.log(this.disabled);
       this.$router.push("/help");
+    } else {
+      var theirProfile = JSON.parse(
+        this.$q.localStorage.getItem("theirProfile")
+      );
+      this.myprofile = myProfile;
+      this.theirProfile = theirProfile;
+      this.getAllPosts();
     }
-
   },
 };
 </script>

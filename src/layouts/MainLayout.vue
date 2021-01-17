@@ -7,24 +7,6 @@
           @submit="PublishonSubmit"
           class="q-gutter-md"
         >
-          <center>
-            <div class="column" style="width:200px" v-show="homeembedimage">
-              <div class="col">
-                <q-btn
-                  flat
-                  round
-                  color="red"
-                  icon="clear"
-                  size="sm"
-                  class="float-right"
-                  @click="discamerahome()"
-                />
-              </div>
-              <div class="col-12">
-                <img width="200" class="q-ma-sm" :src="newpost.imagetemp" />
-              </div>
-            </div>
-          </center>
           <q-input
             style="font-size: 20px;"
             v-model="publishtext"
@@ -38,53 +20,6 @@
               </q-avatar>
             </template>
           </q-input>
-
-          <div class="column" v-show="activatevideohome == true">
-            <div class="col-9 q-mx-auto">
-              <video
-                v-show="!imageCaptured"
-                playsinline
-                ref="video"
-                style="width:300px;"
-                autoplay
-              />
-              <canvas v-show="imageCaptured" ref="canvas" height="240" />
-            </div>
-            <div class="col-3 q-mx-auto">
-              <q-btn
-                flat
-                class="float-right "
-                rounded
-                unelevated
-                color="primary"
-                icon="cancel"
-                @click="discamerahome()"
-                size="lg"
-              />
-
-              <q-btn
-                flat
-                class="float-right "
-                rounded
-                unelevated
-                color="primary"
-                icon="camera"
-                @click="captureimage()"
-                size="lg"
-              />
-              <q-btn
-                v-show="imageCaptured"
-                flat
-                class="float-right "
-                rounded
-                unelevated
-                color="primary"
-                icon="check_circle"
-                @click="photoverify()"
-                size="lg"
-              />
-            </div>
-          </div>
 
           <div class="float-right">
             <q-btn
@@ -128,35 +63,6 @@
               unelevated
               color="primary"
               icon="insert_emoticon"
-              size="sm"
-            />
-
-            <q-file
-              ref="myFileInput"
-              accept="image/*"
-              @input="captureimageupload"
-              style="display:none"
-              v-model="imagefile"
-              type="file"
-              label="Standard"
-            ></q-file>
-
-            <q-btn
-              class="float-left q-mr-md"
-              round
-              unelevated
-              color="primary"
-              @click="getFile"
-              icon="insert_photo"
-              size="sm"
-            />
-            <q-btn
-              class="float-left q-mr-md"
-              round
-              unelevated
-              color="primary"
-              icon="camera_alt"
-              @click="initcamerahome()"
               size="sm"
             />
             <q-btn
@@ -294,7 +200,7 @@
               </div>
             </template>
             <q-stepper-navigation>
-              <q-btn color="primary" @click="finalgenerate" label="Finish" />
+              <q-btn color="primary" @click="finalGenerate" label="Finish" />
               <q-btn
                 flat
                 @click="step = 2"
@@ -433,7 +339,7 @@
                     color="primary"
                     size="md"
                     label="Publish"
-                    @click="dialoguestarted()"
+                    @click="dialogueStarted()"
                   ></q-btn>
                   <q-btn
                     v-else
@@ -443,7 +349,7 @@
                     color="primary"
                     size="md"
                     label="Genrate/Restore User Account"
-                    @click="dialoguegenerate()"
+                    @click="dialogueGenerate()"
                   ></q-btn>
                 </div>
               </q-card-section>
@@ -493,9 +399,7 @@
                       clickable
                       v-ripple
                       v-for="followed in following"
-                      v-if="
-                        followed != $q.localStorage.getItem('pubkey')
-                      "
+                      v-if="followed != $q.localStorage.getItem('pubkey')"
                       :key="followed"
                       :to="'/user/' + followed"
                     >
@@ -578,7 +482,6 @@
     </q-footer>
   </q-layout>
 </template>
-
 <script>
 let deferredPrompt;
 import { relayPool } from "nostr-tools";
@@ -587,14 +490,12 @@ const pool = relayPool();
 export default {
   name: "MainLayout",
   showInstallBanner: true,
-
   mounted() {
     let value = this.$q.localStorage.getItem("neverShowBanner");
     if (!value) {
       window.addEventListener("beforeinstallprompt", (e) => {
         e.preventDefault();
         deferredPrompt = e;
-
         this.showInstallBanner = true;
       });
     }
@@ -609,7 +510,6 @@ export default {
           vars[key] = value;
         }
       );
-
       return vars;
     },
     installApp() {
@@ -623,18 +523,15 @@ export default {
         }
       });
     },
-
     neverInstallApp() {
-      console.log("pooo and");
       this.showInstallBanner = false;
       try {
         this.$q.localStorage.set("neverShowBanner", true);
       } catch (e) {
         console.log(e);
-        console.log("pooo and wee");
       }
     },
-    copytoclip(text) {
+    copyToClip(text) {
       copyToClipboard(text)
         .then(() => {
           this.$q.notify({
@@ -645,67 +542,24 @@ export default {
           this.$q.notify({ type: "negative", message: "FAILED" });
         });
     },
-    captureimage() {
-      let video = this.$refs.video;
-      let canvas = this.$refs.canvas;
-      canvas.width = video.getBoundingClientRect().width;
-      canvas.height = video.getBoundingClientRect().height;
-      let context = canvas.getContext("2d");
-      context.drawImage(video, 0, 0, canvas.width, canvas.height);
-      this.imageCaptured = true;
-      this.newpost.imagetemp = canvas.toDataURL();
-      this.newpost.image = this.dataURItoBlob(canvas.toDataURL());
-      console.log(this.newpost.image);
-    },
-    dataURItoBlob(dataURI) {
-      var byteString = atob(dataURI.split(",")[1]);
-      var mimeString = dataURI
-        .split(",")[0]
-        .split(":")[1]
-        .split(";")[0];
-
-      var ab = new ArrayBuffer(byteString.length);
-
-      var ia = new Uint8Array(ab);
-
-      for (var i = 0; i < byteString.length; i++) {
-        ia[i] = byteString.charCodeAt(i);
-      }
-
-      // write the ArrayBuffer to a blob, and you're done
-      var blob = new Blob([ab], { type: mimeString });
-      return blob;
-    },
   },
   created: function() {
-    this.profile.pubkey = this.getUrlVars()["pub"];
-    this.profile.privkey = this.getUrlVars()["prv"];
-
-    if (this.profile.pubkey) {
-      this.$q.localStorage.set("pubkey", pubkey);
-    }
-    this.profile.pubkey = this.$q.localStorage.getItem("pubkey");
-    if (!this.profile.pubkey) {
+    var myProfile = JSON.parse(this.$q.localStorage.getItem("myProfile"));
+    if (!myProfile) {
       this.disabled = true;
+    } else {
+      this.getFollowing();
+      this.launchPool();
     }
-
-    if (this.disabled) {
-      this.$router.push("/help");
-    }
-    this.getFollowing();
-    this.launchPool()
   },
 };
 </script>
 
 <style lang="sass">
-
 .my-menu-link
   color: primary
-
 body.body--dark
     background: #1d2d2d
-
 .small-screen-only
   @media (max-width: $breakpoint-xs-max)
     display: block

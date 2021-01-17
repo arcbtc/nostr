@@ -40,7 +40,7 @@
 				color="primary"
 				size="md"
 				label="Genrate/Restore User Account"
-				@click="dialoguegenerate()"
+				@click="dialogueGenerate()"
 			></q-btn>
 		</center>
 
@@ -105,7 +105,7 @@
 								<q-icon
 									name="content_copy"
 									class="cursor-pointer"
-									@click="copytoclip(user.privatekey)"
+									@click="copyToClip(user.privatekey)"
 								></q-icon>
 							</template>
 							<template v-slot:append>
@@ -129,7 +129,7 @@
 								<q-icon
 									name="content_copy"
 									class="cursor-pointer"
-									@click="copytoclip(user.publickey)"
+									@click="copyToClip(user.publickey)"
 								></q-icon>
 							</template>
 						</q-input>
@@ -156,34 +156,34 @@
 						access your private key.
 						<template>
 							<div class="q-pa-md q-gutter-sm">
-                <div class="q-gutter-sm">
-                  <q-radio
-                    dense
-                    v-model="user.keystoreoption"
-                    val="local"
-                    label="Local Storage (Recommended)"
-                  /><br />
-                  <q-radio
-                    dense
-                    disable
-                    v-model="user.keystoreoption"
-                    val="url"
-                    label="URL (coming soon)"
-                  /><br />
-                  <q-radio
-                    dense
-                    disable
-                    v-model="user.keystoreoption"
-                    val="external"
-                    label="Hardware wallet (coming soon)"
-                  /><br />
-                </div>
+								<div class="q-gutter-sm">
+									<q-radio
+										dense
+										v-model="user.keystoreoption"
+										val="local"
+										label="Local Storage (Recommended)"
+									/><br />
+									<q-radio
+										dense
+										disable
+										v-model="user.keystoreoption"
+										val="url"
+										label="URL (coming soon)"
+									/><br />
+									<q-radio
+										dense
+										disable
+										v-model="user.keystoreoption"
+										val="external"
+										label="Hardware wallet (coming soon)"
+									/><br />
+								</div>
 							</div>
 						</template>
 						<q-stepper-navigation>
 							<q-btn
 								color="primary"
-								@click="finalgenerate"
+								@click="finalGenerate"
 								label="Finish"
 							/>
 							<q-btn
@@ -208,5 +208,18 @@ export default {
 	name: "PageHelp",
 	mixins: [myHelpers],
 	methods: {},
+	created() {
+		var myProfile = JSON.parse(this.$q.localStorage.getItem("myProfile"));
+		if (!myProfile) {
+			this.disabled = true;
+		} else {
+			var theirProfile = JSON.parse(
+				this.$q.localStorage.getItem("theirProfile")
+			);
+			this.myprofile = myProfile;
+			this.theirProfile = theirProfile;
+			this.getAllPosts();
+		}
+	},
 };
 </script>

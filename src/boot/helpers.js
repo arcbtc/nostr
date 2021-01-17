@@ -3,6 +3,7 @@ import { getEventHash } from "nostr-tools";
 
 require("md-gum-polyfill");
 var crypto = require("crypto");
+const secp = require("noble-secp256k1");
 var bitcoin = require("bitcoinjs-lib");
 const bip39 = require("bip39");
 const bip32 = require("bip32");
@@ -20,6 +21,8 @@ import { copyToClipboard } from "quasar";
 const ecurve = require("ecurve");
 const curve = ecurve.getCurveByName("secp256k1");
 const G = curve.G;
+
+
 
 export const myHelpers = {
 	data() {
@@ -113,7 +116,8 @@ export const myHelpers = {
 			}
 
 		},
-		async sendPost(message, tags = []) {
+		async sendPost(message, theTags = [], theKind = 1) {
+			console.log("eventObject")
 			pool.onEvent((event, context, relay) => {
 				if (this.$q.localStorage.getItem(event.id) === null) {
 					for (var i = 0; i < this.posts.length; i++) {
@@ -137,8 +141,8 @@ export const myHelpers = {
 			var eventObject = {
 				pubkey: String(this.$q.localStorage.getItem("pubkey")),
 				created_at: timest,
-				kind: 1,
-				tags: tags,
+				kind: theKind,
+				tags: theTags,
 				content: message,
 			};
 			var eventObjectId = await getEventHash(eventObject);
@@ -149,49 +153,13 @@ export const myHelpers = {
 				avatar: this.avatarMake(eventObject.pubkey),
 				date: eventObject.created_at * 1000,
 				user: eventObject.pubkey,
-				kind: 1,
+				kind: theKind,
 				handle: null,
 				loading: true,
 				retry: false,
 			});
-			await pool.publish(eventObject);
-		},
-		async sendDM(message, tags = []) {
-			pool.onEvent((event, context, relay) => {
-				if (this.$q.localStorage.getItem(event.id) === null) {
-					console.log(this.posts.length)
-					for (var i = 0; i < this.posts.length; i++) {
-						if (this.posts[i].id == event.id) {
-							this.posts[i].avatar = this.avatarMake(event.pubkey)
-							this.posts[i].handle = null
-						    this.posts[i].loading = false
-						    this.posts[i].retry = false
-						}
-					}
-					var postss = JSON.parse(
-						this.$q.localStorage.getItem("posts")
-					);
-					this.$q.localStorage.set(event.id, JSON.stringify(event));
-					postss.unshift(event.id);
-					this.$q.localStorage.set("posts", JSON.stringify(postss));
-				}
-				this.publishtext = "";
-			});
-			var relays = JSON.parse(this.$q.localStorage.getItem("relays"));
-			for (var i = 0; i < relays.length; i++) {
-				pool.addRelay(relays[i], {
-					read: true,
-					write: true,
-				});
-			}
-			const timest = Math.floor(Date.now() / 1000);
-			var eventObject = {
-				pubkey: String(this.$q.localStorage.getItem("pubkey")),
-				created_at: timest,
-				kind: 4,
-				tags: tags,
-				content: message,
-			};
+			console.log(eventObject)
+
 			await pool.publish(eventObject);
 		},
 		async retryPostTimer(postid) {

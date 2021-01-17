@@ -67,10 +67,8 @@
 </template>
 
 <script>
-const crypto = require("crypto");
-
+var crypto = require("crypto");
 const secp = require("noble-secp256k1");
-
 import { myHelpers } from "../boot/helpers.js";
 
 export default {
@@ -90,21 +88,14 @@ export default {
 	mixins: [myHelpers],
 	methods: {
 		messageOnSubmit() {
-			console.log("cunt");
+
 			this.messages.push({
 				text: this.newMessage,
 				from:
 					this.$q.localStorage.getItem("pubkey").substring(0, 15) +
 					"....",
 			});
-			this.sendDM(this.newMessage);
-			this.newMessage = "";
-		},
-		onSubmit() {
-			console.log("cunt");
-		},
 
-		sendDM(message) {
 			const sk1 = this.$route.path.split("/")[
 				this.$route.path.split("/").length - 1
 			];
@@ -117,13 +108,13 @@ export default {
 			var key = secp.getSharedSecret(sk2, pk1);
 			var cipher = crypto.createCipher("aes-256-cbc", key);
 			var decipher = crypto.createDecipher("aes-256-cbc", key);
-
-			cipher.update(message, "utf8", "base64");
+            console.log("pk2");
+			cipher.update(this.newMessage, "utf8", "base64");
 			var encryptedMessage = cipher.final("base64");
-
+            console.log("pk2");
 			decipher.update(encryptedMessage, "base64", "utf8");
 			var decryptedMessage = decipher.final("utf8");
-
+            
 			console.log("encrypted :", encryptedMessage);
 			console.log("decrypted :", decryptedMessage);
 			var tags = [
@@ -138,7 +129,8 @@ export default {
 				],
 			];
 			console.log(tags);
-			this.sendPost(encryptedMessage, tags, 1);
+			this.sendPost(encryptedMessage, tags, 4);
+			this.newMessage = "";
 		},
 
 		MessageonReset() {

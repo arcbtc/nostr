@@ -67,7 +67,7 @@
 			<br /><br />
 			<q-separator />
 			<br /><br />
-			<q-form @submit="sendMeta2()" class="q-gutter-md">
+			<q-form @submit="relayAdd(settings.relays)" class="q-gutter-md">
 				<q-input
 					filled
 					type="textarea"
@@ -80,7 +80,30 @@
 					<q-btn
 						class="float-right"
 						unelevated
-						label="Submit"
+						label="Add"
+						type="submit"
+						color="primary"
+					/>
+				</div>
+			</q-form>
+			<br /><br />
+			<q-separator />
+			<br /><br />
+			<q-form @submit="relayRem(settings.relay)" class="q-gutter-md">
+				<q-select
+					filled
+					v-model="settings.relay"
+					multiple
+					:options="myprofile.relays"
+					label="Remove relay(s)"
+					style="width: 250px"
+				/>
+
+				<div>
+					<q-btn
+						class="float-right"
+						unelevated
+						label="Remove"
 						type="submit"
 						color="primary"
 					/>
@@ -146,6 +169,14 @@ export default {
 				});
 			}
 		},
+		relayAdd(relay) {
+			this.settings.relays = "";
+			this.relayPush(relay);
+		},
+		relayRem(relay) {
+			this.settings.relay = "";
+			this.relayRemove(relay);
+		},
 
 		ProfileonReset() {
 			this.name = null;
@@ -179,14 +210,7 @@ export default {
 			this.$q.localStorage.clear();
 			window.location.reload();
 		},
-		async sendMeta2() {
-			if (this.settings.relays != null) {
-				var relays = JSON.parse(this.$q.localStorage.getItem("relays"));
-				relays.push(this.settings.relays);
-				this.$q.localStorage.set("relays", JSON.stringify(relays));
-			}
-			this.settings.relays = "";
-		},
+
 		async sendMeta() {
 			const pool = relayPool();
 
@@ -227,6 +251,7 @@ export default {
 	},
 	created() {
 		var myProfile = JSON.parse(this.$q.localStorage.getItem("myProfile"));
+		this.myprofile = myProfile;
 		if (!myProfile) {
 			this.disabled = true;
 			this.$router.push("/help");
@@ -237,6 +262,7 @@ export default {
 			this.myprofile = myProfile;
 			this.theirProfile = theirProfile;
 		}
+		this.relayPush();
 	},
 };
 </script>

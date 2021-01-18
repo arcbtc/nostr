@@ -4,7 +4,7 @@
       <q-card style="width:500px" class="q-pa-md q-pt-lg">
         <q-form
           style="width:100%;"
-          @submit="PublishonSubmit"
+          @submit="publishOnSubmit"
           class="q-gutter-md"
         >
           <q-input
@@ -78,8 +78,8 @@
       </q-card>
     </q-dialog>
 
-    <q-dialog v-model="dialoggenerate">
-      <q-card class="q-pa-md q-pt-lg">
+    <q-dialog v-model="dialoggenerate" position="top">
+      <q-card class="q-pa-md q-pt-lg q-mt-md">
         <q-stepper v-model="step" vertical color="primary" animated>
           <q-step
             :name="1"
@@ -379,14 +379,14 @@
           <div class="col-4  large-screen-only">
             <q-card class="float-left no-shadow">
               <q-card-section>
-                <q-input dense rounded outlined v-model="addPubkey">
+                <q-input dense rounded outlined v-model="addPubKey">
                   <template v-slot:append>
                     <q-btn
                       round
                       dense
                       flat
                       icon="add"
-                      @click="addPubFollow(addPubkey)"
+                      @click="addPubFollow(addPubKey)"
                     />
                   </template>
                 </q-input>
@@ -399,18 +399,22 @@
                       clickable
                       v-ripple
                       v-for="followed in following"
-                      v-if="followed != $q.localStorage.getItem('pubkey')"
-                      :key="followed"
-                      :to="'/user/' + followed"
+                      v-if="
+                        followed.pubkey !=
+                          JSON.parse($q.localStorage.getItem('myProfile'))
+                            .pubkey
+                      "
+                      @click="toProfile(followed.pubkey)"
+                      :key="followed.pubkey"
                     >
                       <q-item-section avatar>
                         <q-avatar round>
-                          <img :src="avatarMake(followed)" />
+                          <img :src="avatarMake(followed.pubkey)" />
                         </q-avatar>
                       </q-item-section>
 
                       <q-item-section>{{
-                        followed.substring(0, 10) + "..."
+                        followed.pubkey.substring(0, 10) + "..."
                       }}</q-item-section>
                     </q-item>
                   </q-list>
@@ -490,7 +494,7 @@ import { myHelpers } from "../boot/helpers.js";
 const pool = relayPool();
 export default {
   name: "MainLayout",
-  showInstallBanner: true,
+
   mounted() {
     let value = this.$q.localStorage.getItem("neverShowBanner");
     if (!value) {
@@ -513,6 +517,7 @@ export default {
       );
       return vars;
     },
+    publishOnSubmit() {},
     installApp() {
       this.showInstallBanner = false;
       deferredPrompt.prompt();
@@ -553,6 +558,9 @@ export default {
       this.getFollowing();
       this.launchPool();
     }
+
+    //pool.onNotice("message", "wss://nostr-relay.bigsun.xyz");
+    //pool.onNotice("message", "wss://relay.nostr.org");
   },
 };
 </script>

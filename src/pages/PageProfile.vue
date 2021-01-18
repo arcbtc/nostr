@@ -16,14 +16,7 @@
     <div class="row">
       <div class="col-2">
         <q-avatar size="50px" round>
-          <img
-            round
-            :src="
-              avatarMake(
-                $route.path.split('/')[this.$route.path.split('/').length - 1]
-              )
-            "
-          />
+          <img round :src="avatarMake(singleprofile.pubkey)" />
         </q-avatar>
       </div>
       <div class="col-8">
@@ -31,38 +24,40 @@
           class="text-caption"
           style="width:100%;  word-break: break-all !important;"
         >
-          {{ $route.path.split("/")[$route.path.split("/").length - 1] }}
+          {{ singleprofile.pubkey }}
         </p>
       </div>
     </div>
 
-    <div
-      class="q-pb-xl"
-      v-if="
-        $route.path.split('/')[$route.path.split('/').length - 1] !=
-          $q.localStorage.getItem('pubkey')
-      "
-    >
+    <div class="q-pb-xl">
       <q-btn
+        v-if="followCheck()"
         class="float-right q-mr-xs"
         round
         unelevated
-        @click="
-          unfollow($route.path.split('/')[$route.path.split('/').length - 1])
-        "
-        color="primary"
+        @click="unFollow(singleprofile.pubkey)"
+        color="red"
         flat
         icon="cancel"
         size="sm"
       />
       <q-btn
+        v-if="!followCheck(singleprofile.pubkey)"
+        class="float-right q-mr-xs"
+        round
+        unelevated
+        @click="addPubFollow(singleprofile.pubkey)"
+        color="primary"
+        flat
+        icon="add_circle"
+        size="sm"
+      />
+
+      <q-btn
         class="float-right q-mr-xs"
         round
         flat
-        :to="
-          '/chat/' +
-            $route.path.split('/')[this.$route.path.split('/').length - 1]
-        "
+        :to="'/chat/' + singleprofile.pubkey"
         unelevated
         color="primary"
         icon="message"
@@ -80,7 +75,7 @@
       <q-card-section class="no-shadow" horizontal>
         <q-card-section class="no-shadow">
           <q-avatar class="no-shadow">
-            <img :src="post.avatar" />
+            <img :src="avatarMake(String(post.pubkey))" />
           </q-avatar>
         </q-card-section>
 
@@ -88,12 +83,12 @@
 
         <q-card-section class="col no-shadow">
           <q-item-label
-            >{{ post.user | handler }}
+            >{{ post.pubkey | handler }}
             <small style="color:grey">{{
-              post.date | niceDate
+              post.created_at | niceDate
             }}</small></q-item-label
           >
-          {{ post.message }}
+          {{ post.content }}
           <div>
             <q-btn
               class="float-right q-mr-md"
@@ -134,25 +129,6 @@
 import { date } from "quasar";
 require("md-gum-polyfill");
 let deferredPrompt;
-
-var crypto = require("crypto");
-var bitcoin = require("bitcoinjs-lib");
-const bip39 = require("bip39");
-const bip32 = require("bip32");
-const bs58 = require("bs58");
-var wif = require("wif");
-const Buffer = require("safe-buffer").Buffer;
-
-//const convert = schnorr.convert;
-import { relayPool } from "nostr-tools";
-import shajs from "sha.js";
-//import BigInteger from "bigi";
-//import schnorr from "bip-schnorr";
-import { copyToClipboard } from "quasar";
-const ecurve = require("ecurve");
-const curve = ecurve.getCurveByName("secp256k1");
-const G = curve.G;
-const identicon = require("identicon");
 import { myHelpers } from "../boot/helpers.js";
 
 export default {
@@ -196,14 +172,25 @@ export default {
         { item: "🏴󠁧󠁢󠁷󠁬󠁳󠁿" },
         { item: "🌑" },
       ],
+      followcheck: false,
       profilePosts: [],
     };
   },
   mixins: [myHelpers],
-  methods: {},
+  methods: {
+    followCheck(pubKey) {
+      var following = this.getFollowing();
+      for (var i = 0; i < this.following.length; i++) {
+        if (pubKey == this.following[i].pubkey) {
+          return true;
+        }
+      }
+    },
+  },
 
   created() {
     var myProfile = JSON.parse(this.$q.localStorage.getItem("myProfile"));
+    var theirProfile = JSON.parse(this.$q.localStorage.getItem("theirProfile"));
     if (!myProfile) {
       this.disabled = true;
       this.$router.push("/help");
@@ -212,6 +199,18 @@ export default {
         this.$route.path.split("/")[this.$route.path.split("/").length - 1]
       );
     }
+
+    this.singleprofile = [];
+    for (var i = 0; i < theirProfile.length; i++) {
+      if (
+        (theirProfile[i].pubkey = this.$route.path.split("/")[
+          $route.path.split("/").length - 1
+        ])
+      ) {
+        this.singleprofile = theirProfile[i];
+      }
+    }
   },
+  filters: {},
 };
 </script>

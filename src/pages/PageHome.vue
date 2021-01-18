@@ -109,44 +109,29 @@
         <q-separator vertical style="display: none;" />
 
         <q-card-section class="col no-shadow">
-          <q-item-label
-            >{{ post.pubkey | handler }}
-            <small style="color:grey">{{
-              post.created_at | niceDate
-            }}</small></q-item-label
-          >
-          {{ post.content }}
+          <q-card-section class="q-pa-none" @click="dialoguePost(post)">
+            <q-item-label
+              >{{ post.pubkey | handler }}
+              <small style="color:grey">{{
+                post.created_at | niceDate
+              }}</small></q-item-label
+            >
+            {{ post.content }}
+          </q-card-section>
           <div>
             <q-spinner-dots v-if="post.loading" color="primary" />
-            {{ Date.now() / 1000 - post.created_at }}
-
             <q-btn
-              class="float-right q-mr-xs"
-              round
-              unelevated
-              color="primary"
-              flat
-              icon="repeat"
-              size="sm"
-            />
-            <q-btn
+              v-if="!post.retry && !post.loading"
               class="float-right q-mr-xs"
               round
               unelevated
               color="primary"
               flat
               icon="chat_bubble_outline"
+              @click="dialoguePost(post)"
               size="sm"
             />
-            <q-btn
-              class="float-right q-mr-xs"
-              round
-              unelevated
-              color="primary"
-              flat
-              icon="favorite_border"
-              size="sm"
-            />
+
             <q-btn
               v-if="post.retry"
               class="float-right q-mr-xs"
@@ -158,10 +143,120 @@
               icon="settings_backup_restore"
               size="sm"
             />
+            <q-btn
+              v-if="post.retry"
+              class="float-right q-mr-xs"
+              round
+              unelevated
+              color="pink"
+              flat
+              @click="deletePost(post)"
+              icon="cancel"
+              size="sm"
+            />
           </div>
         </q-card-section>
       </q-card-section>
     </q-card>
+    <q-dialog v-model="dialogpost" position="top">
+      <q-card class="my-card q-mt-md" flat style="border:none;">
+        <q-card-section class="no-shadow" vertical>
+          <q-card-section class="no-shadow" horizontal>
+            <q-card-section class="no-shadow q-pb-none">
+              <q-avatar class="no-shadow ">
+                <img :src="avatarMake(String(dialoguepost.pubkey))" />
+              </q-avatar>
+            </q-card-section>
+
+            <q-separator vertical style="display: none;" />
+
+            <q-card-section class="col no-shadow q-pb-none">
+              <q-item-label
+                >{{ String(dialoguepost.pubkey) | handler }}
+                <small style="color:grey">{{
+                  dialoguepost.created_at | niceDate
+                }}</small></q-item-label
+              >
+              {{ dialoguepost.content }}
+              <div></div>
+            </q-card-section>
+          </q-card-section>
+          <q-card-section class="no-shadow q-pa-none q-pl-xl">
+            <div class="row" style="width:100%">
+              <q-form
+                style="width:100%;"
+                @submit="sendPost(replytext, [['e', dialoguepost.id]])"
+                class="q-gutter-md"
+              >
+                <q-input
+                  dense
+                  style="font-size: 20px;"
+                  v-model="replytext"
+                  autogrow
+                  maxlength="280"
+                >
+                </q-input>
+
+                <div class="float-right">
+                  <q-btn
+                    v-if="replytext.length < 280"
+                    class="float-left q-mr-md"
+                    round
+                    unelevated
+                    color="primary"
+                    icon="insert_emoticon"
+                    size="sm"
+                  >
+                    <q-popup-proxy>
+                      <q-btn
+                        v-for="emoji in emojis1"
+                        :key="emoji.item"
+                        @click="replytext = replytext + emoji.item"
+                        flat
+                        rounded
+                        unelevated
+                        dense
+                        >{{ emoji.item }}</q-btn
+                      >
+                      <br />
+                      <q-btn
+                        v-for="emoji in emojis2"
+                        :key="emoji.item"
+                        @click="replytext = replytext + emoji.item"
+                        flat
+                        rounded
+                        unelevated
+                        dense
+                        >{{ emoji.item }}</q-btn
+                      >
+                    </q-popup-proxy>
+                  </q-btn>
+                  <q-btn
+                    v-else
+                    disable
+                    class="float-left q-mr-md"
+                    round
+                    unelevated
+                    color="primary"
+                    icon="insert_emoticon"
+                    size="sm"
+                  />
+
+                  <q-btn
+                    label="Reply"
+                    rounded
+                    unelevated
+                    type="submit"
+                    class="float-right"
+                    color="primary"
+                  />
+                </div>
+              </q-form>
+            </div>
+          </q-card-section>
+        </q-card-section>
+      </q-card>
+    </q-dialog>
     <q-infinite-scroll
       v-if="posts.length > 20"
       @load="onLoad(posts.length + 10)"
@@ -228,7 +323,6 @@ export default {
   },
 
   mixins: [myHelpers],
-  mounted: {},
   methods: {
     onLoad(index, done) {
       setTimeout(() => {

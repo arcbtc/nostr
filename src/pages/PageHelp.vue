@@ -44,8 +44,8 @@
 			></q-btn>
 		</center>
 
-		<q-dialog v-model="dialoggenerate">
-			<q-card class="q-pa-md q-pt-lg">
+		<q-dialog v-model="dialoggenerate" position="top">
+			<q-card class="q-pa-md q-pt-lg q-mt-md">
 				<q-stepper v-model="step" vertical color="primary" animated>
 					<q-step
 						:name="1"

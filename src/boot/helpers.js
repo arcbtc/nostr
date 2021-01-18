@@ -37,7 +37,9 @@ export const myHelpers = {
 			selectedTab: "myAccount",
 			splitterModel: 20,
 			dialogpublish: false,
+			dialogpost: false,
 			dialoggenerate: false,
+			dialoggenerateload: false,
 			activatevideo: false,
 			imageCaptured: false,
 			user: {
@@ -48,6 +50,7 @@ export const myHelpers = {
 				passphraseLoad: false,
 			},
 			publishtext: "",
+			replytext: "",
 			emojiOn: false,
 			newpost: {
 				user: "",
@@ -78,39 +81,66 @@ export const myHelpers = {
 				{ item: "🌑" },
 			],
 			posts: [],
+			posts4: [],
 			loading: [],
 			retry: [],
 			followlist: false,
 			openQrShow: false,
+			addPubKey: "",
+			showInstallBanner: false,
+			dialoguepost: {
+				pubkey: null,
+				created_at: null,
+				content: null,
+			},
 		};
 	},
 	methods: {
-		async launchPool() {
+		launchPool() {
 			var myProfile = JSON.parse(
 				this.$q.localStorage.getItem("myProfile")
 			);
-			await pool.setPrivateKey(myProfile.privkey);
-			await this.relayPush();
+			pool.setPrivateKey(myProfile.privkey);
+			this.relayPush();
 		},
-		async relayPush(theRelay = null) {
+		relayPush(theRelay = null) {
+			console.log(theRelay);
 			var myProfile = JSON.parse(
 				this.$q.localStorage.getItem("myProfile")
 			);
-			var relays = myProfile.relays;
+
 			if (theRelay != null) {
-				relays.push(theRelay);
-				myProfile.relays = relays;
+				myProfile.relays.push(theRelay);
 				this.$q.localStorage.set(
 					"myProfile",
 					JSON.stringify(myProfile)
 				);
 			}
-			for (var i = 0; i < relays.length; i++) {
-				await pool.addRelay(relays[i], {
+			for (var i = 0; i < myProfile.relays.length; i++) {
+				pool.addRelay(myProfile.relays[i], {
 					read: true,
 					write: true,
 				});
 			}
+			var myProfile = JSON.parse(
+				this.$q.localStorage.getItem("myProfile")
+			);
+			this.myprofile = myProfile;
+		},
+		async relayRemove(relay) {
+			var myProfile = JSON.parse(
+				this.$q.localStorage.getItem("myProfile")
+			);
+			for (var i = 0; i < relay.length; i++) {
+				myProfile.relays.splice(myProfile.relays.indexOf(relay[i]), 1);
+				console.log(myProfile.relays);
+
+				this.$q.localStorage.set(
+					"myProfile",
+					JSON.stringify(myProfile)
+				);
+			}
+			this.myprofile = myProfile;
 		},
 		async getRelayPosts(theLimit, theOffset, pubKey = null) {
 			if (pubKey == null) {
@@ -120,55 +150,54 @@ export const myHelpers = {
 				var theirProfile = JSON.parse(
 					this.$q.localStorage.getItem("theirProfile")
 				);
+
 				for (var i = 0; i < theirProfile.length; i++) {
-					await pool.subKey(theirProfile[i].pubkey);
+					pool.subKey(theirProfile[i].pubkey);
 				}
 				pool.onEvent((event, context, relay) => {
-					for (var i = 0; i < this.posts.length; i++) {
-						if (
-							this.posts[i].loading == true ||
-							(this.posts[i].retry == true &&
-								this.posts[i].id == event.id)
-						) {
-							this.posts[i].retry = false;
-							this.posts[i].loading = false;
-							this.$q.localStorage.set(
-								"kind1",
-								JSON.stringify(this.posts)
-							);
+					var theirProfile = JSON.parse(
+						this.$q.localStorage.getItem("theirProfile")
+					);
+					var Etag = "";
+					var Ptag = "";
+					var Stag = "";
+					if (event.tags != null) {
+						for (var i = 0; i < event.tags.length; i++) {
+							if (event.tags[i][0] == "e") {
+								pool.reqEvent(event.tags[i][1]);
+								Etag = event.tags[i][1];
+							}
 						}
 					}
-					this.publishtext = "";
+					if (event.kind == 1) {
+						for (var i = 0; i < this.posts.length; i++) {
+							if (
+								this.posts[i].loading == true ||
+								(this.posts[i].retry == true &&
+									this.posts[i].id == event.id)
+							) {
+								this.posts[i].retry = false;
+								this.posts[i].loading = false;
+
+								this.posts[i].etag = Etag;
+								this.$q.localStorage.set(
+									"kind1",
+									JSON.stringify(this.posts)
+								);
+							}
+						}
+					}
 				});
-				await pool.subKey(myProfile.pubkey);
-				await pool.reqFeed({ limit: theLimit, offset: theOffset });
+				pool.subKey(myProfile.pubkey);
+				pool.reqFeed({ limit: theLimit, offset: theOffset });
 			} else {
-				await pool.reqKey({ key: pubKey });
+				pool.reqKey({ key: pubKey });
 			}
 		},
 		async sendPost(message, theTags = [], theKind = 1) {
 			var myProfile = JSON.parse(
 				this.$q.localStorage.getItem("myProfile")
 			);
-
-			pool.onEvent((event, context, relay) => {
-				console.log(event.id);
-				for (var i = 0; i < this.posts.length; i++) {
-					if (
-						this.posts[i].loading == true ||
-						(this.posts[i].retry == true &&
-							this.posts[i].id == event.id)
-					) {
-						this.posts[i].retry = false;
-						this.posts[i].loading = false;
-						this.$q.localStorage.set(
-							"kind1",
-							JSON.stringify(this.posts)
-						);
-					}
-				}
-				this.publishtext = "";
-			});
 			const timest = Math.floor(Date.now() / 1000);
 			var eventObject = {
 				pubkey: myProfile.pubkey,
@@ -177,84 +206,85 @@ export const myHelpers = {
 				tags: theTags,
 				content: message,
 			};
-
 			var eventObjectId = await getEventHash(eventObject);
 			eventObject.id = eventObjectId;
-			var thePosts = JSON.parse(this.$q.localStorage.getItem("kind1"));
-			thePosts.unshift(eventObject);
-			thePosts[thePosts.length - 1].loading = true;
-			thePosts[thePosts.length - 1].retry = false;
+			this.posts = await JSON.parse(
+				this.$q.localStorage.getItem("kind1")
+			);
 			this.posts.unshift(eventObject);
-			this.retryPostTimer(eventObject.id);
-			this.$q.localStorage.set("kind1", JSON.stringify(thePosts));
+			this.posts[0].id = eventObjectId;
+			this.posts[0].loading = true;
+			this.posts[0].retry = false;
+			this.posts[0].etag = "";
+			await this.$q.localStorage.set("kind1", JSON.stringify(this.posts));
+			setTimeout(this.getAllPosts, 3000);
 			delete eventObject.retry;
 			delete eventObject.loading;
-			await pool.publish(eventObject);
+			pool.publish(eventObject);
 		},
-		async retryPostTimer(postid) {
-			var thePosts = JSON.parse(this.$q.localStorage.getItem("kind1"));
 
-			setTimeout(function() {
-				for (var i = 0; i < thePosts.length; i++) {
-					if (postid == thePosts[i].id) {
-						var thePost = thePosts[i];
-						if (thePost.loading == true) {
-							thePosts.splice(i, 1);
-							thePost.retry = true;
-							thePost.loading = false;
-							self.posts.unshift(thePosts[i]);
-						} else {
-							self.$q.notify({
-								message: "Relay(s) timeout",
-								color: "secondary",
-							});
-						}
-					}
-				}
-			}, 3000);
-		},
 		postAgain(postData) {
+			this.posts = JSON.parse(this.$q.localStorage.getItem("kind1"));
 			for (var i = 0; i < this.posts.length; i++) {
 				if (this.posts[i].id == postData.id) {
 					this.posts.splice(i, 1);
+					this.$q.localStorage.set(
+						"kind1",
+						JSON.stringify(this.posts)
+					);
 				}
 			}
 			this.sendPost(postData.content);
 		},
-		avatarMake(theData) {
+		deletePost(postData) {
+			this.posts = JSON.parse(this.$q.localStorage.getItem("kind1"));
+			for (var i = 0; i < this.posts.length; i++) {
+				if (this.posts[i].id == postData.id) {
+					this.posts.splice(i, 1);
+					this.$q.localStorage.set(
+						"kind1",
+						JSON.stringify(this.posts)
+					);
+				}
+			}
+		},
+		avatarMake(theData = "") {
 			const avicon = shajs("sha256")
 				.update(theData)
 				.digest("hex");
 			return identicon.generateSync({ id: avicon, size: 40 });
 		},
 		addPubFollow(pubKeyFollow) {
+			var check = true;
 			var theirProfile = JSON.parse(
 				this.$q.localStorage.getItem("theirProfile")
 			);
 			for (var i = 0; i < theirProfile.length; i++) {
-				if (theirProfile.pubkey == pubKeyFollow) {
-					theirProfile.push({
-						pubkey: pubKeyFollow,
-						avatar: null,
-						handle: null,
-						about: null,
-					});
-					this.$q.localStorage.set(
-						"theirProfile",
-						JSON.stringify(theirProfile)
-					);
-				} else {
+				if (theirProfile[i].pubkey == pubKeyFollow) {
+					check = false;
 					this.$q.notify({
 						message: "Already following",
 						color: "secondary",
 					});
 				}
 			}
-			this.getFollowing();
-			if (this.posts > 20) {
-				this.getRelayPosts(3, 0);
-			} else {
-				this.getRelayPosts(10, 0);
+			if (check) {
+				theirProfile.push({
+					pubkey: pubKeyFollow,
+					avatar: null,
+					handle: null,
+					about: null,
+				});
+				this.$q.localStorage.set(
+					"theirProfile",
+					JSON.stringify(theirProfile)
+				);
+				this.getFollowing();
+				if (this.posts > 20) {
+					this.getRelayPosts(3, 0);
+				} else {
+					this.getRelayPosts(10, 0);
+				}
 			}
 		},
 		getFollowing() {
@@ -264,13 +294,11 @@ export const myHelpers = {
 			var myProfile = JSON.parse(
 				this.$q.localStorage.getItem("myProfile")
 			);
-			if (theirProfile.length > 1) {
+			if (theirProfile[0] != null) {
 				this.followlist = true;
-				for (var i = 0; i < theirProfile.length; i++) {
-					this.following.push(theirProfile[i]);
-					this.following.push(myProfile[0]);
-				}
+				this.following = theirProfile;
 			}
+			return this.following;
 		},
 		getAllPosts() {
 			var thePosts = JSON.parse(this.$q.localStorage.getItem("kind1"));
@@ -301,7 +329,7 @@ export const myHelpers = {
 			this.posts = thePosts;
 		},
 		async unFollow(data) {
-			await pool.unsubKey(data);
+			pool.unsubKey(data);
 			var theirProfile = JSON.parse(
 				this.$q.localStorage.getItem("theirProfile")
 			);
@@ -313,6 +341,9 @@ export const myHelpers = {
 						"theirProfile",
 						JSON.stringify(theirProfile)
 					);
+					this.following = JSON.parse(
+						this.$q.localStorage.getItem("theirProfile")
+					);
 					this.link = "home";
 					this.$router.push("/");
 				} else {
@@ -323,27 +354,27 @@ export const myHelpers = {
 				}
 			}
 		},
-
-		getUserPosts(user) {
-			this.getRelayPosts(20, 0, user);
-			var postss = JSON.parse(this.$q.localStorage.getItem("Kind1"));
-			for (var i = 0; i < postss.length; i++) {
-				var singlePost = JSON.parse(
-					this.$q.localStorage.getItem(postss[i])
-				);
-				console.log(singlePost.kind);
-
-				if (singlePost.kind == 1 && singlePost.pubkey == user) {
-					this.profilePosts.push({
-						id: singlePost.id,
-						message: singlePost.content,
-						avatar: this.avatarMake(singlePost.pubkey),
-						date: singlePost.created_at * 1000,
-						user: singlePost.pubkey,
-						handle: null,
-					});
+		toProfile(profile) {
+			var theirProfile = JSON.parse(
+				this.$q.localStorage.getItem("theirProfile")
+			);
+			for (var i = 0; i < theirProfile.length; i++) {
+				if ((theirProfile[i].pubkey = profile)) {
+					this.singleprofile = theirProfile[i];
 				}
 			}
+			this.$router.push("/user/" + profile);
+		},
+		getUserPosts(user) {
+			this.getRelayPosts(20, 0, user);
+			var post = JSON.parse(this.$q.localStorage.getItem("kind1"));
+			var posts = [];
+			for (var i = 0; i < post.length; i++) {
+				if ((post[i].pubkey = user)) {
+					posts.push(post[i]);
+				}
+			}
+			this.profilePosts = posts;
 		},
 		createKeys(words = "") {
 			var splitWords = words.split(" ");
@@ -375,7 +406,7 @@ export const myHelpers = {
 		},
 		finalGenerate() {
 			var theRelays = [
-				"wss://nostr-relay.bigsun.xyz",
+				//"wss://nostr-relay.bigsun.xyz",
 				"wss://relay.nostr.org",
 			];
 			var stored = this.user.keystoreoption;
@@ -444,6 +475,10 @@ export const myHelpers = {
 		},
 		dialogueStarted() {
 			this.dialogpublish = true;
+		},
+		dialoguePost(post) {
+			this.dialoguepost = post;
+			this.dialogpost = true;
 		},
 	},
 	filters: {

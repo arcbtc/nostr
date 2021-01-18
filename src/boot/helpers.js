@@ -78,6 +78,8 @@ export const myHelpers = {
 				{ item: "🌑" },
 			],
 			posts: [],
+			loading: [],
+			retry: [],
 			followlist: false,
 			openQrShow: false,
 		};
@@ -121,6 +123,23 @@ export const myHelpers = {
 				for (var i = 0; i < theirProfile.length; i++) {
 					await pool.subKey(theirProfile[i].pubkey);
 				}
+				pool.onEvent((event, context, relay) => {
+					for (var i = 0; i < this.posts.length; i++) {
+						if (
+							this.posts[i].loading == true ||
+							(this.posts[i].retry == true &&
+								this.posts[i].id == event.id)
+						) {
+							this.posts[i].retry = false;
+							this.posts[i].loading = false;
+							this.$q.localStorage.set(
+								"kind1",
+								JSON.stringify(this.posts)
+							);
+						}
+					}
+					this.publishtext = "";
+				});
 				await pool.subKey(myProfile.pubkey);
 				await pool.reqFeed({ limit: theLimit, offset: theOffset });
 			} else {
@@ -133,19 +152,20 @@ export const myHelpers = {
 			);
 
 			pool.onEvent((event, context, relay) => {
-				if (this.$q.localStorage.getItem(event.id) === null) {
-					for (var i = 0; i < this.posts.length; i++) {
-						if (this.posts[i].id == event.id) {
-							this.posts.loading.push(event.id);
-							this.posts.retry.push(event.id);
-							console.log(this.posts[i]);
-						}
+				console.log(event.id);
+				for (var i = 0; i < this.posts.length; i++) {
+					if (
+						this.posts[i].loading == true ||
+						(this.posts[i].retry == true &&
+							this.posts[i].id == event.id)
+					) {
+						this.posts[i].retry = false;
+						this.posts[i].loading = false;
+						this.$q.localStorage.set(
+							"kind1",
+							JSON.stringify(this.posts)
+						);
 					}
-					var postss = JSON.parse(
-						this.$q.localStorage.getItem("kind1")
-					);
-					postss.unshift(event);
-					this.$q.localStorage.set("kind1", JSON.stringify(postss));
 				}
 				this.publishtext = "";
 			});
@@ -157,26 +177,38 @@ export const myHelpers = {
 				tags: theTags,
 				content: message,
 			};
+
 			var eventObjectId = await getEventHash(eventObject);
 			eventObject.id = eventObjectId;
-			this.retryPostTimer(eventObjectId);
+			var thePosts = JSON.parse(this.$q.localStorage.getItem("kind1"));
+			thePosts.unshift(eventObject);
+			thePosts[thePosts.length - 1].loading = true;
+			thePosts[thePosts.length - 1].retry = false;
 			this.posts.unshift(eventObject);
+			this.retryPostTimer(eventObject.id);
+			this.$q.localStorage.set("kind1", JSON.stringify(thePosts));
+			delete eventObject.retry;
+			delete eventObject.loading;
 			await pool.publish(eventObject);
 		},
 		async retryPostTimer(postid) {
-			var self = this;
+			var thePosts = JSON.parse(this.$q.localStorage.getItem("kind1"));
+
 			setTimeout(function() {
-				for (var i = 0; i < self.posts.length; i++) {
-					if (
-						postid == self.posts[i].id &&
-						self.posts[i].loading == true
-					) {
-						self.posts[i].retry = true;
-						self.posts[i].loading = false;
-						self.$q.notify({
-							message: "Relay(s) timeout",
-							color: "secondary",
-						});
+				for (var i = 0; i < thePosts.length; i++) {
+					if (postid == thePosts[i].id) {
+						var thePost = thePosts[i];
+						if (thePost.loading == true) {
+							thePosts.splice(i, 1);
+							thePost.retry = true;
+							thePost.loading = false;
+							self.posts.unshift(thePosts[i]);
+						} else {
+							self.$q.notify({
+								message: "Relay(s) timeout",
+								color: "secondary",
+							});
+						}
 					}
 				}
 			}, 3000);
@@ -242,6 +274,7 @@ export const myHelpers = {
 		},
 		getAllPosts() {
 			var thePosts = JSON.parse(this.$q.localStorage.getItem("kind1"));
+
 			try {
 				if (thePosts.length < 20) {
 					this.getRelayPosts(10, 0);
@@ -254,9 +287,18 @@ export const myHelpers = {
 					color: "secondary",
 				});
 			}
+
 			for (var i = 0; i < thePosts.length; i++) {
-				this.posts.push(thePosts[i]);
+				if (
+					Date.now() / 1000 - thePosts[i].created_at > 3 &&
+					thePosts[i].loading == true
+				) {
+					thePosts[i].retry = true;
+					thePosts[i].loading = false;
+					this.$q.localStorage.set("kind1", JSON.stringify(thePosts));
+				}
 			}
+			this.posts = thePosts;
 		},
 		async unFollow(data) {
 			await pool.unsubKey(data);
@@ -391,9 +433,10 @@ export const myHelpers = {
 				this.$q.localStorage.set("kind2", JSON.stringify([]));
 				this.$q.localStorage.set("kind3", JSON.stringify([]));
 				this.$q.localStorage.set("kind4", JSON.stringify([]));
-				this.$router.push("/");
 				this.disabled = false;
 				this.link = "home";
+				this.launchPool();
+				this.$router.push("/");
 			}
 		},
 		dialogueGenerate() {

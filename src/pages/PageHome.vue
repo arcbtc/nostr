@@ -118,6 +118,7 @@
           {{ post.content }}
           <div>
             <q-spinner-dots v-if="post.loading" color="primary" />
+            {{ Date.now() / 1000 - post.created_at }}
 
             <q-btn
               class="float-right q-mr-xs"
@@ -257,6 +258,19 @@ export default {
       this.theirProfile = theirProfile;
       this.getAllPosts();
     }
+  },
+  filters: {
+    handler(value, value2) {
+      if (value != "") {
+        return value.substring(0, 20) + "....";
+      } else {
+        return value;
+      }
+    },
+    niceDate(value) {
+      let formattedString = date.formatDate(value, "YYYY MMM D h:mm A");
+      return formattedString;
+    },
   },
 };
 </script>

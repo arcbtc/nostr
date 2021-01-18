@@ -133,7 +133,7 @@
                 <q-icon
                   name="content_copy"
                   class="cursor-pointer"
-                  @click="copytoclip(user.privatekey)"
+                  @click="copyToClip(user.privatekey)"
                 ></q-icon>
               </template>
               <template v-slot:append>
@@ -153,7 +153,7 @@
                 <q-icon
                   name="content_copy"
                   class="cursor-pointer"
-                  @click="copytoclip(user.publickey)"
+                  @click="copyToClip(user.publickey)"
                 ></q-icon>
               </template>
             </q-input>
@@ -484,6 +484,7 @@
 </template>
 <script>
 let deferredPrompt;
+import { copyToClipboard } from "quasar";
 import { relayPool } from "nostr-tools";
 import { myHelpers } from "../boot/helpers.js";
 const pool = relayPool();
@@ -532,6 +533,7 @@ export default {
       }
     },
     copyToClip(text) {
+      console.log("fffff");
       copyToClipboard(text)
         .then(() => {
           this.$q.notify({

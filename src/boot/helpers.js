@@ -169,7 +169,21 @@ export const myHelpers = {
 							}
 						}
 					}
+
+					if (event.kind == 4) {
+						this.posts4.unshift(event);
+						this.posts4[0].retry = false;
+						this.posts4[0].loading = false;
+						this.posts4[0].etag = Etag;
+						this.posts4[0].ptag = Ptag;
+						this.posts4[0].stag = Stag;
+						this.$q.localStorage.set(
+							"kind4",
+							JSON.stringify(this.posts4)
+						);
+					}
 					if (event.kind == 1) {
+						var otherpost = true;
 						for (var i = 0; i < this.posts.length; i++) {
 							if (
 								this.posts[i].loading == true ||
@@ -180,11 +194,24 @@ export const myHelpers = {
 								this.posts[i].loading = false;
 
 								this.posts[i].etag = Etag;
+								otherpost = false;
 								this.$q.localStorage.set(
 									"kind1",
 									JSON.stringify(this.posts)
 								);
 							}
+						}
+						if (otherpost) {
+							this.posts.unshift(event);
+							this.posts[0].retry = false;
+							this.posts[0].loading = false;
+							this.posts[0].etag = Etag;
+							this.posts[0].ptag = Ptag;
+							this.posts[0].stag = Stag;
+							this.$q.localStorage.set(
+								"kind1",
+								JSON.stringify(this.posts)
+							);
 						}
 					}
 				});
@@ -208,6 +235,7 @@ export const myHelpers = {
 			};
 			var eventObjectId = await getEventHash(eventObject);
 			eventObject.id = eventObjectId;
+			await pool.publish(eventObject);
 			this.posts = await JSON.parse(
 				this.$q.localStorage.getItem("kind1")
 			);
@@ -220,7 +248,8 @@ export const myHelpers = {
 			setTimeout(this.getAllPosts, 3000);
 			delete eventObject.retry;
 			delete eventObject.loading;
-			pool.publish(eventObject);
+			delete eventObject.etag;
+			console.log(eventObject);
 		},
 
 		postAgain(postData) {

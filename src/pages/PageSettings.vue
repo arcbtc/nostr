@@ -19,7 +19,7 @@
 "
 			style="max-width: 400px"
 		>
-			<q-form @submit="sendMeta" class="q-gutter-md">
+			<q-form @submit="sendMetaSettings()" class="q-gutter-md">
 				<p>
 					If your desired handle is available our relay will use
 					open-timestamps to secure it to your public key, and share
@@ -28,7 +28,7 @@
 				<q-input
 					filled
 					type="text"
-					v-model="newpost.handle"
+					v-model="settings.handle"
 					hint="Disired handle (3-10 chars)"
 					lazy-rules
 					:rules="[
@@ -44,14 +44,14 @@
 				<q-input
 					filled
 					type="text"
-					v-model="newpost.about"
+					v-model="settings.about"
 					hint="About (in 150 chars)"
 					maxlength="150"
 				/>
 				<q-input
 					filled
 					type="text"
-					v-model="newpost.imagetemp"
+					v-model="settings.imagetemp"
 					hint="Profile picture (imagur url)"
 					maxlength="150"
 				/>
@@ -152,6 +152,30 @@ export default {
 	},
 	mixins: [myHelpers],
 	methods: {
+		async sendMetaSettings() {
+            var myProfile = JSON.parse(this.$q.localStorage.getItem("myProfile"))
+            console.log(myProfile)
+			myProfile.avatar = this.settings.imagetemp
+			myProfile.handle = this.settings.handle
+			myProfile.about = this.settings.about
+
+			this.$q.localStorage.set("myProfile", myProfile);
+
+            
+            const timest = Math.floor(Date.now() / 1000);
+
+			var eventObject = {
+				pubkey: myProfile.pubkey,
+				created_at: timest,
+				kind: 0,
+				tags: [],
+				content: JSON.stringify(name:myProfile.handle, about:myProfile.about, picture:myProfile.avatar),
+			};
+
+			var eventObjectId = await getEventHash(eventObject);
+			eventObject.id = eventObjectId
+			pool.publish(eventObject);
+		},
 		ProfileonSubmit() {
 			if (this.accept !== true) {
 				this.$q.notify({
@@ -211,43 +235,7 @@ export default {
 			window.location.reload();
 		},
 
-		async sendMeta() {
-			const pool = relayPool();
 
-			pool.setPrivateKey(this.$q.localStorage.getItem("privkey"));
-			var relays = JSON.parse(this.$q.localStorage.getItem("relays"));
-
-			for (var i = 0; i < relays.length; i++) {
-				console.log(relays[i]);
-				pool.addRelay(relays[i], {
-					read: true,
-					write: true,
-				});
-			}
-			var message = JSON.stringify({
-				picture: this.newpost.imagetemp,
-				name: this.newpost.handle,
-				about: this.newpost.about,
-			});
-			this.$q.localStorage.set("profile", message);
-			pool.onEvent((event, context, relay) => {
-				this.profile.avatar = this.newpost.imagetemp;
-				this.profile.about = this.newpost.about;
-				this.profile.name = this.newpost.name;
-			});
-
-			var eventObject = {
-				pubkey: String(this.$q.localStorage.getItem("pubkey")),
-				created_at: timest,
-				kind: 0,
-				tags: [],
-				content: message,
-			};
-
-			const timest = Math.floor(Date.now() / 1000);
-
-			pool.publish(eventObject);
-		},
 	},
 	created() {
 		var myProfile = JSON.parse(this.$q.localStorage.getItem("myProfile"));

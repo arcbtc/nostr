@@ -2,6 +2,11 @@
 
 280 character limited social network using the nostr protocol
 
+## Install Quasar
+```bash
+npm install -g @quasar/cli
+```
+
 ## Install the dependencies
 ```bash
 npm install

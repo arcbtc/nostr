@@ -80,6 +80,7 @@ export const myHelpers = {
 				{ item: "🏴󠁧󠁢󠁷󠁬󠁳󠁿" },
 				{ item: "🌑" },
 			],
+			singleprofile: [],
 			posts: [],
 			posts4: [],
 			loading: [],
@@ -155,64 +156,49 @@ export const myHelpers = {
 					pool.subKey(theirProfile[i].pubkey);
 				}
 				pool.onEvent((event, context, relay) => {
-					var theirProfile = JSON.parse(
-						this.$q.localStorage.getItem("theirProfile")
+					var thePosts = JSON.parse(
+						this.$q.localStorage.getItem("kind1")
 					);
-					var Etag = "";
-					var Ptag = "";
-					var Stag = "";
-					if (event.tags != null) {
-						for (var i = 0; i < event.tags.length; i++) {
-							if (event.tags[i][0] == "e") {
-								pool.reqEvent(event.tags[i][1]);
-								Etag = event.tags[i][1];
-							}
-						}
-					}
-
-					if (event.kind == 4) {
-						this.posts4.unshift(event);
-						this.posts4[0].retry = false;
-						this.posts4[0].loading = false;
-						this.posts4[0].etag = Etag;
-						this.posts4[0].ptag = Ptag;
-						this.posts4[0].stag = Stag;
-						this.$q.localStorage.set(
-							"kind4",
-							JSON.stringify(this.posts4)
-						);
-					}
+					var thePosts4 = JSON.parse(
+						this.$q.localStorage.getItem("kind4")
+					);
 					if (event.kind == 1) {
-						var otherpost = true;
-						for (var i = 0; i < this.posts.length; i++) {
+						var postexists = false;
+						for (var i = 0; i < thePosts.length; i++) {
 							if (
-								this.posts[i].loading == true ||
-								(this.posts[i].retry == true &&
-									this.posts[i].id == event.id)
+								(thePosts[i].loading == true ||
+									thePosts[i].retry == true) &&
+								thePosts[i].id == event.id
 							) {
-								this.posts[i].retry = false;
-								this.posts[i].loading = false;
-
-								this.posts[i].etag = Etag;
-								otherpost = false;
+								thePosts[i].retry = false;
+								thePosts[i].loading = false;
+								postexists = true;
 								this.$q.localStorage.set(
 									"kind1",
-									JSON.stringify(this.posts)
+									JSON.stringify(thePosts)
 								);
+							} else if (thePosts[i].id == event.id) {
+								postexists = true;
 							}
 						}
-						if (otherpost) {
-							this.posts.unshift(event);
-							this.posts[0].retry = false;
-							this.posts[0].loading = false;
-							this.posts[0].etag = Etag;
-							this.posts[0].ptag = Ptag;
-							this.posts[0].stag = Stag;
+						if (!postexists) {
+							thePosts.unshift(event);
+							thePosts[0].retry = false;
+							thePosts[0].loading = false;
 							this.$q.localStorage.set(
 								"kind1",
-								JSON.stringify(this.posts)
+								JSON.stringify(thePosts)
 							);
 						}
+					}
+					if (event.kind == 4) {
+						thePosts4.unshift(event);
+						thePosts4[0].retry = false;
+						thePosts4[0].loading = false;
+						this.$q.localStorage.set(
+							"kind4",
+							JSON.stringify(thePosts4)
+						);
 					}
 				});
 				pool.subKey(myProfile.pubkey);
@@ -384,14 +370,7 @@ export const myHelpers = {
 			}
 		},
 		toProfile(profile) {
-			var theirProfile = JSON.parse(
-				this.$q.localStorage.getItem("theirProfile")
-			);
-			for (var i = 0; i < theirProfile.length; i++) {
-				if ((theirProfile[i].pubkey = profile)) {
-					this.singleprofile = theirProfile[i];
-				}
-			}
+			this.singleprofile.pubkey = profile;
 			this.$router.push("/user/" + profile);
 		},
 		getUserPosts(user) {
@@ -399,7 +378,7 @@ export const myHelpers = {
 			var post = JSON.parse(this.$q.localStorage.getItem("kind1"));
 			var posts = [];
 			for (var i = 0; i < post.length; i++) {
-				if ((post[i].pubkey = user)) {
+				if (post[i].pubkey == user) {
 					posts.push(post[i]);
 				}
 			}

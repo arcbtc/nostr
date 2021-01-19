@@ -16,9 +16,10 @@
           >
             <template v-slot:before>
               <q-btn
-                :to="
-                  '/user/' +
+                @click="
+                  toProfile(
                     JSON.parse($q.localStorage.getItem('myProfile')).pubkey
+                  )
                 "
                 round
               >

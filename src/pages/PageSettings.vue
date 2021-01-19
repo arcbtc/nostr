@@ -169,7 +169,7 @@ export default {
 				created_at: timest,
 				kind: 0,
 				tags: [],
-				content: JSON.stringify(name:myProfile.handle, about:myProfile.about, picture:myProfile.avatar),
+				content: JSON.stringify({name:myProfile.handle, about:myProfile.about, picture:myProfile.avatar}),
 			};
 
 			var eventObjectId = await getEventHash(eventObject);

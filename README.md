@@ -17,6 +17,10 @@ npm install
 quasar dev
 ```
 
+### Start the app in development mode as PWA  (hot-code reloading, error reporting, etc.)
+```bash
+quasar dev -m pwa
+```
 
 ### Build the app for production
 ```bash

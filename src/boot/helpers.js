@@ -156,6 +156,7 @@ export const myHelpers = {
 					pool.subKey(theirProfile[i].pubkey);
 				}
 				pool.onEvent((event, context, relay) => {
+					console.log(event);
 					var thePosts = JSON.parse(
 						this.$q.localStorage.getItem("kind1")
 					);

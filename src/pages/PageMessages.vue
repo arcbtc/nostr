@@ -21,7 +21,10 @@
 				clickable
 				v-ripple
 				v-for="followed in following"
-				v-if="followed.pubkey != $q.localStorage.getItem('pubkey')"
+				v-if="
+					followed.pubkey !=
+						JSON.parse($q.localStorage.getItem('myProfile')).pubkey
+				"
 				:key="followed.id"
 				:to="'/chat/' + followed.pubkey"
 			>
@@ -98,6 +101,7 @@ export default {
 		},
 	},
 	created: function() {
+		this.getFollowing();
 		var myProfile = JSON.parse(this.$q.localStorage.getItem("myProfile"));
 		if (!myProfile) {
 			this.disabled = true;

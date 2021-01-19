@@ -21,7 +21,12 @@
 			>
 				<q-chat-message
 					v-for="message in messages"
-					:avatar="avatarMake($q.localStorage.getItem('pubkey'))"
+					:avatar="
+						avatarMake(
+							JSON.parse($q.localStorage.getItem('myProfile'))
+								.pubkey
+						)
+					"
 					:key="[message.text]"
 					:name="message.from"
 					:text="[message.text]"
@@ -85,6 +90,7 @@ export default {
 			accept: false,
 		};
 	},
+
 	mixins: [myHelpers],
 	methods: {
 		messageOnSubmit() {
@@ -94,14 +100,19 @@ export default {
 			this.messages.push({
 				text: this.newMessage,
 				from:
-					this.$q.localStorage.getItem("pubkey").substring(0, 15) +
-					"....",
+					JSON.parse(
+						this.$q.localStorage.getItem("myProfile")
+					).pubkey.substring(0, 15) + "....",
 			});
+			console.log(this.messsages);
 
 			const pk1 = secp.getPublicKey(sk1);
-			const sk2 = this.$q.localStorage.getItem("pubkey");
+			const sk2 = JSON.parse(this.$q.localStorage.getItem("myProfile"))
+				.pubkey;
 			const pk2 = secp.getPublicKey(sk2);
-			console.log(this.$q.localStorage.getItem("pubkey"));
+			console.log(
+				JSON.parse(this.$q.localStorage.getItem("myProfile")).pubkey
+			);
 			console.log(pk2);
 
 			var key = secp.getSharedSecret(sk2, pk1);
@@ -127,7 +138,8 @@ export default {
 							this.$route.path.split("/").length - 1
 						]
 					),
-					JSON.parse(this.$q.localStorage.getItem("relays"))[0],
+					JSON.parse(this.$q.localStorage.getItem("myProfile"))
+						.relays[0],
 				],
 			];
 			console.log(tags);

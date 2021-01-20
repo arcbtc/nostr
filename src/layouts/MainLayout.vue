@@ -2,11 +2,7 @@
   <q-layout>
     <q-dialog v-model="dialogpublish">
       <q-card style="width: 500px" class="q-pa-md q-pt-lg">
-        <q-form
-          style="width: 100%"
-          @submit="publishOnSubmit"
-          class="q-gutter-md"
-        >
+        <q-form @submit="publishOnSubmit" class="full-width q-gutter-md">
           <q-input
             style="font-size: 20px"
             v-model="publishtext"
@@ -214,149 +210,127 @@
       </q-card>
     </q-dialog>
 
-    <div class="flex-center column">
-      <div class="row" style="width: 100%; padding: 5px">
+    <div class="flex-center column q-pa-md">
+      <div class="row">
         <div
           id="parent"
           class="fit row wrap justify-center items-start content-start"
         >
-          <div class="col-4 large-screen-only" style="overflow: auto">
-            <q-card
-              no-box-shadow
-              class="float-right q-pr-md"
-              style="font-size: 20px"
-            >
-              <q-card-section>
+          <div class="col-3 large-screen-only" style="overflow: auto">
+            <q-card no-box-shadow class="q-px-sm">
+              <div class="row justify-center">
                 <img src="~/assets/nostr-logo.png" />
-                <div class="q-pa-md">
-                  <q-list padding class="text-secondary">
-                    <q-item
-                      v-if="disabled"
-                      :disabled="disabled"
-                      style="padding: 15px"
-                    >
-                      <q-item-section avatar>
-                        <q-icon name="home"></q-icon>
-                      </q-item-section>
+              </div>
+              <q-list class="text-secondary">
+                <q-item v-if="disabled" :disabled="disabled">
+                  <q-item-section avatar>
+                    <q-icon name="home"></q-icon>
+                  </q-item-section>
 
-                      <q-item-section>Home</q-item-section>
-                    </q-item>
-                    <q-item
-                      v-else
-                      clickable
-                      v-ripple
-                      :active="link === 'home'"
-                      @click="link = 'home'"
-                      active-class="my-menu-link"
-                      :to="'/'"
-                      style="padding: 15px"
-                    >
-                      <q-item-section avatar>
-                        <q-icon name="home"></q-icon>
-                      </q-item-section>
+                  <q-item-section>Home</q-item-section>
+                </q-item>
+                <q-item
+                  v-else
+                  clickable
+                  v-ripple
+                  :active="link === 'home'"
+                  @click="link = 'home'"
+                  active-class="my-menu-link"
+                  :to="'/'"
+                >
+                  <q-item-section avatar>
+                    <q-icon name="home"></q-icon>
+                  </q-item-section>
 
-                      <q-item-section>Home</q-item-section>
-                    </q-item>
+                  <q-item-section>Home</q-item-section>
+                </q-item>
 
-                    <q-item
-                      v-if="disabled"
-                      :disabled="disabled"
-                      style="padding: 15px"
-                    >
-                      <q-item-section avatar>
-                        <q-icon name="email"></q-icon>
-                      </q-item-section>
+                <q-item v-if="disabled" :disabled="disabled">
+                  <q-item-section avatar>
+                    <q-icon name="email"></q-icon>
+                  </q-item-section>
 
-                      <q-item-section>Messages</q-item-section>
-                    </q-item>
-                    <q-item
-                      v-else
-                      clickable
-                      v-ripple
-                      :active="link === 'messages'"
-                      @click="link = 'messages'"
-                      active-class="my-menu-link"
-                      :to="'/messages'"
-                      style="padding: 15px"
-                    >
-                      <q-item-section avatar>
-                        <q-icon name="email"></q-icon>
-                      </q-item-section>
+                  <q-item-section>Messages</q-item-section>
+                </q-item>
+                <q-item
+                  v-else
+                  clickable
+                  v-ripple
+                  :active="link === 'messages'"
+                  @click="link = 'messages'"
+                  active-class="my-menu-link"
+                  :to="'/messages'"
+                >
+                  <q-item-section avatar>
+                    <q-icon name="email"></q-icon>
+                  </q-item-section>
 
-                      <q-item-section>Messages</q-item-section>
-                    </q-item>
+                  <q-item-section>Messages</q-item-section>
+                </q-item>
 
-                    <q-item
-                      v-if="disabled"
-                      :disabled="disabled"
-                      style="padding: 15px"
-                    >
-                      <q-item-section avatar>
-                        <q-icon name="settings"></q-icon>
-                      </q-item-section>
+                <q-item v-if="disabled" :disabled="disabled">
+                  <q-item-section avatar>
+                    <q-icon name="settings"></q-icon>
+                  </q-item-section>
 
-                      <q-item-section>Settings</q-item-section>
-                    </q-item>
-                    <q-item
-                      v-else
-                      clickable
-                      v-ripple
-                      :active="link === 'settings'"
-                      @click="link = 'settings'"
-                      active-class="my-menu-link"
-                      :to="'/settings'"
-                      style="padding: 15px"
-                    >
-                      <q-item-section avatar>
-                        <q-icon name="settings"></q-icon>
-                      </q-item-section>
+                  <q-item-section>Settings</q-item-section>
+                </q-item>
+                <q-item
+                  v-else
+                  clickable
+                  v-ripple
+                  :active="link === 'settings'"
+                  @click="link = 'settings'"
+                  active-class="my-menu-link"
+                  :to="'/settings'"
+                >
+                  <q-item-section avatar>
+                    <q-icon name="settings"></q-icon>
+                  </q-item-section>
 
-                      <q-item-section>Settings</q-item-section>
-                    </q-item>
+                  <q-item-section>Settings</q-item-section>
+                </q-item>
 
-                    <q-item
-                      clickable
-                      v-ripple
-                      :active="link === 'help'"
-                      @click="link = 'help'"
-                      active-class="my-menu-link"
-                      :to="'/help'"
-                      style="padding: 15px"
-                    >
-                      <q-item-section avatar>
-                        <q-icon name="help"></q-icon>
-                      </q-item-section>
+                <q-item
+                  clickable
+                  v-ripple
+                  :active="link === 'help'"
+                  @click="link = 'help'"
+                  active-class="my-menu-link"
+                  :to="'/help'"
+                >
+                  <q-item-section avatar>
+                    <q-icon name="help"></q-icon>
+                  </q-item-section>
 
-                      <q-item-section>Help</q-item-section>
-                    </q-item>
-                    <br />
-                  </q-list>
-                  <q-btn
-                    v-if="!disabled"
-                    rounded
-                    unelevated
-                    style="width: 140px !important; height: 41px !important"
-                    color="primary"
-                    size="md"
-                    label="Publish"
-                    @click="dialogueStarted()"
-                  ></q-btn>
-                  <q-btn
-                    v-else
-                    rounded
-                    unelevated
-                    style="width: 200px !important; height: 82px !important"
-                    color="primary"
-                    size="md"
-                    label="Generate or Restore User Account"
-                    @click="dialogueGenerate()"
-                  ></q-btn>
-                </div>
-              </q-card-section>
+                  <q-item-section>Help</q-item-section>
+                </q-item>
+                <br />
+              </q-list>
+              <q-btn
+                v-if="!disabled"
+                rounded
+                unelevated
+                style="width: 140px !important; height: 41px !important"
+                color="primary"
+                size="md"
+                label="Publish"
+                @click="dialogueStarted()"
+              ></q-btn>
+              <q-btn
+                v-else
+                rounded
+                unelevated
+                class="q-py-sm"
+                color="primary"
+                size="md"
+                label="Generate or Restore User Account"
+                @click="dialogueGenerate()"
+              ></q-btn>
             </q-card>
           </div>
 
-          <div class="col-4 large-screen-only">
+          <div class="col-6 large-screen-only">
             <q-card>
               <q-card-section>
                 <q-page-container>
@@ -376,7 +350,7 @@
             </q-card>
           </div>
 
-          <div class="col-4 large-screen-only">
+          <div class="col-3 large-screen-only">
             <q-card class="float-left no-shadow">
               <q-card-section>
                 <q-input dense rounded outlined v-model="addPubKey">
@@ -393,31 +367,29 @@
               </q-card-section>
               <q-card-section v-if="followlist">
                 <h6 class="q-ma-none">Following</h6>
-                <div class="q-pa-md" style="max-width: 350px">
-                  <q-list>
-                    <q-item
-                      clickable
-                      v-ripple
-                      v-for="followed in following"
-                      v-if="
-                        followed.pubkey !=
-                        JSON.parse($q.localStorage.getItem('myProfile')).pubkey
-                      "
-                      @click="toProfile(followed.pubkey)"
-                      :key="followed.pubkey"
-                    >
-                      <q-item-section avatar>
-                        <q-avatar round>
-                          <img :src="avatarMake(followed.pubkey)" />
-                        </q-avatar>
-                      </q-item-section>
+                <q-list>
+                  <q-item
+                    clickable
+                    v-ripple
+                    v-for="followed in following"
+                    v-if="
+                      followed.pubkey !=
+                      JSON.parse($q.localStorage.getItem('myProfile')).pubkey
+                    "
+                    @click="toProfile(followed.pubkey)"
+                    :key="followed.pubkey"
+                  >
+                    <q-item-section avatar>
+                      <q-avatar round>
+                        <img :src="avatarMake(followed.pubkey)" />
+                      </q-avatar>
+                    </q-item-section>
 
-                      <q-item-section>{{
-                        followed.pubkey.substring(0, 10) + '...'
-                      }}</q-item-section>
-                    </q-item>
-                  </q-list>
-                </div>
+                    <q-item-section>{{
+                      followed.pubkey.substring(0, 10) + '...'
+                    }}</q-item-section>
+                  </q-item>
+                </q-list>
               </q-card-section>
             </q-card>
           </div>

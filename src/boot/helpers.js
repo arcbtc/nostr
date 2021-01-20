@@ -365,7 +365,7 @@ export const myHelpers = {
     },
     finalGenerate() {
       var theRelays = [
-        //"wss://nostr-relay.bigsun.xyz",
+        'wss://nostr-relay.herokuapp.com',
         'wss://relay.nostr.org'
       ]
       var stored = this.user.keystoreoption

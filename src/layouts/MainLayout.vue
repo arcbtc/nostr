@@ -1,14 +1,14 @@
 <template>
   <q-layout>
     <q-dialog v-model="dialogpublish">
-      <q-card style="width:500px" class="q-pa-md q-pt-lg">
+      <q-card style="width: 500px" class="q-pa-md q-pt-lg">
         <q-form
-          style="width:100%;"
+          style="width: 100%"
           @submit="publishOnSubmit"
           class="q-gutter-md"
         >
           <q-input
-            style="font-size: 20px;"
+            style="font-size: 20px"
             v-model="publishtext"
             autogrow
             label="Say something"
@@ -215,16 +215,16 @@
     </q-dialog>
 
     <div class="flex-center column">
-      <div class="row" style="width: 100%; padding: 5px;">
+      <div class="row" style="width: 100%; padding: 5px">
         <div
           id="parent"
           class="fit row wrap justify-center items-start content-start"
         >
-          <div class="col-4 large-screen-only" style="overflow: auto;">
+          <div class="col-4 large-screen-only" style="overflow: auto">
             <q-card
               no-box-shadow
               class="float-right q-pr-md"
-              style="font-size: 20px;"
+              style="font-size: 20px"
             >
               <q-card-section>
                 <img src="~/assets/nostr-logo.png" />
@@ -233,7 +233,7 @@
                     <q-item
                       v-if="disabled"
                       :disabled="disabled"
-                      style="padding: 15px;"
+                      style="padding: 15px"
                     >
                       <q-item-section avatar>
                         <q-icon name="home"></q-icon>
@@ -249,7 +249,7 @@
                       @click="link = 'home'"
                       active-class="my-menu-link"
                       :to="'/'"
-                      style="padding: 15px;"
+                      style="padding: 15px"
                     >
                       <q-item-section avatar>
                         <q-icon name="home"></q-icon>
@@ -261,7 +261,7 @@
                     <q-item
                       v-if="disabled"
                       :disabled="disabled"
-                      style="padding: 15px;"
+                      style="padding: 15px"
                     >
                       <q-item-section avatar>
                         <q-icon name="email"></q-icon>
@@ -277,7 +277,7 @@
                       @click="link = 'messages'"
                       active-class="my-menu-link"
                       :to="'/messages'"
-                      style="padding: 15px;"
+                      style="padding: 15px"
                     >
                       <q-item-section avatar>
                         <q-icon name="email"></q-icon>
@@ -289,7 +289,7 @@
                     <q-item
                       v-if="disabled"
                       :disabled="disabled"
-                      style="padding: 15px;"
+                      style="padding: 15px"
                     >
                       <q-item-section avatar>
                         <q-icon name="settings"></q-icon>
@@ -305,7 +305,7 @@
                       @click="link = 'settings'"
                       active-class="my-menu-link"
                       :to="'/settings'"
-                      style="padding: 15px;"
+                      style="padding: 15px"
                     >
                       <q-item-section avatar>
                         <q-icon name="settings"></q-icon>
@@ -321,7 +321,7 @@
                       @click="link = 'help'"
                       active-class="my-menu-link"
                       :to="'/help'"
-                      style="padding: 15px;"
+                      style="padding: 15px"
                     >
                       <q-item-section avatar>
                         <q-icon name="help"></q-icon>
@@ -335,7 +335,7 @@
                     v-if="!disabled"
                     rounded
                     unelevated
-                    style="width: 140px !important;height: 41px !important;"
+                    style="width: 140px !important; height: 41px !important"
                     color="primary"
                     size="md"
                     label="Publish"
@@ -345,10 +345,10 @@
                     v-else
                     rounded
                     unelevated
-                    style="width: 200px !important;height: 82px !important;"
+                    style="width: 200px !important; height: 82px !important"
                     color="primary"
                     size="md"
-                    label="Genrate/Restore User Account"
+                    label="Generate or Restore User Account"
                     @click="dialogueGenerate()"
                   ></q-btn>
                 </div>
@@ -376,7 +376,7 @@
             </q-card>
           </div>
 
-          <div class="col-4  large-screen-only">
+          <div class="col-4 large-screen-only">
             <q-card class="float-left no-shadow">
               <q-card-section>
                 <q-input dense rounded outlined v-model="addPubKey">
@@ -401,8 +401,7 @@
                       v-for="followed in following"
                       v-if="
                         followed.pubkey !=
-                          JSON.parse($q.localStorage.getItem('myProfile'))
-                            .pubkey
+                        JSON.parse($q.localStorage.getItem('myProfile')).pubkey
                       "
                       @click="toProfile(followed.pubkey)"
                       :key="followed.pubkey"
@@ -414,7 +413,7 @@
                       </q-item-section>
 
                       <q-item-section>{{
-                        followed.pubkey.substring(0, 10) + "..."
+                        followed.pubkey.substring(0, 10) + '...'
                       }}</q-item-section>
                     </q-item>
                   </q-list>
@@ -426,7 +425,7 @@
       </div>
     </div>
 
-    <q-footer bordered style="bottom: 0%;position: fixed;" class="bg-white">
+    <q-footer bordered style="bottom: 0%; position: fixed" class="bg-white">
       <q-banner
         v-if="showInstallBanner"
         inline-actions
@@ -466,103 +465,103 @@
       </q-banner>
       <center>
         <q-tabs class="text-primary small-screen-only">
-          <q-route-tab style="width: 20%;" name="home" icon="home" to="/" />
+          <q-route-tab style="width: 20%" name="home" icon="home" to="/" />
 
           <q-route-tab
-            style="width: 20%;"
+            style="width: 20%"
             name="messages"
             icon="email"
             to="/messages"
           />
           <q-route-tab
-            style="width: 20%;"
+            style="width: 20%"
             name="settings"
             icon="settings"
             to="/settings"
           />
-          <q-route-tab style="width: 20%;" name="help" icon="help" to="/help" />
+          <q-route-tab style="width: 20%" name="help" icon="help" to="/help" />
         </q-tabs>
       </center>
     </q-footer>
   </q-layout>
 </template>
 <script>
-let deferredPrompt;
-import { copyToClipboard } from "quasar";
-import { relayPool } from "nostr-tools";
-import { myHelpers } from "../boot/helpers.js";
-const pool = relayPool();
+let deferredPrompt
+import {copyToClipboard} from 'quasar'
+import {relayPool} from 'nostr-tools'
+import {myHelpers} from '../boot/helpers.js'
+const pool = relayPool()
 export default {
-  name: "MainLayout",
+  name: 'MainLayout',
 
   mounted() {
-    let value = this.$q.localStorage.getItem("neverShowBanner");
+    let value = this.$q.localStorage.getItem('neverShowBanner')
     if (!value) {
-      window.addEventListener("beforeinstallprompt", (e) => {
-        e.preventDefault();
-        deferredPrompt = e;
-        this.showInstallBanner = true;
-      });
+      window.addEventListener('beforeinstallprompt', e => {
+        e.preventDefault()
+        deferredPrompt = e
+        this.showInstallBanner = true
+      })
     }
   },
   mixins: [myHelpers],
   methods: {
     getUrlVars() {
-      var vars = {};
+      var vars = {}
       var parts = window.location.href.replace(
         /[?&]+([^=&]+)=([^&]*)/gi,
-        function(m, key, value) {
-          vars[key] = value;
+        function (m, key, value) {
+          vars[key] = value
         }
-      );
-      return vars;
+      )
+      return vars
     },
     publishOnSubmit() {},
     installApp() {
-      this.showInstallBanner = false;
-      deferredPrompt.prompt();
-      deferredPrompt.userChoice.then((choiceResult) => {
-        if (choiceResult.outcome === "accepted") {
-          console.log("User accepted the install prompt");
+      this.showInstallBanner = false
+      deferredPrompt.prompt()
+      deferredPrompt.userChoice.then(choiceResult => {
+        if (choiceResult.outcome === 'accepted') {
+          console.log('User accepted the install prompt')
         } else {
-          console.log("User dismissed the install prompt");
+          console.log('User dismissed the install prompt')
         }
-      });
+      })
     },
     neverInstallApp() {
-      this.showInstallBanner = false;
+      this.showInstallBanner = false
       try {
-        this.$q.localStorage.set("neverShowBanner", true);
+        this.$q.localStorage.set('neverShowBanner', true)
       } catch (e) {
-        console.log(e);
+        console.log(e)
       }
     },
     copyToClip(text) {
-      console.log("fffff");
+      console.log('fffff')
       copyToClipboard(text)
         .then(() => {
           this.$q.notify({
-            message: "COPIED",
-          });
+            message: 'COPIED'
+          })
         })
         .catch(() => {
-          this.$q.notify({ type: "negative", message: "FAILED" });
-        });
-    },
+          this.$q.notify({type: 'negative', message: 'FAILED'})
+        })
+    }
   },
-  created: function() {
-    var myProfile = JSON.parse(this.$q.localStorage.getItem("myProfile"));
+  created: function () {
+    var myProfile = JSON.parse(this.$q.localStorage.getItem('myProfile'))
     if (!myProfile) {
-      this.disabled = true;
+      this.disabled = true
     } else {
-      this.getFollowing();
-      this.launchPool();
+      this.getFollowing()
+      this.launchPool()
     }
 
     //pool.onNotice("message", "wss://nostr-relay.bigsun.xyz");
     //pool.onNotice("message", "wss://relay.nostr.org");
-  },
-};
+  }
+}
 </script>
 
 <style lang="sass">

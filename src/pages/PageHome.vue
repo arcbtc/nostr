@@ -1,14 +1,14 @@
 <template>
   <q-page>
     <template>
-      <div class="row" style="width:100%">
+      <div class="row" style="width: 100%">
         <q-form
-          style="width:100%;"
+          style="width: 100%"
           @submit="sendPost(publishtext, [])"
           class="q-gutter-md"
         >
           <q-input
-            style="font-size: 20px;"
+            style="font-size: 20px"
             v-model="publishtext"
             autogrow
             label="Say something"
@@ -98,7 +98,7 @@
       :key="post.id"
       class="my-card"
       flat
-      style="border:none;"
+      style="border: none"
     >
       <q-card-section class="no-shadow" horizontal>
         <q-card-section class="no-shadow">
@@ -107,13 +107,13 @@
           </q-avatar>
         </q-card-section>
 
-        <q-separator vertical style="display: none;" />
+        <q-separator vertical style="display: none" />
 
         <q-card-section class="col no-shadow">
           <q-card-section class="q-pa-none" @click="dialoguePost(post)">
             <q-item-label
               >{{ post.pubkey | handler }}
-              <small style="color:grey">{{
+              <small style="color: grey">{{
                 post.created_at | niceDate
               }}</small></q-item-label
             >
@@ -160,21 +160,21 @@
       </q-card-section>
     </q-card>
     <q-dialog v-model="dialogpost" position="top">
-      <q-card class="my-card q-mt-md" flat style="border:none;">
+      <q-card class="my-card q-mt-md" flat style="border: none">
         <q-card-section class="no-shadow" vertical>
           <q-card-section class="no-shadow" horizontal>
             <q-card-section class="no-shadow q-pb-none">
-              <q-avatar class="no-shadow ">
+              <q-avatar class="no-shadow">
                 <img :src="avatarMake(String(dialoguepost.pubkey))" />
               </q-avatar>
             </q-card-section>
 
-            <q-separator vertical style="display: none;" />
+            <q-separator vertical style="display: none" />
 
             <q-card-section class="col no-shadow q-pb-none">
               <q-item-label
                 >{{ String(dialoguepost.pubkey) | handler }}
-                <small style="color:grey">{{
+                <small style="color: grey">{{
                   dialoguepost.created_at | niceDate
                 }}</small></q-item-label
               >
@@ -183,15 +183,15 @@
             </q-card-section>
           </q-card-section>
           <q-card-section class="no-shadow q-pa-none q-pl-xl">
-            <div class="row" style="width:100%">
+            <div class="row" style="width: 100%">
               <q-form
-                style="width:100%;"
+                style="width: 100%"
                 @submit="sendPost(replytext, [['e', dialoguepost.id]])"
                 class="q-gutter-md"
               >
                 <q-input
                   dense
-                  style="font-size: 20px;"
+                  style="font-size: 20px"
                   v-model="replytext"
                   autogrow
                   maxlength="280"
@@ -273,54 +273,54 @@
 </template>
 
 <script>
-import { date } from "quasar";
+import {date} from 'quasar'
 
-import { myHelpers } from "../boot/helpers.js";
+import {myHelpers} from '../boot/helpers.js'
 
 export default {
-  name: "PageHome",
+  name: 'PageHome',
 
   data() {
     return {
       checktest: false,
-      publishtext: "",
-      myavatar: "",
+      publishtext: '',
+      myavatar: '',
       emojiOn: false,
       activatevideohome: false,
       imageCaptured: false,
       hasCamerasuport: true,
       homeembedimage: false,
-      imagefile: "",
+      imagefile: '',
       newpost: {
-        user: "",
-        message: "",
+        user: '',
+        message: '',
         image: null,
-        date: Date.now(),
+        date: Date.now()
       },
       emojis1: [
-        { item: "😂" },
-        { item: "😃" },
-        { item: "😍" },
-        { item: "😘" },
-        { item: "😭" },
-        { item: "🤣" },
-        { item: "🧐" },
-        { item: "👊" },
-        { item: "🤘" },
+        {item: '😂'},
+        {item: '😃'},
+        {item: '😍'},
+        {item: '😘'},
+        {item: '😭'},
+        {item: '🤣'},
+        {item: '🧐'},
+        {item: '👊'},
+        {item: '🤘'}
       ],
       emojis2: [
-        { item: "👌" },
-        { item: "🙌" },
-        { item: "🤦" },
-        { item: "🚀" },
-        { item: "🔥" },
-        { item: "💯" },
-        { item: "⚡" },
-        { item: "🏴󠁧󠁢󠁷󠁬󠁳󠁿" },
-        { item: "🌑" },
+        {item: '👌'},
+        {item: '🙌'},
+        {item: '🤦'},
+        {item: '🚀'},
+        {item: '🔥'},
+        {item: '💯'},
+        {item: '⚡'},
+        {item: '🏴󠁧󠁢󠁷󠁬󠁳󠁿'},
+        {item: '🌑'}
       ],
-      items: [{}, {}, {}, {}, {}, {}, {}],
-    };
+      items: [{}, {}, {}, {}, {}, {}, {}]
+    }
   },
 
   mixins: [myHelpers],
@@ -328,44 +328,44 @@ export default {
     onLoad(index, done) {
       setTimeout(() => {
         if (this.posts) {
-          this.getRelayPosts(index, this.posts.length);
-          done();
+          this.getRelayPosts(index, this.posts.length)
+          done()
         }
-      }, 2000);
-    },
+      }, 2000)
+    }
   },
   filters: {
     tagCheck(post) {
-      return true;
-    },
+      return true
+    }
   },
   created() {
-    var myProfile = JSON.parse(this.$q.localStorage.getItem("myProfile"));
+    var myProfile = JSON.parse(this.$q.localStorage.getItem('myProfile'))
     if (!myProfile) {
-      this.disabled = true;
-      console.log(this.disabled);
-      this.$router.push("/help");
+      this.disabled = true
+      console.log(this.disabled)
+      this.$router.push('/help')
     } else {
       var theirProfile = JSON.parse(
-        this.$q.localStorage.getItem("theirProfile")
-      );
-      this.myprofile = myProfile;
-      this.theirProfile = theirProfile;
-      this.getAllPosts();
+        this.$q.localStorage.getItem('theirProfile')
+      )
+      this.myprofile = myProfile
+      this.theirProfile = theirProfile
+      this.getAllPosts()
     }
   },
   filters: {
     handler(value, value2) {
-      if (value != "") {
-        return value.substring(0, 20) + "....";
+      if (value != '') {
+        return value.substring(0, 20) + '....'
       } else {
-        return value;
+        return value
       }
     },
     niceDate(value) {
-      let formattedString = date.formatDate(value, "YYYY MMM D h:mm A");
-      return formattedString;
-    },
-  },
-};
+      let formattedString = date.formatDate(value, 'YYYY MMM D h:mm A')
+      return formattedString
+    }
+  }
+}
 </script>

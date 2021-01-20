@@ -22,7 +22,7 @@
       <div class="col-8">
         <p
           class="text-caption"
-          style="width:100%;  word-break: break-all !important;"
+          style="width: 100%; word-break: break-all !important"
         >
           {{ singleprofile.pubkey }}
         </p>
@@ -44,8 +44,8 @@
       <q-btn
         v-if="
           !followCheck(singleprofile.pubkey) &&
-            singleprofile.pubkey !=
-              JSON.parse($q.localStorage.getItem('myProfile')).pubkey
+          singleprofile.pubkey !=
+            JSON.parse($q.localStorage.getItem('myProfile')).pubkey
         "
         class="float-right q-mr-xs"
         round
@@ -75,7 +75,7 @@
       :key="post.id"
       class="my-card"
       flat
-      style="border:none;"
+      style="border: none"
     >
       <q-card-section class="no-shadow" horizontal>
         <q-card-section class="no-shadow">
@@ -84,13 +84,13 @@
           </q-avatar>
         </q-card-section>
 
-        <q-separator vertical style="display: none;" />
+        <q-separator vertical style="display: none" />
 
         <q-card-section class="col no-shadow">
           <q-card-section class="q-pa-none" @click="dialoguePost(post)">
             <q-item-label
               >{{ post.pubkey | handler }}
-              <small style="color:grey">{{
+              <small style="color: grey">{{
                 post.created_at | niceDate
               }}</small></q-item-label
             >
@@ -137,21 +137,21 @@
       </q-card-section>
     </q-card>
     <q-dialog v-model="dialogpost" position="top">
-      <q-card class="my-card q-mt-md" flat style="border:none;">
+      <q-card class="my-card q-mt-md" flat style="border: none">
         <q-card-section class="no-shadow" vertical>
           <q-card-section class="no-shadow" horizontal>
             <q-card-section class="no-shadow q-pb-none">
-              <q-avatar class="no-shadow ">
+              <q-avatar class="no-shadow">
                 <img :src="avatarMake(String(dialoguepost.pubkey))" />
               </q-avatar>
             </q-card-section>
 
-            <q-separator vertical style="display: none;" />
+            <q-separator vertical style="display: none" />
 
             <q-card-section class="col no-shadow q-pb-none">
               <q-item-label
                 >{{ String(dialoguepost.pubkey) | handler }}
-                <small style="color:grey">{{
+                <small style="color: grey">{{
                   dialoguepost.created_at | niceDate
                 }}</small></q-item-label
               >
@@ -160,15 +160,15 @@
             </q-card-section>
           </q-card-section>
           <q-card-section class="no-shadow q-pa-none q-pl-xl">
-            <div class="row" style="width:100%">
+            <div class="row" style="width: 100%">
               <q-form
-                style="width:100%;"
+                style="width: 100%"
                 @submit="sendPost(replytext, [['e', dialoguepost.id]])"
                 class="q-gutter-md"
               >
                 <q-input
                   dense
-                  style="font-size: 20px;"
+                  style="font-size: 20px"
                   v-model="replytext"
                   autogrow
                   maxlength="280"
@@ -250,103 +250,103 @@
 </template>
 
 <script>
-import { date } from "quasar";
-require("md-gum-polyfill");
-let deferredPrompt;
-import { myHelpers } from "../boot/helpers.js";
+import {date} from 'quasar'
+require('md-gum-polyfill')
+let deferredPrompt
+import {myHelpers} from '../boot/helpers.js'
 
 export default {
-  name: "PageHome",
+  name: 'PageHome',
 
   data() {
     return {
-      publishtext: "",
-      myavatar: "",
+      publishtext: '',
+      myavatar: '',
       emojiOn: false,
       activatevideohome: false,
       imageCaptured: false,
       hasCamerasuport: true,
       homeembedimage: false,
-      imagefile: "",
+      imagefile: '',
       newpost: {
-        user: "",
-        message: "",
+        user: '',
+        message: '',
         image: null,
-        date: Date.now(),
+        date: Date.now()
       },
       emojis1: [
-        { item: "😂" },
-        { item: "😃" },
-        { item: "😍" },
-        { item: "😘" },
-        { item: "😭" },
-        { item: "🤣" },
-        { item: "🧐" },
-        { item: "👊" },
-        { item: "🤘" },
+        {item: '😂'},
+        {item: '😃'},
+        {item: '😍'},
+        {item: '😘'},
+        {item: '😭'},
+        {item: '🤣'},
+        {item: '🧐'},
+        {item: '👊'},
+        {item: '🤘'}
       ],
       emojis2: [
-        { item: "👌" },
-        { item: "🙌" },
-        { item: "🤦" },
-        { item: "🚀" },
-        { item: "🔥" },
-        { item: "💯" },
-        { item: "⚡" },
-        { item: "🏴󠁧󠁢󠁷󠁬󠁳󠁿" },
-        { item: "🌑" },
+        {item: '👌'},
+        {item: '🙌'},
+        {item: '🤦'},
+        {item: '🚀'},
+        {item: '🔥'},
+        {item: '💯'},
+        {item: '⚡'},
+        {item: '🏴󠁧󠁢󠁷󠁬󠁳󠁿'},
+        {item: '🌑'}
       ],
       followcheck: false,
-      profilePosts: [],
-    };
+      profilePosts: []
+    }
   },
   mixins: [myHelpers],
   methods: {
     followCheck(pubKey) {
-      var following = this.getFollowing();
+      var following = this.getFollowing()
       for (var i = 0; i < this.following.length; i++) {
         if (
           pubKey == this.following[i].pubkey &&
-          JSON.parse(this.$q.localStorage.getItem("myProfile")).pubkey !=
+          JSON.parse(this.$q.localStorage.getItem('myProfile')).pubkey !=
             this.following[i].pubkey
         ) {
-          return true;
+          return true
         }
       }
-    },
+    }
   },
 
   created() {
-    var myProfile = JSON.parse(this.$q.localStorage.getItem("myProfile"));
-    var theirProfile = JSON.parse(this.$q.localStorage.getItem("theirProfile"));
+    var myProfile = JSON.parse(this.$q.localStorage.getItem('myProfile'))
+    var theirProfile = JSON.parse(this.$q.localStorage.getItem('theirProfile'))
     if (!myProfile) {
-      this.disabled = true;
-      this.$router.push("/help");
+      this.disabled = true
+      this.$router.push('/help')
     } else {
       this.getUserPosts(
-        this.$route.path.split("/")[this.$route.path.split("/").length - 1]
-      );
+        this.$route.path.split('/')[this.$route.path.split('/').length - 1]
+      )
     }
 
-    if ("pubkey" in this.singleprofile) {
+    if ('pubkey' in this.singleprofile) {
     } else {
-      this.singleprofile.pubkey = this.$route.path.split("/")[
-        this.$route.path.split("/").length - 1
-      ];
+      this.singleprofile.pubkey = this.$route.path.split('/')[
+        this.$route.path.split('/').length - 1
+      ]
     }
   },
   filters: {
     handler(value, value2) {
-      if (value != "") {
-        return value.substring(0, 20) + "....";
+      if (value != '') {
+        return value.substring(0, 20) + '....'
       } else {
-        return value;
+        return value
       }
     },
     niceDate(value) {
-      let formattedString = date.formatDate(value, "YYYY MMM D h:mm A");
-      return formattedString;
-    },
-  },
-};
+      let formattedString = date.formatDate(value, 'YYYY MMM D h:mm A')
+      return formattedString
+    }
+  }
+}
 </script>

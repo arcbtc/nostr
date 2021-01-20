@@ -3,7 +3,7 @@
     <center>
       <strong class="text-h6 q-pa-lg fixed-top">Help</strong>
     </center>
-        <br />
+    <br />
     <q-btn
       flat
       color="white"

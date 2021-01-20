@@ -286,39 +286,12 @@ export default {
       publishtext: '',
       myavatar: '',
       emojiOn: false,
-      activatevideohome: false,
-      imageCaptured: false,
-      hasCamerasuport: true,
-      homeembedimage: false,
-      imagefile: '',
       newpost: {
         user: '',
         message: '',
         image: null,
         date: Date.now()
       },
-      emojis1: [
-        {item: '😂'},
-        {item: '😃'},
-        {item: '😍'},
-        {item: '😘'},
-        {item: '😭'},
-        {item: '🤣'},
-        {item: '🧐'},
-        {item: '👊'},
-        {item: '🤘'}
-      ],
-      emojis2: [
-        {item: '👌'},
-        {item: '🙌'},
-        {item: '🤦'},
-        {item: '🚀'},
-        {item: '🔥'},
-        {item: '💯'},
-        {item: '⚡'},
-        {item: '🏴󠁧󠁢󠁷󠁬󠁳󠁿'},
-        {item: '🌑'}
-      ],
       items: [{}, {}, {}, {}, {}, {}, {}]
     }
   },

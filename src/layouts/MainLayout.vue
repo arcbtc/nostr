@@ -2,7 +2,13 @@
   <q-layout>
     <q-dialog v-model="dialogpublish">
       <q-card style="width: 500px" class="q-pa-md q-pt-lg">
-        <q-form @submit="publishOnSubmit" class="full-width q-gutter-md">
+    <template>
+      <div class="row" style="width: 100%">
+        <q-form
+          style="width: 100%"
+          @submit="sendPost(publishtext, [])"
+          class="q-gutter-md"
+        >
           <q-input
             style="font-size: 20px"
             v-model="publishtext"
@@ -11,9 +17,24 @@
             maxlength="280"
           >
             <template v-slot:before>
-              <q-avatar>
-                <img src="http://identicon.net/img/identicon.png" />
-              </q-avatar>
+              <q-btn
+                @click="
+                  toProfile(
+                    JSON.parse($q.localStorage.getItem('myProfile')).pubkey
+                  )
+                "
+                round
+              >
+                <q-avatar size="42px">
+                  <img
+                    :src="
+                      avatarMake(
+                        JSON.parse($q.localStorage.getItem('myProfile')).pubkey
+                      )
+                    "
+                  />
+                </q-avatar>
+              </q-btn>
             </template>
           </q-input>
 
@@ -61,16 +82,19 @@
               icon="insert_emoticon"
               size="sm"
             />
+
             <q-btn
               label="Publish"
               rounded
               unelevated
-              @click="postEvent('', publishtext)"
+              type="submit"
               class="float-right"
               color="primary"
             />
           </div>
         </q-form>
+      </div>
+    </template>
       </q-card>
     </q-dialog>
 
@@ -465,6 +489,7 @@ import {myHelpers} from '../boot/helpers.js'
 const pool = relayPool()
 export default {
   name: 'MainLayout',
+  publishtext: '',
 
   mounted() {
     let value = this.$q.localStorage.getItem('neverShowBanner')

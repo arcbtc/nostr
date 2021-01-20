@@ -6,7 +6,9 @@
   "author": "benarc <ben@arc.wales>",
   "private": true,
   "scripts": {
-    "test": "echo \"No test specified\" && exit 0"
+    "dev": "quasar dev",
+    "pwa": "quasar dev -m pwa",
+    "build": "quasar run build"
   },
   "dependencies": {
     "@quasar/cli": "^1.1.3",

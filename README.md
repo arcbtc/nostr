@@ -2,11 +2,6 @@
 
 280 character limited social network using the nostr protocol
 
-## Install Quasar
-```bash
-npm install -g @quasar/cli
-```
-
 ## Install the dependencies
 ```bash
 npm install
@@ -14,17 +9,17 @@ npm install
 
 ### Start the app in development mode (hot-code reloading, error reporting, etc.)
 ```bash
-quasar dev
+npm run dev
 ```
 
 ### Start the app in development mode as PWA  (hot-code reloading, error reporting, etc.)
 ```bash
-quasar dev -m pwa
+npm run pwa
 ```
 
 ### Build the app for production
 ```bash
-quasar build
+npm run build
 ```
 
 ### Customize the configuration

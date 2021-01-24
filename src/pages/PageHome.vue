@@ -14,7 +14,7 @@
             label="Say something"
             maxlength="280"
           >
-            <template v-slot:before>
+            <template #before>
               <q-btn
                 @click="
                   toProfile(
@@ -263,7 +263,7 @@
       @load="onLoad(posts.length + 10)"
       :offset="250"
     >
-      <template v-slot:loading>
+      <template #loading>
         <div class="row justify-center q-my-md">
           <q-spinner-dots color="primary" size="40px" />
         </div>

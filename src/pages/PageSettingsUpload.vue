@@ -179,7 +179,6 @@
 
 <script>
 import {relayPool} from 'nostr-tools'
-
 import {myHelpers} from '../boot/helpers.js'
 
 export default {

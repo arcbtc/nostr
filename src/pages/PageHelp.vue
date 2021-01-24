@@ -61,8 +61,8 @@
               autogrow
               type="textarea"
               label="Word List/Private Key"
-            ></q-input
-            ><br />
+            ></q-input>
+            <br />
 
             <q-btn
               @click="createKeys()"
@@ -95,14 +95,14 @@
               filled
               :type="user.isPwd ? 'password' : 'text'"
             >
-              <template v-slot:prepend>
+              <template #prepend>
                 <q-icon
                   name="content_copy"
                   class="cursor-pointer"
                   @click="copyToClip(user.privatekey)"
                 ></q-icon>
               </template>
-              <template v-slot:append>
+              <template #append>
                 <q-icon
                   :name="user.isPwd ? 'visibility_off' : 'visibility'"
                   class="cursor-pointer"
@@ -115,7 +115,7 @@
             and send you private messages.
             <br />
             <q-input v-model="user.publickey" filled type="text">
-              <template v-slot:prepend>
+              <template #prepend>
                 <q-icon
                   name="content_copy"
                   class="cursor-pointer"

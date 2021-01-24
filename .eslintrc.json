@@ -1,4 +1,7 @@
 {
+  "root": true,
+
+  "parser": "babel-eslint",
   "parserOptions": {
     "ecmaVersion": 9,
     "sourceType": "module",
@@ -12,6 +15,10 @@
 
   "plugins": [
     "babel"
+  ],
+
+  "extends": [
+    "plugin:vue/vue3-strongly-recommended"
   ],
 
   "globals": {
@@ -28,6 +35,17 @@
   },
 
   "rules": {
+    "strict": 0,
+
+    "vue/multiline-html-element-content-newline": 0,
+    "vue/singleline-html-element-content-newline": 0,
+    "vue/max-attributes-per-line": 0,
+    "vue/html-self-closing": 0,
+    "vue/no-use-v-if-with-v-for": 0,
+    "vue/html-indent": 0,
+    "vue/no-deprecated-filter": 0,
+    "vue/html-closing-bracket-newline": 0,
+
     "accessor-pairs": 2,
     "arrow-spacing": [2, { "before": true, "after": true }],
     "block-spacing": [2, "always"],

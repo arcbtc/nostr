@@ -71,9 +71,6 @@
 </template>
 
 <script>
-const crypto = require('crypto')
-const secp = require('noble-secp256k1')
-import {relayPool} from 'nostr-tools'
 import {myHelpers} from '../boot/helpers.js'
 
 export default {

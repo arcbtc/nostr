@@ -15,7 +15,7 @@
     <br /><br />
 
     <div class="q-mx-auto" style="max-width: 400px">
-      <q-form @submit="sendMetaSettings()" class="q-gutter-md">
+      <q-form @submit="setProfile" class="q-gutter-md">
         <p>
           If your desired handle is available our relay will use open-timestamps
           to secure it to your public key, and share it with other relays.
@@ -24,13 +24,13 @@
           filled
           type="text"
           v-model="settings.handle"
-          hint="Disired handle (3-10 chars)"
+          hint="Desired handle (3-10 chars)"
           lazy-rules
           :rules="[
             val => (val !== null && val !== '') || 'Between 3 - 10 chars'
           ]"
         >
-          <template v-slot:before>
+          <template #before>
             <q-icon name="alternate_email" />
           </template>
         </q-input>
@@ -45,7 +45,7 @@
           filled
           type="text"
           v-model="settings.imagetemp"
-          hint="Profile picture (imagur url)"
+          hint="Profile picture (imgur url)"
           maxlength="150"
         />
         <q-btn
@@ -116,63 +116,21 @@
 </template>
 
 <script>
-import {relayPool} from 'nostr-tools'
-
 import {myHelpers} from '../boot/helpers.js'
 
 export default {
   name: 'PageSettings',
   data() {
     return {
-      publishtext: '',
-      emojiOn: false,
-      activatevideohome: false,
-      imageCaptured: false,
-      hasCamerasuport: true,
-      homeembedimage: false,
-      imagefile: '',
       name: null,
       age: null,
-      newpost: {
-        user: '',
-        message: '',
-        image: null,
-        date: Date.now()
-      },
       settings: [],
       accept: false
     }
   },
   mixins: [myHelpers],
   methods: {
-    async sendMetaSettings() {
-      var myProfile = JSON.parse(this.$q.localStorage.getItem('myProfile'))
-      console.log(myProfile)
-      myProfile.avatar = this.settings.imagetemp
-      myProfile.handle = this.settings.handle
-      myProfile.about = this.settings.about
-
-      this.$q.localStorage.set('myProfile', myProfile)
-
-      const timest = Math.floor(Date.now() / 1000)
-
-      var eventObject = {
-        pubkey: myProfile.pubkey,
-        created_at: timest,
-        kind: 0,
-        tags: [],
-        content: JSON.stringify({
-          name: myProfile.handle,
-          about: myProfile.about,
-          picture: myProfile.avatar
-        })
-      }
-
-      var eventObjectId = await getEventHash(eventObject)
-      eventObject.id = eventObjectId
-      pool.publish(eventObject)
-    },
-    ProfileonSubmit() {
+    profileOnSubmit() {
       if (this.accept !== true) {
         this.$q.notify({
           color: 'red-5',
@@ -188,6 +146,13 @@ export default {
           message: 'Submitted'
         })
       }
+    },
+    setProfile() {
+      this.saveMeta({
+        image: this.settings.imagetemp,
+        handle: this.settings.handle,
+        about: this.settings.about
+      })
     },
     relayAdd(relay) {
       this.settings.relays = ''

@@ -71,7 +71,7 @@
 
     <q-card
       v-for="post in profilePosts"
-      v-if="post.pubkey == singleprofile.pubkey"
+      v-if="post.pubkey === singleprofile.pubkey"
       :key="post.id"
       class="my-card"
       flat
@@ -240,7 +240,7 @@
       @load="onLoad(posts.length + 10)"
       :offset="250"
     >
-      <template v-slot:loading>
+      <template #loading>
         <div class="row justify-center q-my-md">
           <q-spinner-dots color="primary" size="40px" />
         </div>
@@ -250,9 +250,8 @@
 </template>
 
 <script>
+import 'md-gum-polyfill'
 import {date} from 'quasar'
-require('md-gum-polyfill')
-let deferredPrompt
 import {myHelpers} from '../boot/helpers.js'
 
 export default {
@@ -303,11 +302,10 @@ export default {
   mixins: [myHelpers],
   methods: {
     followCheck(pubKey) {
-      var following = this.getFollowing()
       for (var i = 0; i < this.following.length; i++) {
         if (
-          pubKey == this.following[i].pubkey &&
-          JSON.parse(this.$q.localStorage.getItem('myProfile')).pubkey !=
+          pubKey === this.following[i].pubkey &&
+          JSON.parse(this.$q.localStorage.getItem('myProfile')).pubkey !==
             this.following[i].pubkey
         ) {
           return true
@@ -318,7 +316,6 @@ export default {
 
   created() {
     var myProfile = JSON.parse(this.$q.localStorage.getItem('myProfile'))
-    var theirProfile = JSON.parse(this.$q.localStorage.getItem('theirProfile'))
     if (!myProfile) {
       this.disabled = true
       this.$router.push('/help')
@@ -337,7 +334,7 @@ export default {
   },
   filters: {
     handler(value, value2) {
-      if (value != '') {
+      if (value !== '') {
         return value.substring(0, 20) + '....'
       } else {
         return value

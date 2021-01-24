@@ -66,8 +66,8 @@
 </template>
 
 <script>
-var crypto = require('crypto')
-const secp = require('noble-secp256k1')
+import crypto from 'crypto'
+import secp from 'noble-secp256k1'
 import {myHelpers} from '../boot/helpers.js'
 
 export default {
@@ -78,9 +78,6 @@ export default {
       messages: [],
       name: null,
       age: null,
-      message: {
-        data: {}
-      },
       accept: false
     }
   },

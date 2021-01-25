@@ -71,42 +71,18 @@
 </template>
 
 <script>
-import {myHelpers} from '../boot/helpers.js'
+import helpersMixin from '../utils/mixin'
 
 export default {
-  name: 'PageSettings',
-  data() {
-    return {
-      name: null,
-      age: null,
-      message: {
-        data: {}
-      },
-      accept: false
-    }
-  },
-  mixins: [myHelpers],
-  methods: {
-    MessageonReset() {
-      this.name = null
-      this.age = null
-      this.accept = false
-    }
-  },
+  name: 'PageMessages',
+  mixins: [helpersMixin],
   created: function () {
-    this.getFollowing()
-    var myProfile = JSON.parse(this.$q.localStorage.getItem('myProfile'))
-    if (!myProfile) {
-      this.disabled = true
+    if (!this.$store.getters.disabled) {
       this.$router.push('/help')
-    } else {
-      var theirProfile = JSON.parse(
-        this.$q.localStorage.getItem('theirProfile')
-      )
-      this.myprofile = myProfile
-      this.theirProfile = theirProfile
-      this.getAllPosts()
+      return
     }
+
+    this.$store.dispatch('getAllPosts')
   }
 }
 </script>

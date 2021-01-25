@@ -68,7 +68,7 @@
 <script>
 import crypto from 'crypto'
 import secp from 'noble-secp256k1'
-import {myHelpers} from '../boot/helpers.js'
+import helpersMixin from '../utils/mixin'
 
 export default {
   name: 'PageSettings',
@@ -82,7 +82,7 @@ export default {
     }
   },
 
-  mixins: [myHelpers],
+  mixins: [helpersMixin],
   methods: {
     messageOnSubmit() {
       const sk1 = this.$route.path.split('/')[

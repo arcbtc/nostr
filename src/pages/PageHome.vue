@@ -1,100 +1,8 @@
 <template>
   <q-page>
-    <template>
-      <div class="row" style="width: 100%">
-        <q-form
-          style="width: 100%"
-          @submit="sendPost(publishtext, [])"
-          class="q-gutter-md"
-        >
-          <q-input
-            style="font-size: 20px"
-            v-model="publishtext"
-            autogrow
-            label="Say something"
-            maxlength="280"
-          >
-            <template #before>
-              <q-btn
-                @click="
-                  toProfile(
-                    JSON.parse($q.localStorage.getItem('myProfile')).pubkey
-                  )
-                "
-                round
-              >
-                <q-avatar size="42px">
-                  <img
-                    :src="
-                      avatarMake(
-                        JSON.parse($q.localStorage.getItem('myProfile')).pubkey
-                      )
-                    "
-                  />
-                </q-avatar>
-              </q-btn>
-            </template>
-          </q-input>
-
-          <div class="float-right">
-            <q-btn
-              v-if="publishtext.length < 280"
-              class="float-left q-mr-md"
-              round
-              unelevated
-              color="primary"
-              icon="insert_emoticon"
-              size="sm"
-            >
-              <q-popup-proxy>
-                <q-btn
-                  v-for="emoji in emojis1"
-                  :key="emoji.item"
-                  @click="publishtext = publishtext + emoji.item"
-                  flat
-                  rounded
-                  unelevated
-                  dense
-                  >{{ emoji.item }}</q-btn
-                >
-                <br />
-                <q-btn
-                  v-for="emoji in emojis2"
-                  :key="emoji.item"
-                  @click="publishtext = publishtext + emoji.item"
-                  flat
-                  rounded
-                  unelevated
-                  dense
-                  >{{ emoji.item }}</q-btn
-                >
-              </q-popup-proxy>
-            </q-btn>
-            <q-btn
-              v-else
-              disable
-              class="float-left q-mr-md"
-              round
-              unelevated
-              color="primary"
-              icon="insert_emoticon"
-              size="sm"
-            />
-
-            <q-btn
-              label="Publish"
-              rounded
-              unelevated
-              type="submit"
-              class="float-right"
-              color="primary"
-            />
-          </div>
-        </q-form>
-      </div>
-    </template>
+    <Publish v-if="!$store.getters.disabled" />
     <q-card
-      v-for="post in posts"
+      v-for="post in $store.state.main.kind1"
       :key="post.id"
       class="my-card"
       flat
@@ -110,7 +18,7 @@
         <q-separator vertical style="display: none" />
 
         <q-card-section class="col no-shadow">
-          <q-card-section class="q-pa-none" @click="dialoguePost(post)">
+          <q-card-section class="q-pa-none" @click="dialogReply = post">
             <q-item-label
               >{{ post.pubkey | handler }}
               <small style="color: grey">{{
@@ -129,7 +37,7 @@
               color="primary"
               flat
               icon="chat_bubble_outline"
-              @click="dialoguePost(post)"
+              @click="dialogReply = post"
               size="sm"
             />
 
@@ -159,108 +67,12 @@
         </q-card-section>
       </q-card-section>
     </q-card>
-    <q-dialog v-model="dialogpost" position="top">
-      <q-card class="my-card q-mt-md" flat style="border: none">
-        <q-card-section class="no-shadow" vertical>
-          <q-card-section class="no-shadow" horizontal>
-            <q-card-section class="no-shadow q-pb-none">
-              <q-avatar class="no-shadow">
-                <img :src="avatarMake(String(dialoguepost.pubkey))" />
-              </q-avatar>
-            </q-card-section>
-
-            <q-separator vertical style="display: none" />
-
-            <q-card-section class="col no-shadow q-pb-none">
-              <q-item-label
-                >{{ String(dialoguepost.pubkey) | handler }}
-                <small style="color: grey">{{
-                  dialoguepost.created_at | niceDate
-                }}</small></q-item-label
-              >
-              {{ dialoguepost.content }}
-              <div></div>
-            </q-card-section>
-          </q-card-section>
-          <q-card-section class="no-shadow q-pa-none q-pl-xl">
-            <div class="row" style="width: 100%">
-              <q-form
-                style="width: 100%"
-                @submit="sendPost(replytext, [['e', dialoguepost.id]])"
-                class="q-gutter-md"
-              >
-                <q-input
-                  dense
-                  style="font-size: 20px"
-                  v-model="replytext"
-                  autogrow
-                  maxlength="280"
-                >
-                </q-input>
-
-                <div class="float-right">
-                  <q-btn
-                    v-if="replytext.length < 280"
-                    class="float-left q-mr-md"
-                    round
-                    unelevated
-                    color="primary"
-                    icon="insert_emoticon"
-                    size="sm"
-                  >
-                    <q-popup-proxy>
-                      <q-btn
-                        v-for="emoji in emojis1"
-                        :key="emoji.item"
-                        @click="replytext = replytext + emoji.item"
-                        flat
-                        rounded
-                        unelevated
-                        dense
-                        >{{ emoji.item }}</q-btn
-                      >
-                      <br />
-                      <q-btn
-                        v-for="emoji in emojis2"
-                        :key="emoji.item"
-                        @click="replytext = replytext + emoji.item"
-                        flat
-                        rounded
-                        unelevated
-                        dense
-                        >{{ emoji.item }}</q-btn
-                      >
-                    </q-popup-proxy>
-                  </q-btn>
-                  <q-btn
-                    v-else
-                    disable
-                    class="float-left q-mr-md"
-                    round
-                    unelevated
-                    color="primary"
-                    icon="insert_emoticon"
-                    size="sm"
-                  />
-
-                  <q-btn
-                    label="Reply"
-                    rounded
-                    unelevated
-                    type="submit"
-                    class="float-right"
-                    color="primary"
-                  />
-                </div>
-              </q-form>
-            </div>
-          </q-card-section>
-        </q-card-section>
-      </q-card>
+    <q-dialog v-model="dialogReply" position="top">
+      <Reply :post="dialogReply" />
     </q-dialog>
     <q-infinite-scroll
-      v-if="posts.length > 20"
-      @load="onLoad(posts.length + 10)"
+      v-if="$store.state.main.kind1.length > 20"
+      @load="onLoad($store.state.main.kind1.length + 10)"
       :offset="250"
     >
       <template #loading>
@@ -274,71 +86,36 @@
 
 <script>
 import {date} from 'quasar'
-
-import {myHelpers} from '../boot/helpers.js'
+import helpersMixin from '../utils/mixin'
 
 export default {
   name: 'PageHome',
+  mixins: [helpersMixin],
 
   data() {
     return {
-      checktest: false,
-      publishtext: '',
-      myavatar: '',
-      emojiOn: false,
-      newpost: {
-        user: '',
-        message: '',
-        image: null,
-        date: Date.now()
-      },
-      items: [{}, {}, {}, {}, {}, {}, {}]
+      dialogReply: null
     }
   },
-
-  mixins: [myHelpers],
   methods: {
-    onLoad(index, done) {
+    onLoad(index) {
       setTimeout(() => {
-        if (this.posts) {
-          this.getRelayPosts(index, this.posts.length)
-          done()
+        if (this.$store.state.main.kind1) {
+          this.$store.dispatch('getRelayPosts', {
+            limit: index,
+            offset: this.$store.state.main.kind1.length
+          })
         }
       }, 2000)
     }
   },
-  filters: {
-    tagCheck(post) {
-      return true
-    }
-  },
   created() {
-    var myProfile = JSON.parse(this.$q.localStorage.getItem('myProfile'))
-    if (!myProfile) {
-      this.disabled = true
-      console.log(this.disabled)
+    if (!this.$store.getters.disabled) {
       this.$router.push('/help')
-    } else {
-      var theirProfile = JSON.parse(
-        this.$q.localStorage.getItem('theirProfile')
-      )
-      this.myprofile = myProfile
-      this.theirProfile = theirProfile
-      this.getAllPosts()
+      return
     }
-  },
-  filters: {
-    handler(value, value2) {
-      if (value != '') {
-        return value.substring(0, 20) + '....'
-      } else {
-        return value
-      }
-    },
-    niceDate(value) {
-      let formattedString = date.formatDate(value, 'YYYY MMM D h:mm A')
-      return formattedString
-    }
+
+    this.$store.dispatch('getAllPosts')
   }
 }
 </script>

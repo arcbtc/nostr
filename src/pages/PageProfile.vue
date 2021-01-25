@@ -16,7 +16,7 @@
     <div class="row">
       <div class="col-2">
         <q-avatar size="50px" round>
-          <img round :src="avatarMake(singleprofile.pubkey)" />
+          <img round :src="avatarMake($route.params.pubkey)" />
         </q-avatar>
       </div>
       <div class="col-8">
@@ -24,33 +24,29 @@
           class="text-caption"
           style="width: 100%; word-break: break-all !important"
         >
-          {{ singleprofile.pubkey }}
+          {{ $route.params.pubkey }}
         </p>
       </div>
     </div>
 
     <div class="q-pb-xl">
       <q-btn
-        v-if="followCheck()"
+        v-if="isFollowing"
         class="float-right q-mr-xs"
         round
         unelevated
-        @click="unFollow(singleprofile.pubkey)"
+        @click="unFollow($route.params.pubkey)"
         color="red"
         flat
         icon="cancel"
         size="sm"
       />
       <q-btn
-        v-if="
-          !followCheck(singleprofile.pubkey) &&
-          singleprofile.pubkey !=
-            JSON.parse($q.localStorage.getItem('myProfile')).pubkey
-        "
+        v-if="!isFollowing"
         class="float-right q-mr-xs"
         round
         unelevated
-        @click="addPubFollow(singleprofile.pubkey)"
+        @click="addPubFollow($route.params.pubkey)"
         color="primary"
         flat
         icon="add_circle"
@@ -61,7 +57,7 @@
         class="float-right q-mr-xs"
         round
         flat
-        :to="'/chat/' + singleprofile.pubkey"
+        :to="'/chat/' + $route.params.pubkey"
         unelevated
         color="primary"
         icon="message"
@@ -71,7 +67,7 @@
 
     <q-card
       v-for="post in profilePosts"
-      v-if="post.pubkey === singleprofile.pubkey"
+      v-if="post.pubkey === $route.params.pubkey"
       :key="post.id"
       class="my-card"
       flat
@@ -87,7 +83,7 @@
         <q-separator vertical style="display: none" />
 
         <q-card-section class="col no-shadow">
-          <q-card-section class="q-pa-none" @click="dialoguePost(post)">
+          <q-card-section class="q-pa-none" @click="dialogReply = post">
             <q-item-label
               >{{ post.pubkey | handler }}
               <small style="color: grey">{{
@@ -106,7 +102,7 @@
               color="primary"
               flat
               icon="chat_bubble_outline"
-              @click="dialoguePost(post)"
+              @click="dialogReply = post"
               size="sm"
             />
 
@@ -136,104 +132,8 @@
         </q-card-section>
       </q-card-section>
     </q-card>
-    <q-dialog v-model="dialogpost" position="top">
-      <q-card class="my-card q-mt-md" flat style="border: none">
-        <q-card-section class="no-shadow" vertical>
-          <q-card-section class="no-shadow" horizontal>
-            <q-card-section class="no-shadow q-pb-none">
-              <q-avatar class="no-shadow">
-                <img :src="avatarMake(String(dialoguepost.pubkey))" />
-              </q-avatar>
-            </q-card-section>
-
-            <q-separator vertical style="display: none" />
-
-            <q-card-section class="col no-shadow q-pb-none">
-              <q-item-label
-                >{{ String(dialoguepost.pubkey) | handler }}
-                <small style="color: grey">{{
-                  dialoguepost.created_at | niceDate
-                }}</small></q-item-label
-              >
-              {{ dialoguepost.content }}
-              <div></div>
-            </q-card-section>
-          </q-card-section>
-          <q-card-section class="no-shadow q-pa-none q-pl-xl">
-            <div class="row" style="width: 100%">
-              <q-form
-                style="width: 100%"
-                @submit="sendPost(replytext, [['e', dialoguepost.id]])"
-                class="q-gutter-md"
-              >
-                <q-input
-                  dense
-                  style="font-size: 20px"
-                  v-model="replytext"
-                  autogrow
-                  maxlength="280"
-                >
-                </q-input>
-
-                <div class="float-right">
-                  <q-btn
-                    v-if="replytext.length < 280"
-                    class="float-left q-mr-md"
-                    round
-                    unelevated
-                    color="primary"
-                    icon="insert_emoticon"
-                    size="sm"
-                  >
-                    <q-popup-proxy>
-                      <q-btn
-                        v-for="emoji in emojis1"
-                        :key="emoji.item"
-                        @click="replytext = replytext + emoji.item"
-                        flat
-                        rounded
-                        unelevated
-                        dense
-                        >{{ emoji.item }}</q-btn
-                      >
-                      <br />
-                      <q-btn
-                        v-for="emoji in emojis2"
-                        :key="emoji.item"
-                        @click="replytext = replytext + emoji.item"
-                        flat
-                        rounded
-                        unelevated
-                        dense
-                        >{{ emoji.item }}</q-btn
-                      >
-                    </q-popup-proxy>
-                  </q-btn>
-                  <q-btn
-                    v-else
-                    disable
-                    class="float-left q-mr-md"
-                    round
-                    unelevated
-                    color="primary"
-                    icon="insert_emoticon"
-                    size="sm"
-                  />
-
-                  <q-btn
-                    label="Reply"
-                    rounded
-                    unelevated
-                    type="submit"
-                    class="float-right"
-                    color="primary"
-                  />
-                </div>
-              </q-form>
-            </div>
-          </q-card-section>
-        </q-card-section>
-      </q-card>
+    <q-dialog v-model="dialogReply" position="top">
+      <Reply :post="dialogReply" />
     </q-dialog>
     <q-infinite-scroll
       v-if="posts.length > 20"
@@ -252,98 +152,65 @@
 <script>
 import 'md-gum-polyfill'
 import {date} from 'quasar'
-import {myHelpers} from '../boot/helpers.js'
+import helpersMixin from '../utils/mixin'
 
 export default {
   name: 'PageHome',
+  mixins: [helpersMixin],
 
   data() {
     return {
-      publishtext: '',
-      myavatar: '',
-      emojiOn: false,
-      activatevideohome: false,
-      imageCaptured: false,
-      hasCamerasuport: true,
-      homeembedimage: false,
-      imagefile: '',
-      newpost: {
-        user: '',
-        message: '',
-        image: null,
-        date: Date.now()
-      },
-      emojis1: [
-        {item: '😂'},
-        {item: '😃'},
-        {item: '😍'},
-        {item: '😘'},
-        {item: '😭'},
-        {item: '🤣'},
-        {item: '🧐'},
-        {item: '👊'},
-        {item: '🤘'}
-      ],
-      emojis2: [
-        {item: '👌'},
-        {item: '🙌'},
-        {item: '🤦'},
-        {item: '🚀'},
-        {item: '🔥'},
-        {item: '💯'},
-        {item: '⚡'},
-        {item: '🏴󠁧󠁢󠁷󠁬󠁳󠁿'},
-        {item: '🌑'}
-      ],
-      followcheck: false,
-      profilePosts: []
+      profilePosts: [],
+      dialogReply: null
     }
   },
-  mixins: [myHelpers],
-  methods: {
-    followCheck(pubKey) {
-      for (var i = 0; i < this.following.length; i++) {
+
+  computed: {
+    isFollowing() {
+      for (var i = 0; i < this.$store.state.main.theirProfile.length; i++) {
         if (
-          pubKey === this.following[i].pubkey &&
-          JSON.parse(this.$q.localStorage.getItem('myProfile')).pubkey !==
-            this.following[i].pubkey
+          this.$route.params.pubkey ===
+            this.$store.state.main.theirProfile[i].pubkey &&
+          this.$store.state.main.myProfile.pubkey !== pubKey
         ) {
           return true
         }
       }
+
+      return false
     }
   },
 
-  created() {
-    var myProfile = JSON.parse(this.$q.localStorage.getItem('myProfile'))
-    if (!myProfile) {
-      this.disabled = true
-      this.$router.push('/help')
-    } else {
-      this.getUserPosts(
-        this.$route.path.split('/')[this.$route.path.split('/').length - 1]
-      )
-    }
-
-    if ('pubkey' in this.singleprofile) {
-    } else {
-      this.singleprofile.pubkey = this.$route.path.split('/')[
-        this.$route.path.split('/').length - 1
-      ]
-    }
-  },
-  filters: {
-    handler(value, value2) {
-      if (value !== '') {
-        return value.substring(0, 20) + '....'
-      } else {
-        return value
-      }
+  methods: {
+    unFollow() {
+      store.dispatch('stopFollowing', this.$route.params.pubkey)
+      this.$router.push('/')
     },
-    niceDate(value) {
-      let formattedString = date.formatDate(value, 'YYYY MMM D h:mm A')
-      return formattedString
+
+    addPubFollow() {
+      store.dispatch('startFollowing', this.$route.params.pubkey)
     }
+  },
+
+  async created() {
+    if (this.$store.getters.disabled) {
+      this.$router.push('/help')
+      return
+    }
+
+    await this.$store.dispatch('getRelayPosts', {
+      limit: 20,
+      offset: 0,
+      pubkey: this.$router.params.pubkey
+    })
+
+    var posts = []
+    for (var i = 0; i < this.$store.state.main.kind1.length; i++) {
+      if (post[i].pubkey === this.$route.params.pubkey) {
+        posts.push(this.$store.state.main.kind1[i])
+      }
+    }
+    this.profilePosts = posts
   }
 }
 </script>

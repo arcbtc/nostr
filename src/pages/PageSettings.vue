@@ -60,11 +60,11 @@
       <br /><br />
       <q-separator />
       <br /><br />
-      <q-form @submit="relayAdd(settings.relays)" class="q-gutter-md">
+      <q-form @submit="relayAdd" class="q-gutter-md">
         <q-input
           filled
           type="textarea"
-          v-model="settings.relays"
+          v-model="relay"
           autogrow
           hint="Add a relay"
         />
@@ -82,12 +82,12 @@
       <br /><br />
       <q-separator />
       <br /><br />
-      <q-form @submit="relayRem(settings.relay)" class="q-gutter-md">
+      <q-form @submit="relayRem" class="q-gutter-md">
         <q-select
           filled
-          v-model="settings.relay"
+          v-model="relay"
           multiple
-          :options="myprofile.relays"
+          :options="store.state.main.myProfile.relays"
           label="Remove relay(s)"
           style="width: 250px"
         />
@@ -116,80 +116,34 @@
 </template>
 
 <script>
-import {myHelpers} from '../boot/helpers.js'
+import helpersMixin from '../utils/mixin'
 
 export default {
   name: 'PageSettings',
   data() {
     return {
-      name: null,
-      age: null,
-      settings: [],
-      accept: false
+      relay: '',
+      imagetemp: '',
+      handle: '',
+      about: ''
     }
   },
-  mixins: [myHelpers],
+  mixins: [helpersMixin],
   methods: {
-    profileOnSubmit() {
-      if (this.accept !== true) {
-        this.$q.notify({
-          color: 'red-5',
-          textColor: 'white',
-          icon: 'warning',
-          message: 'You need to accept the license and terms first'
-        })
-      } else {
-        this.$q.notify({
-          color: 'green-4',
-          textColor: 'white',
-          icon: 'cloud_done',
-          message: 'Submitted'
-        })
-      }
-    },
     setProfile() {
       this.saveMeta({
-        image: this.settings.imagetemp,
-        handle: this.settings.handle,
-        about: this.settings.about
+        image: this.imagetemp,
+        handle: this.handle,
+        about: this.about
       })
     },
-    relayAdd(relay) {
-      this.settings.relays = ''
-      this.relayPush(relay)
+    relayAdd() {
+      this.relayPush(this.relay)
+      this.relay = ''
     },
     relayRem(relay) {
-      this.settings.relay = ''
-      this.relayRemove(relay)
-    },
-
-    ProfileonReset() {
-      this.name = null
-      this.age = null
-      this.accept = false
-    },
-    RelaysonSubmit() {
-      if (this.accept !== true) {
-        this.$q.notify({
-          color: 'red-5',
-          textColor: 'white',
-          icon: 'warning',
-          message: 'You need to accept the license and terms first'
-        })
-      } else {
-        this.$q.notify({
-          color: 'green-4',
-          textColor: 'white',
-          icon: 'cloud_done',
-          message: 'Submitted'
-        })
-      }
-    },
-
-    RelaysonReset() {
-      this.name = null
-      this.age = null
-      this.accept = false
+      this.$store.dispatch('relayRemove', this.relay)
+      this.relay = ''
     },
     deletels() {
       this.$q.localStorage.clear()
@@ -197,19 +151,9 @@ export default {
     }
   },
   created() {
-    var myProfile = JSON.parse(this.$q.localStorage.getItem('myProfile'))
-    this.myprofile = myProfile
-    if (!myProfile) {
-      this.disabled = true
+    if (this.store.getters.disabled) {
       this.$router.push('/help')
-    } else {
-      var theirProfile = JSON.parse(
-        this.$q.localStorage.getItem('theirProfile')
-      )
-      this.myprofile = myProfile
-      this.theirProfile = theirProfile
     }
-    this.relayPush()
   }
 }
 </script>

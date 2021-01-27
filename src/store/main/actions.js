@@ -1,5 +1,6 @@
 import {getEventHash} from 'nostr-tools'
 import {LocalStorage, Notify} from 'quasar'
+import * as secp from 'noble-secp256k1'
 import 'md-gum-polyfill'
 
 import {pool} from '../../global'
@@ -63,8 +64,8 @@ export async function relayRemove(store, url) {
   pool.removeRelay(url)
 }
 
-export async function getRelayPosts(store, {limit, offset, pubKey = null}) {
-  if (pubKey === null) {
+export async function getRelayPosts(store, {limit, offset, pubkey = null}) {
+  if (pubkey === null) {
     for (var i = 0; i < store.state.theirProfile.length; i++) {
       pool.subKey(store.state.theirProfile[i].pubkey)
     }
@@ -75,7 +76,7 @@ export async function getRelayPosts(store, {limit, offset, pubKey = null}) {
     })
   } else {
     pool.reqKey({
-      key: pubKey
+      key: pubkey
     })
   }
 }
@@ -220,11 +221,42 @@ export function finalGenerate(store, {keystoreoption, publickey, privatekey}) {
 
   store.commit('setProfile', profile)
   LocalStorage.set('theirProfile', [])
-  LocalStorage.set('kind0', [])
   LocalStorage.set('kind1', [])
-  LocalStorage.set('kind2', [])
-  LocalStorage.set('kind3', [])
-  LocalStorage.set('kind4', [])
 
   store.dispatch('launch')
+}
+
+export async function sendChatMessage(store, {pubkey, text}) {
+  const key = secp.getSharedSecret(store.state.myProfile.privkey, pubkey)
+
+  var cipher = crypto.createCipher('aes-256-cbc', key)
+  cipher.update(text, 'utf8', 'base64')
+  let encryptedMessage = cipher.final('base64')
+
+  var decipher = crypto.createDecipher('aes-256-cbc', key)
+  decipher.update(encryptedMessage, 'base64', 'utf8')
+  let decryptedMessage = decipher.final('utf8')
+
+  console.log('encrypted :', encryptedMessage)
+  console.log('decrypted :', decryptedMessage)
+
+  // store messages on localstorage
+  let lsKey = `messages.${pubkey}`
+  var messages = LocalStorage.getItem(lsKey) || []
+  if (!(pubkey in messages)) {
+    messages[pubkey] = []
+  }
+  messages[pubkey].push({text, from: 'me'})
+  LocalStorage.set(lsKey, messages[pubkey])
+
+  // publish event
+  let event = {
+    pubkey: store.getters.myProfile.pubkey,
+    created_at: Math.floor(Date.now() / 1000),
+    kind: 4,
+    tags: [['p', pubkey, store.state.myProfile.relays[0]]],
+    content: encryptedMessage
+  }
+  event.id = await getEventHash(event)
+  await pool.publish(event)
 }

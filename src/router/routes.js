@@ -9,7 +9,7 @@ const routes = [
         component: () => import('pages/PageMessages.vue'),
         name: 'messages'
       },
-      {path: '/chat/:id', component: () => import('pages/PageChat.vue')},
+      {path: '/chat/:pubkey', component: () => import('pages/PageChat.vue')},
       {
         path: '/user/:pubkey',
         component: () => import('pages/PageProfile.vue')

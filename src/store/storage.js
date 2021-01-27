@@ -6,6 +6,7 @@ export default function (store) {
       case 'setProfile':
       case 'relayPush':
       case 'relaySplice':
+        console.log('storing', state.main.myProfile)
         LocalStorage.set('myProfile', state.main.myProfile)
         break
       case 'startFollowing':
@@ -16,10 +17,6 @@ export default function (store) {
       case 'replaceKind1':
       case 'deleteKind1':
         LocalStorage.set('kind1', state.main.kind1)
-        break
-      case 'addKind4':
-      case 'replaceKind4':
-        LocalStorage.set('kind4', state.main.kind4)
         break
     }
   })

@@ -18,13 +18,11 @@
       <div class="q-pa-md q-pt-xl column row justify-end" style="width: 100%">
         <q-chat-message
           v-for="message in messages"
-          :avatar="
-            avatarMake(JSON.parse($q.localStorage.getItem('myProfile')).pubkey)
-          "
+          :avatar="avatarMake($store.state.main.myProfile.pubkey)"
           :key="[message.text]"
           :name="message.from"
           :text="[message.text]"
-          :sent="message.from == 'me' ? true : false"
+          :sent="message.from === 'me' ? true : false"
           bg-color="primary"
         />
       </div>
@@ -33,8 +31,8 @@
           <q-toolbar-title>
             <div class="q-pa-md" style="max-width: 400px">
               <q-form
-                @submit="messageOnSubmit"
-                @reset="onReset"
+                @submit="submitMessage"
+                @reset="resetMessage"
                 class="q-gutter-md"
               >
                 <div class="row">
@@ -42,7 +40,7 @@
                     <q-input
                       filled
                       type="text"
-                      v-model="newMessage"
+                      v-model="text"
                       hint="500 char message"
                     ></q-input>
                   </div>
@@ -66,90 +64,48 @@
 </template>
 
 <script>
-import crypto from 'crypto'
-import secp from 'noble-secp256k1'
 import helpersMixin from '../utils/mixin'
 
 export default {
   name: 'PageSettings',
+  mixins: [helpersMixin],
+
   data() {
     return {
-      newMessage: '',
-      messages: [],
-      name: null,
-      age: null,
-      accept: false
+      text: '',
+      reload: 0 // a hack to recompute messages
+    }
+  },
+  computed: {
+    messages() {
+      this.reload // hack to recompute
+
+      return (
+        this.$q.localStorage.getItem(`messages.${this.$route.params.pubkey}`) ||
+        []
+      )
     }
   },
 
-  mixins: [helpersMixin],
   methods: {
-    messageOnSubmit() {
-      const sk1 = this.$route.path.split('/')[
-        this.$route.path.split('/').length - 1
-      ]
-      this.messages.push({
-        text: this.newMessage,
-        from:
-          JSON.parse(
-            this.$q.localStorage.getItem('myProfile')
-          ).pubkey.substring(0, 15) + '....'
+    async submitMessage() {
+      await this.$store.dispatch('sendChatMessage', {
+        pubkey: this.$route.params.pubkey,
+        text: this.text
       })
-      console.log(this.messsages)
 
-      const pk1 = secp.getPublicKey(sk1)
-      const sk2 = JSON.parse(this.$q.localStorage.getItem('myProfile')).pubkey
-      const pk2 = secp.getPublicKey(sk2)
-      console.log(JSON.parse(this.$q.localStorage.getItem('myProfile')).pubkey)
-      console.log(pk2)
-
-      var key = secp.getSharedSecret(sk2, pk1)
-      var cipher = crypto.createCipher('aes-256-cbc', key)
-      var decipher = crypto.createDecipher('aes-256-cbc', key)
-      console.log('pk2')
-      cipher.update(this.newMessage, 'utf8', 'base64')
-      var encryptedMessage = cipher.final('base64')
-      console.log('pk2')
-      decipher.update(encryptedMessage, 'base64', 'utf8')
-      var decryptedMessage = decipher.final('utf8')
-
-      console.log('encrypted :', encryptedMessage)
-      console.log('decrypted :', decryptedMessage)
-
-      this.$q.localStorage.set('DM' + sk1, this.messages)
-
-      var tags = [
-        [
-          'p',
-          String(
-            this.$route.path.split('/')[this.$route.path.split('/').length - 1]
-          ),
-          JSON.parse(this.$q.localStorage.getItem('myProfile')).relays[0]
-        ]
-      ]
-      console.log(tags)
-      this.sendPost(encryptedMessage, tags, 4)
-      this.newMessage = ''
+      this.text = ''
+      this.reload++ // hack, see above
     },
 
-    MessageonReset() {
-      this.name = null
-      this.age = null
-      this.accept = false
+    resetMessage() {
+      this.text = ''
     }
   },
   created() {
-    this.getAllPosts()
-    var myProfile = JSON.parse(this.$q.localStorage.getItem('myProfile'))
-    if (!myProfile) {
-      this.disabled = true
+    if (this.$store.getters.disabled) {
       this.$router.push('/help')
-    } else {
-      var theirProfile = JSON.parse(
-        this.$q.localStorage.getItem('theirProfile')
-      )
-      this.myprofile = myProfile
-      this.theirProfile = theirProfile
+      return
     }
   }
 }

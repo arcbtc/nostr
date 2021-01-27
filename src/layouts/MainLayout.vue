@@ -176,10 +176,7 @@
                     clickable
                     v-ripple
                     v-for="followed in $store.state.main.theirProfile"
-                    v-if="
-                      followed.pubkey !=
-                      JSON.parse($q.localStorage.getItem('myProfile')).pubkey
-                    "
+                    v-if="followed.pubkey != $store.state.main.myProfile.pubkey"
                     @click="toProfile(followed.pubkey)"
                     :key="followed.pubkey"
                   >
@@ -293,7 +290,7 @@ export default {
     neverInstallApp() {
       this.showInstallBanner = false
       try {
-        this.$q.localStorage.set('neverShowBanner', true)
+        this.$q.localStorage.setItem('neverShowBanner', true)
       } catch (e) {
         console.log(e)
       }

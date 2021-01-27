@@ -23,7 +23,7 @@
         <q-input
           filled
           type="text"
-          v-model="settings.handle"
+          v-model="handle"
           hint="Desired handle (3-10 chars)"
           lazy-rules
           :rules="[
@@ -37,14 +37,14 @@
         <q-input
           filled
           type="text"
-          v-model="settings.about"
+          v-model="about"
           hint="About (in 150 chars)"
           maxlength="150"
         />
         <q-input
           filled
           type="text"
-          v-model="settings.imagetemp"
+          v-model="imagetemp"
           hint="Profile picture (imgur url)"
           maxlength="150"
         />
@@ -87,7 +87,7 @@
           filled
           v-model="relay"
           multiple
-          :options="store.state.main.myProfile.relays"
+          :options="$store.state.main.myProfile.relays"
           label="Remove relay(s)"
           style="width: 250px"
         />
@@ -131,14 +131,14 @@ export default {
   mixins: [helpersMixin],
   methods: {
     setProfile() {
-      this.saveMeta({
+      this.$store.dispatch('saveMeta', {
         image: this.imagetemp,
         handle: this.handle,
         about: this.about
       })
     },
     relayAdd() {
-      this.relayPush(this.relay)
+      this.$store.dispatch('relayPush', this.relay)
       this.relay = ''
     },
     relayRem(relay) {
@@ -151,7 +151,7 @@ export default {
     }
   },
   created() {
-    if (this.store.getters.disabled) {
+    if (this.$store.getters.disabled) {
       this.$router.push('/help')
     }
   }

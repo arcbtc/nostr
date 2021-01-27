@@ -136,8 +136,8 @@
       <Reply :post="dialogReply" />
     </q-dialog>
     <q-infinite-scroll
-      v-if="posts.length > 20"
-      @load="onLoad(posts.length + 10)"
+      v-if="profilePosts.length > 20"
+      @load="onLoad(profilePosts.length + 10)"
       :offset="250"
     >
       <template #loading>
@@ -171,7 +171,7 @@ export default {
         if (
           this.$route.params.pubkey ===
             this.$store.state.main.theirProfile[i].pubkey &&
-          this.$store.state.main.myProfile.pubkey !== pubKey
+          this.$store.state.main.myProfile.pubkey !== this.$route.params.pubkey
         ) {
           return true
         }
@@ -183,12 +183,12 @@ export default {
 
   methods: {
     unFollow() {
-      store.dispatch('stopFollowing', this.$route.params.pubkey)
+      this.$store.dispatch('stopFollowing', this.$route.params.pubkey)
       this.$router.push('/')
     },
 
     addPubFollow() {
-      store.dispatch('startFollowing', this.$route.params.pubkey)
+      this.$store.dispatch('startFollowing', this.$route.params.pubkey)
     }
   },
 
@@ -201,7 +201,7 @@ export default {
     await this.$store.dispatch('getRelayPosts', {
       limit: 20,
       offset: 0,
-      pubkey: this.$router.params.pubkey
+      pubkey: this.$route.params.pubkey
     })
 
     var posts = []

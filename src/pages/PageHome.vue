@@ -110,7 +110,7 @@ export default {
     }
   },
   created() {
-    if (!this.$store.getters.disabled) {
+    if (this.$store.getters.disabled) {
       this.$router.push('/help')
       return
     }

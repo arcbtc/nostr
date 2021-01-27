@@ -38,11 +38,3 @@ export function deleteKind1(state, id) {
   let index = state.kind1.findIndex(event => event.id === id)
   if (index !== -1) state.kind1.splice(index, 1)
 }
-
-export function addKind4(state, event) {
-  state.kind4.unshift(event)
-}
-
-export function replaceKind4(state, {index, event}) {
-  state.kind4[index] = event
-}

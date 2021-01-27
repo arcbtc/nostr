@@ -18,11 +18,8 @@
       <q-item
         clickable
         v-ripple
-        v-for="followed in following"
-        v-if="
-          followed.pubkey !=
-          JSON.parse($q.localStorage.getItem('myProfile')).pubkey
-        "
+        v-for="followed in $store.state.main.theirProfile"
+        v-if="followed.pubkey !== $store.state.main.myProfile.pubkey"
         :key="followed.id"
         :to="'/chat/' + followed.pubkey"
       >
@@ -39,11 +36,7 @@
     </q-list>
 
     <q-footer class="bg-dark q-mb-lg">
-      <q-form
-        @submit="MessageonSubmit"
-        style="max-width: 400px"
-        class="q-gutter-md"
-      >
+      <q-form style="max-width: 400px" class="q-gutter-md">
         <p>All private messages are end-to-end encrypted.</p>
 
         <div class="row">
@@ -51,7 +44,7 @@
             <q-input
               filled
               type="text"
-              v-model="newMessage"
+              v-model="pubkey"
               hint="Public key"
             ></q-input>
           </div>
@@ -76,13 +69,12 @@ import helpersMixin from '../utils/mixin'
 export default {
   name: 'PageMessages',
   mixins: [helpersMixin],
-  created: function () {
-    if (!this.$store.getters.disabled) {
-      this.$router.push('/help')
-      return
-    }
 
-    this.$store.dispatch('getAllPosts')
+  data() {
+    return {
+      pubkey: '',
+      text: ''
+    }
   }
 }
 </script>

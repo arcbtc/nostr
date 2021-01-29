@@ -97,11 +97,6 @@ export default {
     }
   },
   created() {
-    if (this.$store.getters.disabled) {
-      this.$router.push('/help')
-      return
-    }
-
     this.$store.dispatch('getAllPosts')
   },
   methods: {
@@ -114,6 +109,14 @@ export default {
           })
         }
       }, 2000)
+    },
+
+    postAgain(post) {
+      this.$store.dispatch('postAgain', post)
+    },
+
+    deletePost(post) {
+      this.$store.dispatch('deletePost', post)
     }
   }
 }

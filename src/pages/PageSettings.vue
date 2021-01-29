@@ -122,16 +122,14 @@ export default {
   name: 'PageSettings',
   mixins: [helpersMixin],
   data() {
+    const {imagetemp, handle, about} = this.$store.state.main.myProfile
+
     return {
-      relay: '',
-      imagetemp: '',
-      handle: '',
-      about: ''
-    }
-  },
-  created() {
-    if (this.$store.getters.disabled) {
-      this.$router.push('/help')
+      imagetemp,
+      handle,
+      about,
+
+      relay: ''
     }
   },
   methods: {

@@ -9,6 +9,10 @@ import {pool} from '../../global'
 export function launch(store) {
   pool.setPrivateKey(store.state.myProfile.privkey)
 
+  store.state.myProfile.relays.forEach(relay => {
+    pool.addRelay(relay)
+  })
+
   pool.onEvent((event, context, relay) => {
     switch (event.kind) {
       case 1:
@@ -18,8 +22,8 @@ export function launch(store) {
               store.state.kind1[i].retry === true) &&
             store.state.kind1[i].id === event.id
           ) {
-            store.state.kind1[i].retry = false
-            store.state.kind1[i].loading = false
+            event.retry = false
+            event.loading = false
             store.commit('replaceKind1', {index: i, event})
             return
           } else if (store.state.kind1[i].id === event.id) {
@@ -28,25 +32,6 @@ export function launch(store) {
         }
 
         store.commit('addKind1', event)
-        break
-
-      case 4:
-        for (let i = 0; i < store.state.kind4.length; i++) {
-          if (
-            (store.state.kind4[i].loading === true ||
-              store.state.kind4[i].retry === true) &&
-            store.state.kind4[i].id === event.id
-          ) {
-            store.state.kind4[i].retry = false
-            store.state.kind4[i].loading = false
-            store.commit('replaceKind4', {index: i, event})
-            return
-          } else if (store.state.kind4[i].id === event.id) {
-            return
-          }
-        }
-
-        store.commit('addKind4', event)
         break
     }
   })
@@ -70,7 +55,7 @@ export async function getRelayPosts(store, {limit, offset, pubkey = null}) {
     for (var i = 0; i < store.state.theirProfile.length; i++) {
       pool.subKey(store.state.theirProfile[i].pubkey)
     }
-    pool.subKey(store.state.pubkey)
+    pool.subKey(store.state.myProfile.pubkey)
     pool.reqFeed({
       limit,
       offset

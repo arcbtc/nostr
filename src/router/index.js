@@ -14,7 +14,7 @@ Vue.use(VueRouter)
  * with the Router instance.
  */
 
-export default function (/* { store, ssrContext } */) {
+export default function ({store, ssrContext}) {
   const Router = new VueRouter({
     scrollBehavior: () => ({x: 0, y: 0}),
     routes,
@@ -24,6 +24,11 @@ export default function (/* { store, ssrContext } */) {
     // quasar.conf.js -> build -> publicPath
     mode: process.env.VUE_ROUTER_MODE,
     base: process.env.VUE_ROUTER_BASE
+  })
+
+  Router.beforeEach((to, from, next) => {
+    if (to.name !== 'help' && store.getters.disabled) next({name: 'help'})
+    else next()
   })
 
   return Router

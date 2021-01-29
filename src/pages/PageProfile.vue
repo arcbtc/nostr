@@ -181,11 +181,6 @@ export default {
   },
 
   async created() {
-    if (this.$store.getters.disabled) {
-      this.$router.push('/help')
-      return
-    }
-
     await this.$store.dispatch('getRelayPosts', {
       limit: 20,
       offset: 0,
@@ -210,6 +205,14 @@ export default {
 
     addPubFollow() {
       this.$store.dispatch('startFollowing', this.$route.params.pubkey)
+    },
+
+    postAgain(post) {
+      this.$store.dispatch('postAgain', post)
+    },
+
+    deletePost(post) {
+      this.$store.dispatch('deletePost', post)
     }
   }
 }

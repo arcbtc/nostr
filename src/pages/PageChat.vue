@@ -86,13 +86,6 @@ export default {
       )
     }
   },
-  created() {
-    if (this.$store.getters.disabled) {
-      this.$router.push('/help')
-      return
-    }
-  },
-
   methods: {
     async submitMessage() {
       await this.$store.dispatch('sendChatMessage', {

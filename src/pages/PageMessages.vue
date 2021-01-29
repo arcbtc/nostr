@@ -30,7 +30,7 @@
         </q-item-section>
 
         <q-item-section>{{
-          followed.pubkey.substring(0, 10) + '...'
+          $store.getters.handle(followedKey)
         }}</q-item-section>
       </q-item>
     </q-list>

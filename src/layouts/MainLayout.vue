@@ -192,13 +192,13 @@
                   >
                     <q-item-section avatar>
                       <q-avatar round>
-                        <img :src="$store.getters.avatar(followed.pubkey)" />
+                        <img :src="$store.getters.avatar(pubkey)" />
                       </q-avatar>
                     </q-item-section>
 
-                    <q-item-section>{{
-                      $store.getters.handle(pubkey)
-                    }}</q-item-section>
+                    <q-item-section>
+                      {{ $store.getters.handle(pubkey) }}
+                    </q-item-section>
                   </q-item>
                 </q-list>
               </q-card-section>
@@ -284,7 +284,6 @@ export default {
       addPubKey: ''
     }
   },
-  computed: {},
   mounted() {
     let value = this.$q.localStorage.getItem('neverShowBanner')
     if (!value) {
@@ -324,7 +323,6 @@ export default {
       }
     },
     copyToClip(text) {
-      console.log('fffff')
       copyToClipboard(text)
         .then(() => {
           this.$q.notify({

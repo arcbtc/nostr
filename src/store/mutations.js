@@ -22,8 +22,7 @@ export function startFollowing(state, key) {
 }
 
 export function stopFollowing(state, key) {
-  let index = state.theirProfile.findIndex(({pubkey}) => pubkey === key)
-  if (index !== -1) state.theirProfile.splice(index, 1)
+  delete state.theirProfile[key]
 }
 
 export function addKind1(state, event) {

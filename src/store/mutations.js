@@ -31,7 +31,11 @@ export function addKind1(state, event) {
 }
 
 export function replaceKind1(state, {index, event}) {
-  state.kind1[index] = event
+  state.kind1 = [
+    ...state.kind1.slice(0, index),
+    event,
+    ...state.kind1.slice(index + 1)
+  ]
 }
 
 export function deleteKind1(state, id) {

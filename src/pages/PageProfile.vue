@@ -69,6 +69,7 @@
       v-for="post in profilePosts"
       v-if="post.pubkey === $route.params.pubkey"
       :key="post.id"
+      :post="post"
     />
     <q-dialog v-model="dialogReply" position="top">
       <Reply :post="dialogReply" />

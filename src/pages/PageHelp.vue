@@ -1,7 +1,7 @@
 <template>
-  <q-page class="text-body2">
+  <q-page>
     <center>
-      <h4 class="q-ma-md">Help</h4>
+      <strong class="text-h6 q-pa-lg fixed-top">Help</strong>
     </center>
     <br />
     <q-btn
@@ -13,19 +13,19 @@
       v-go-back.single
     />
 
-    <h5 class="q-ma-sm">What is Nostr?</h5>
+    <br />
+    <strong>What is Nostr?</strong>
     <p>
-      <a href="https://nostr.org/">Nostr</a> (Notes and Other Stuff Transmitted
-      by Relays), is an open-source protocol for sending data between users.
-      Instead of using a centralised or P2P service, data is signed by a client
-      and sent to a multiple relays, where other users can follow that data via
-      its public key.
+      Nostr (Notes and other stuff relays), is an open-source protocol for
+      sending data between users. Instead of using a centralised or P2P service,
+      data is signed by a client and sent to a desired relay, where other users
+      can follow that data via its public key.
     </p>
     <p>
-      In this client example, small messages of 240 characters are sent through
-      the Nostr network, but the Nostr protocol be used for lots of different
-      types of information. Anyone is free to participate, by hosting relays or
-      building clients!
+      In this client example, small 240chars messages are sent through the Nostr
+      network, but the Nostr protocol be used for lots of different types of
+      information. Anyone is free to participate, by hosting relays or building
+      clients!
     </p>
     <p>
       Private messages are made possible by a user using another users public

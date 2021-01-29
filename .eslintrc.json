@@ -1,8 +1,9 @@
 {
   "root": true,
 
-  "parser": "babel-eslint",
+  "parser": "vue-eslint-parser",
   "parserOptions": {
+    "parser": "babel-eslint",
     "ecmaVersion": 9,
     "sourceType": "module",
     "allowImportExportEverywhere": false
@@ -18,7 +19,7 @@
   ],
 
   "extends": [
-    "plugin:vue/vue3-strongly-recommended"
+    "plugin:vue/recommended"
   ],
 
   "globals": {

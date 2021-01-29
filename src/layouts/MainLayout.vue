@@ -8,21 +8,26 @@
       <Generate />
     </q-dialog>
 
-    <div class="flex-center column q-pa-md">
-      <div class="row">
+    <div class="flex-center column">
+      <div class="row" style="width: 100%; padding: 5px">
         <div
           id="parent"
           class="fit row wrap justify-center items-start content-start"
         >
-          <div class="col-3 large-screen-only" style="overflow: auto">
-            <q-card no-box-shadow class="q-px-sm">
-              <div class="row justify-center">
+          <div class="col-4 large-screen-only" style="overflow: auto">
+            <q-card
+              no-box-shadow
+              class="float-right q-pr-md"
+              style="font-size: 20px"
+            >
+              <q-card-section>
                 <img src="~/assets/nostr-logo.png" />
-              </div>
+              </q-card-section>
               <q-list class="text-secondary">
                 <q-item
                   v-if="$store.getters.disabled"
                   :disabled="$store.getters.disabled"
+                  style="padding: 15px"
                 >
                   <q-item-section avatar>
                     <q-icon name="home"></q-icon>
@@ -32,8 +37,8 @@
                 </q-item>
                 <q-item
                   v-else
-                  clickable
                   v-ripple
+                  clickable
                   :active="$route.name === 'home'"
                   active-class="my-menu-link"
                   :to="'/'"
@@ -48,6 +53,7 @@
                 <q-item
                   v-if="$store.getters.disabled"
                   :disabled="$store.getters.disabled"
+                  style="padding: 15px"
                 >
                   <q-item-section avatar>
                     <q-icon name="email"></q-icon>
@@ -57,8 +63,8 @@
                 </q-item>
                 <q-item
                   v-else
-                  clickable
                   v-ripple
+                  clickable
                   :active="$route.name === 'messages'"
                   active-class="my-menu-link"
                   :to="'/messages'"
@@ -73,6 +79,7 @@
                 <q-item
                   v-if="$store.getters.disabled"
                   :disabled="$store.getters.disabled"
+                  style="padding: 15px"
                 >
                   <q-item-section avatar>
                     <q-icon name="settings"></q-icon>
@@ -82,8 +89,8 @@
                 </q-item>
                 <q-item
                   v-else
-                  clickable
                   v-ripple
+                  clickable
                   :active="$route.name === 'settings'"
                   active-class="my-menu-link"
                   :to="'/settings'"
@@ -96,10 +103,11 @@
                 </q-item>
 
                 <q-item
-                  clickable
                   v-ripple
+                  clickable
                   :active="$route.name === 'help'"
                   active-class="my-menu-link"
+                  style="padding: 15px"
                   :to="'/help'"
                 >
                   <q-item-section avatar>
@@ -124,7 +132,7 @@
                 v-else
                 rounded
                 unelevated
-                class="q-py-sm"
+                style="width: 200px !important; height: 82px !important"
                 color="primary"
                 size="md"
                 label="Generate or Restore User Account"
@@ -133,7 +141,7 @@
             </q-card>
           </div>
 
-          <div class="col-6 large-screen-only">
+          <div class="col-4 large-screen-only">
             <q-card>
               <q-card-section>
                 <q-page-container>
@@ -153,11 +161,11 @@
             </q-card>
           </div>
 
-          <div class="col-3 large-screen-only">
+          <div class="col-4 large-screen-only">
             <q-card class="float-left no-shadow">
               <q-card-section>
-                <q-input dense rounded outlined v-model="addPubKey">
-                  <template v-slot:append>
+                <q-input v-model="addPubKey" dense rounded outlined>
+                  <template #append>
                     <q-btn
                       round
                       dense
@@ -173,12 +181,12 @@
                 <h6 class="q-ma-none">Following</h6>
                 <q-list>
                   <q-item
-                    clickable
-                    v-ripple
                     v-for="followed in $store.state.main.theirProfile"
                     v-if="followed.pubkey != $store.state.main.myProfile.pubkey"
-                    @click="toProfile(followed.pubkey)"
                     :key="followed.pubkey"
+                    v-ripple
+                    clickable
+                    @click="toProfile(followed.pubkey)"
                   >
                     <q-item-section avatar>
                       <q-avatar round>
@@ -205,34 +213,34 @@
         dense
         class="bg-primary text-white"
       >
-        <template v-slot:avatar>
+        <template #avatar>
           <q-avatar>
             <img src="/icons/favicon-16x16.png" />
           </q-avatar>
         </template>
         <b> INSTALL NOSTR?</b>
 
-        <template v-slot:action>
+        <template #action>
           <q-btn
             flat
-            @click="installApp()"
             dense
             class="q-px-sm"
             label="Yes"
+            @click="installApp()"
           ></q-btn>
           <q-btn
             flat
-            @click="showInstallBanner = false"
             dense
             class="q-px-sm"
             label="Later"
+            @click="showInstallBanner = false"
           ></q-btn>
           <q-btn
             flat
-            @click="neverInstallApp()"
             dense
             class="q-px-sm"
             label="Never"
+            @click="neverInstallApp()"
           ></q-btn>
         </template>
       </q-banner>
@@ -275,6 +283,24 @@ export default {
     }
   },
   computed: {},
+  mounted() {
+    let value = this.$q.localStorage.getItem('neverShowBanner')
+    if (!value) {
+      window.addEventListener('beforeinstallprompt', e => {
+        e.preventDefault()
+        deferredPrompt = e
+        this.showInstallBanner = true
+      })
+    }
+  },
+  created: function () {
+    if (this.$store.getters.disabled) {
+      this.$router.push('/help')
+      return
+    }
+
+    this.$store.dispatch('launch')
+  },
   methods: {
     installApp() {
       this.showInstallBanner = false
@@ -310,24 +336,6 @@ export default {
     addPubFollow() {
       this.$store.dispatch('startFollowing', this.addPubKey)
     }
-  },
-  mounted() {
-    let value = this.$q.localStorage.getItem('neverShowBanner')
-    if (!value) {
-      window.addEventListener('beforeinstallprompt', e => {
-        e.preventDefault()
-        deferredPrompt = e
-        this.showInstallBanner = true
-      })
-    }
-  },
-  created: function () {
-    if (this.$store.getters.disabled) {
-      this.$router.push('/help')
-      return
-    }
-
-    this.$store.dispatch('launch')
   }
 }
 </script>

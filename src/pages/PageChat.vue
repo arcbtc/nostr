@@ -67,7 +67,7 @@
 import helpersMixin from '../utils/mixin'
 
 export default {
-  name: 'PageSettings',
+  name: 'PageCjhat',
   mixins: [helpersMixin],
 
   data() {

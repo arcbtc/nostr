@@ -1,3 +1,4 @@
+import crypto from 'crypto'
 import {getEventHash} from 'nostr-tools'
 import {LocalStorage, Notify} from 'quasar'
 import * as secp from 'noble-secp256k1'
@@ -83,7 +84,7 @@ export async function getRelayPosts(store, {limit, offset, pubkey = null}) {
 
 export async function sendPost(store, {message, tags = [], kind = 1}) {
   let event = {
-    pubkey: store.getters.myProfile.pubkey,
+    pubkey: store.state.myProfile.pubkey,
     created_at: Math.floor(Date.now() / 1000),
     kind,
     tags,
@@ -227,7 +228,7 @@ export function finalGenerate(store, {keystoreoption, publickey, privatekey}) {
 }
 
 export async function sendChatMessage(store, {pubkey, text}) {
-  const key = secp.getSharedSecret(store.state.myProfile.privkey, pubkey)
+  const key = secp.getSharedSecret(store.state.myProfile.privkey, '02' + pubkey)
 
   var cipher = crypto.createCipher('aes-256-cbc', key)
   cipher.update(text, 'utf8', 'base64')
@@ -243,15 +244,12 @@ export async function sendChatMessage(store, {pubkey, text}) {
   // store messages on localstorage
   let lsKey = `messages.${pubkey}`
   var messages = LocalStorage.getItem(lsKey) || []
-  if (!(pubkey in messages)) {
-    messages[pubkey] = []
-  }
-  messages[pubkey].push({text, from: 'me'})
-  LocalStorage.set(lsKey, messages[pubkey])
+  messages.push({text, from: 'me'})
+  LocalStorage.set(lsKey, messages)
 
   // publish event
   let event = {
-    pubkey: store.getters.myProfile.pubkey,
+    pubkey: store.state.myProfile.pubkey,
     created_at: Math.floor(Date.now() / 1000),
     kind: 4,
     tags: [['p', pubkey, store.state.myProfile.relays[0]]],

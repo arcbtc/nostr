@@ -16,7 +16,7 @@
     <div class="row">
       <div class="col-2">
         <q-avatar size="50px" round>
-          <img round :src="avatarMake($route.params.pubkey)" />
+          <img round :src="$store.getters.avatar($route.params.pubkey)" />
         </q-avatar>
       </div>
       <div class="col-8">
@@ -104,17 +104,7 @@ export default {
 
   computed: {
     isFollowing() {
-      for (var i = 0; i < this.$store.state.main.theirProfile.length; i++) {
-        if (
-          this.$route.params.pubkey ===
-            this.$store.state.main.theirProfile[i].pubkey &&
-          this.$store.state.main.myProfile.pubkey !== this.$route.params.pubkey
-        ) {
-          return true
-        }
-      }
-
-      return false
+      return this.$route.params.pubkey in this.$store.state.main.theirProfile
     }
   },
 

@@ -1,5 +1,5 @@
 <template>
-  <q-card style="width: 500px" class="q-pa-md q-pt-lg">
+  <q-card class="q-pa-md q-pt-lg">
     <div class="row" style="width: 100%">
       <q-form style="width: 100%" class="q-gutter-md" @submit="sendPost">
         <q-input
@@ -12,7 +12,11 @@
           <template #before>
             <q-btn round @click="toProfile($store.state.main.myProfile.pubkey)">
               <q-avatar size="42px">
-                <img :src="avatarMake($store.state.main.myProfile.pubkey)" />
+                <img
+                  :src="
+                    $store.getters.avatar($store.state.main.myProfile.pubkey)
+                  "
+                />
               </q-avatar>
             </q-btn>
           </template>

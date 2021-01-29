@@ -3,7 +3,7 @@
     <q-card-section class="no-shadow" horizontal>
       <q-card-section class="no-shadow">
         <q-avatar class="no-shadow">
-          <img :src="avatarMake(post.pubkey)" />
+          <img :src="$store.getters.avatar(post.pubkey)" />
         </q-avatar>
       </q-card-section>
 
@@ -11,7 +11,7 @@
       <q-card-section class="col no-shadow">
         <q-card-section class="q-pa-none" @click="dialogReply = post">
           <q-item-label
-            >{{ post.pubkey | handler }}
+            >{{ $store.getters.handle(post.pubkey) }}
             <small style="color: grey">{{
               (post.created_at * 1000) | niceDate
             }}</small></q-item-label

@@ -177,25 +177,27 @@
                   </template>
                 </q-input>
               </q-card-section>
-              <q-card-section v-if="$store.state.main.theirProfile.length">
+              <q-card-section
+                v-if="Object.keys($store.state.main.theirProfile).length"
+              >
                 <h6 class="q-ma-none">Following</h6>
                 <q-list>
                   <q-item
-                    v-for="followed in $store.state.main.theirProfile"
-                    v-if="followed.pubkey != $store.state.main.myProfile.pubkey"
-                    :key="followed.pubkey"
+                    v-for="(_, pubkey) in $store.state.main.theirProfile"
+                    v-if="pubkey !== $store.state.main.myProfile.pubkey"
+                    :key="pubkey"
                     v-ripple
                     clickable
-                    @click="toProfile(followed.pubkey)"
+                    @click="toProfile(pubkey)"
                   >
                     <q-item-section avatar>
                       <q-avatar round>
-                        <img :src="avatarMake(followed.pubkey)" />
+                        <img :src="$store.getters.avatar(followed.pubkey)" />
                       </q-avatar>
                     </q-item-section>
 
                     <q-item-section>{{
-                      followed.pubkey.substring(0, 10) + '...'
+                      $store.getters.handle(pubkey)
                     }}</q-item-section>
                   </q-item>
                 </q-list>

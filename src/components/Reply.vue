@@ -4,7 +4,7 @@
       <q-card-section class="no-shadow" horizontal>
         <q-card-section class="no-shadow q-pb-none">
           <q-avatar class="no-shadow">
-            <img :src="avatarMake(String(post.pubkey))" />
+            <img :src="$store.getters.avatar(post.pubkey)" />
           </q-avatar>
         </q-card-section>
 
@@ -12,11 +12,9 @@
 
         <q-card-section class="col no-shadow q-pb-none">
           <q-item-label
-            >{{ String(post.pubkey) | handler }}
-            <small style="color: grey">{{
-              post.created_at | niceDate
-            }}</small></q-item-label
-          >
+            >{{ $store.getters.handle(post.pubkey) }}
+            <small style="color: grey">{{ post.created_at | niceDate }}</small>
+          </q-item-label>
           {{ post.content }}
           <div></div>
         </q-card-section>

@@ -19,7 +19,7 @@
         <q-chat-message
           v-for="message in messages"
           :key="[message.text]"
-          :avatar="avatarMake($store.state.main.myProfile.pubkey)"
+          :avatar="$store.getters.avatar($store.state.main.myProfile.pubkey)"
           :name="message.from"
           :text="[message.text]"
           :sent="message.from === 'me' ? true : false"

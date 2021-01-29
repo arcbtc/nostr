@@ -14,6 +14,10 @@ export function launch(store) {
 
   pool.onEvent((event, context, relay) => {
     switch (event.kind) {
+      case 0:
+        store.commit('addKind0', event)
+        break
+
       case 1:
         for (let i = 0; i < store.state.kind1.length; i++) {
           if (
@@ -74,8 +78,8 @@ export async function relayRemove(store, url) {
 
 export async function getRelayPosts(store, {limit, offset, pubkey = null}) {
   if (pubkey === null) {
-    for (var i = 0; i < store.state.theirProfile.length; i++) {
-      pool.subKey(store.state.theirProfile[i].pubkey)
+    for (let key in store.state.theirProfile) {
+      pool.subKey(key)
     }
     pool.subKey(store.state.myProfile.pubkey)
     pool.reqFeed({
@@ -131,8 +135,8 @@ export function postAgain(store, event) {
 export async function saveMeta(store, {image, handle, about}) {
   store.commit('setProfile', {
     ...store.state.myProfile,
-    avatar: image,
-    handle,
+    picture: image,
+    name: handle,
     about
   })
 
@@ -142,9 +146,9 @@ export async function saveMeta(store, {image, handle, about}) {
     kind: 0,
     tags: [],
     content: JSON.stringify({
-      name: store.state.myProfile.handle,
+      name: store.state.myProfile.name,
       about: store.state.myProfile.about,
-      picture: store.state.myProfile.avatar
+      picture: store.state.myProfile.picture
     })
   }
 
@@ -186,8 +190,7 @@ export function getAllPosts(store) {
 }
 
 export function startFollowing(store, key) {
-  let profile = store.state.theirProfile.find(({pubkey}) => pubkey === key)
-  if (profile) {
+  if (!(key in store.state.theirProfile)) {
     Notify.create({
       message: 'Already following',
       color: 'secondary'
@@ -200,8 +203,7 @@ export function startFollowing(store, key) {
 }
 
 export async function stopFollowing(store, key) {
-  let profile = store.state.theirProfile.find(({pubkey}) => pubkey === key)
-  if (!profile) {
+  if (!(key in store.state.theirProfile)) {
     Notify.create({
       message: 'No such user',
       color: 'secondary'

@@ -16,16 +16,16 @@
 
     <q-list>
       <q-item
-        v-for="followed in $store.state.main.theirProfile"
-        v-if="followed.pubkey !== $store.state.main.myProfile.pubkey"
-        :key="followed.id"
+        v-for="(_, followedKey) in $store.state.main.theirProfile"
+        v-if="followedKey !== $store.state.main.myProfile.pubkey"
+        :key="followedKey"
         v-ripple
         clickable
-        :to="'/chat/' + followed.pubkey"
+        :to="'/chat/' + followedKey"
       >
         <q-item-section avatar>
           <q-avatar round>
-            <img :src="avatarMake(followed.pubkey)" />
+            <img :src="$store.getters.avatar(followedKey)" />
           </q-avatar>
         </q-item-section>
 

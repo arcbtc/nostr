@@ -11,6 +11,7 @@ export default function (store) {
         break
       case 'startFollowing':
       case 'stopFollowing':
+      case 'addKind0':
         LocalStorage.set('theirProfile', state.main.theirProfile)
         break
       case 'addKind1':

@@ -104,7 +104,7 @@ export default {
 
   computed: {
     isFollowing() {
-      return this.$route.params.pubkey in this.$store.state.main.theirProfile
+      return this.$route.params.pubkey in this.$store.state.theirProfile
     }
   },
 
@@ -116,10 +116,10 @@ export default {
     })
 
     var posts = []
-    for (let i = 0; i < this.$store.state.main.kind1.length; i++) {
-      let post = this.$store.state.main.kind1[i]
+    for (let i = 0; i < this.$store.state.kind1.length; i++) {
+      let post = this.$store.state.kind1[i]
       if (post[i].pubkey === this.$route.params.pubkey) {
-        posts.push(this.$store.state.main.kind1[i])
+        posts.push(this.$store.state.kind1[i])
       }
     }
     this.profilePosts = posts

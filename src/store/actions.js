@@ -2,8 +2,8 @@ import {getEventHash} from 'nostr-tools'
 import {LocalStorage, Notify} from 'quasar'
 import 'md-gum-polyfill'
 
-import {pool} from '../../global'
-import {encrypt, decrypt} from '../../utils/nip04'
+import {pool} from '../global'
+import {encrypt, decrypt} from '../utils/nip04'
 
 export function launch(store) {
   pool.setPrivateKey(store.state.myProfile.privkey)

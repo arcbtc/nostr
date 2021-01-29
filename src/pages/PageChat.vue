@@ -19,7 +19,7 @@
         <q-chat-message
           v-for="message in messages"
           :key="[message.text]"
-          :avatar="$store.getters.avatar($store.state.main.myProfile.pubkey)"
+          :avatar="$store.getters.avatar($store.state.myProfile.pubkey)"
           :name="message.from"
           :text="[message.text]"
           :sent="message.from === 'me' ? true : false"
@@ -78,7 +78,7 @@ export default {
   },
   computed: {
     messages() {
-      this.$store.state.main.chatUpdated // hack to recompute
+      this.$store.state.chatUpdated // hack to recompute
 
       return (
         this.$q.localStorage.getItem(`messages.${this.$route.params.pubkey}`) ||

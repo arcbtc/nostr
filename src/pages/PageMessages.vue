@@ -16,8 +16,8 @@
 
     <q-list>
       <q-item
-        v-for="(_, followedKey) in $store.state.main.theirProfile"
-        v-if="followedKey !== $store.state.main.myProfile.pubkey"
+        v-for="(_, followedKey) in $store.state.theirProfile"
+        v-if="followedKey !== $store.state.myProfile.pubkey"
         :key="followedKey"
         v-ripple
         clickable

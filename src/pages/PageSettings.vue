@@ -87,7 +87,7 @@
           v-model="relay"
           filled
           multiple
-          :options="$store.state.main.myProfile.relays"
+          :options="$store.state.myProfile.relays"
           label="Remove relay(s)"
           style="width: 250px"
         />
@@ -122,7 +122,7 @@ export default {
   name: 'PageSettings',
   mixins: [helpersMixin],
   data() {
-    const {imagetemp, handle, about} = this.$store.state.main.myProfile
+    const {imagetemp, handle, about} = this.$store.state.myProfile
 
     return {
       imagetemp,

@@ -178,13 +178,13 @@
                 </q-input>
               </q-card-section>
               <q-card-section
-                v-if="Object.keys($store.state.main.theirProfile).length"
+                v-if="Object.keys($store.state.theirProfile).length"
               >
                 <h6 class="q-ma-none">Following</h6>
                 <q-list>
                   <q-item
-                    v-for="(_, pubkey) in $store.state.main.theirProfile"
-                    v-if="pubkey !== $store.state.main.myProfile.pubkey"
+                    v-for="(_, pubkey) in $store.state.theirProfile"
+                    v-if="pubkey !== $store.state.myProfile.pubkey"
                     :key="pubkey"
                     v-ripple
                     clickable

@@ -13,9 +13,7 @@
             <q-btn round @click="toProfile($store.state.myProfile.pubkey)">
               <q-avatar size="42px">
                 <img
-                  :src="
-                    $store.getters.avatar($store.state.myProfile.pubkey)
-                  "
+                  :src="$store.getters.avatar($store.state.myProfile.pubkey)"
                 />
               </q-avatar>
             </q-btn>

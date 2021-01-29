@@ -5,24 +5,28 @@ export function disabled(state) {
 }
 
 export function handle(state, pubkey) {
-  let profile = state.theirProfile[pubkey]
-  if (profile && profile.name) return profile.name
+  return pubkey => {
+    let profile = state.theirProfile[pubkey]
+    if (profile && profile.name) return profile.name
 
-  let kind0 = state.kind0[pubkey]
-  if (kind0 && kind0.name) return profile.name
+    let kind0 = state.kind0[pubkey]
+    if (kind0 && kind0.name) return profile.name
 
-  return pubkey.slice(0, 20) + '...'
+    return pubkey.slice(0, 20) + '...'
+  }
 }
 
-export function avatar(state, pubkey) {
-  let profile = state.theirProfile[pubkey]
-  if (profile && profile.picture) return profile.picture
+export function avatar(state) {
+  return pubkey => {
+    let profile = state.theirProfile[pubkey]
+    if (profile && profile.picture) return profile.picture
 
-  let kind0 = state.kind0[pubkey]
-  if (kind0 && kind0.picture) return profile.picture
+    let kind0 = state.kind0[pubkey]
+    if (kind0 && kind0.picture) return profile.picture
 
-  return identicon.generateSync({
-    id: pubkey,
-    size: 40
-  })
+    return identicon.generateSync({
+      id: pubkey,
+      size: 40
+    })
+  }
 }

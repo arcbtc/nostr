@@ -6,6 +6,7 @@ export default function () {
     theirProfile: LocalStorage.getItem('theirProfile') || [],
 
     kind1: LocalStorage.getItem('kind1') || [],
-    messages: {}
+
+    chatUpdated: 1 // hack
   }
 }

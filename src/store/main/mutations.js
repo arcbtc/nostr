@@ -38,3 +38,7 @@ export function deleteKind1(state, id) {
   let index = state.kind1.findIndex(event => event.id === id)
   if (index !== -1) state.kind1.splice(index, 1)
 }
+
+export function chatUpdated(state) {
+  state.chatUpdated++
+}

@@ -78,7 +78,7 @@ export default {
   },
   computed: {
     messages() {
-      this.reload // hack to recompute
+      this.$store.state.main.chatUpdated // hack to recompute
 
       return (
         this.$q.localStorage.getItem(`messages.${this.$route.params.pubkey}`) ||
@@ -94,7 +94,7 @@ export default {
       })
 
       this.text = ''
-      this.reload++ // hack, see above
+      this.$store.commit('chatUpdated')
     },
 
     resetMessage() {

@@ -1,10 +1,9 @@
-import crypto from 'crypto'
 import {getEventHash} from 'nostr-tools'
 import {LocalStorage, Notify} from 'quasar'
-import * as secp from 'noble-secp256k1'
 import 'md-gum-polyfill'
 
 import {pool} from '../../global'
+import {encrypt, decrypt} from '../../utils/nip04'
 
 export function launch(store) {
   pool.setPrivateKey(store.state.myProfile.privkey)
@@ -32,6 +31,29 @@ export function launch(store) {
         }
 
         store.commit('addKind1', event)
+        break
+
+      case 4:
+        if (
+          event.tags.find(
+            tag => tag[0] === 'p' && tag[1] === store.state.myProfile.pubkey
+          )
+        ) {
+          let [ciphertext, iv] = event.content.split('?iv=')
+          let text = decrypt(
+            store.state.myProfile.privkey,
+            '02' + event.pubkey,
+            ciphertext,
+            iv
+          )
+
+          let lsKey = `messages.${event.pubkey}`
+          var messages = LocalStorage.getItem(lsKey) || []
+          messages.push({text, from: 'them'})
+          LocalStorage.set(lsKey, messages)
+
+          store.commit('chatUpdated')
+        }
         break
     }
   })
@@ -206,25 +228,18 @@ export function finalGenerate(store, {keystoreoption, publickey, privatekey}) {
   }
 
   store.commit('setProfile', profile)
-  LocalStorage.set('theirProfile', [])
+  LocalStorage.set('theirProfile', {})
   LocalStorage.set('kind1', [])
 
   store.dispatch('launch')
 }
 
 export async function sendChatMessage(store, {pubkey, text}) {
-  const key = secp.getSharedSecret(store.state.myProfile.privkey, '02' + pubkey)
-
-  var cipher = crypto.createCipher('aes-256-cbc', key)
-  cipher.update(text, 'utf8', 'base64')
-  let encryptedMessage = cipher.final('base64')
-
-  var decipher = crypto.createDecipher('aes-256-cbc', key)
-  decipher.update(encryptedMessage, 'base64', 'utf8')
-  let decryptedMessage = decipher.final('utf8')
-
-  console.log('encrypted :', encryptedMessage)
-  console.log('decrypted :', decryptedMessage)
+  let [ciphertext, iv] = encrypt(
+    store.state.myProfile.privkey,
+    '02' + pubkey,
+    text
+  )
 
   // store messages on localstorage
   let lsKey = `messages.${pubkey}`
@@ -237,8 +252,8 @@ export async function sendChatMessage(store, {pubkey, text}) {
     pubkey: store.state.myProfile.pubkey,
     created_at: Math.floor(Date.now() / 1000),
     kind: 4,
-    tags: [['p', pubkey, store.state.myProfile.relays[0]]],
-    content: encryptedMessage
+    tags: [['p', pubkey]],
+    content: ciphertext + '?iv=' + iv
   }
   event.id = await getEventHash(event)
   await pool.publish(event)

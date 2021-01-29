@@ -133,17 +133,13 @@
 </template>
 
 <script>
-import BigInteger from 'bigi'
-import ecurve from 'ecurve'
 import crypto from 'crypto'
+import {getPublicKey} from 'nostr-tools'
 
 import helpersMixin from '../utils/mixin'
 
 const bip39 = require('bip39')
 const bip32 = require('bip32')
-
-const curve = ecurve.getCurveByName('secp256k1')
-const G = curve.G
 
 export default {
   mixins: [helpersMixin],
@@ -191,11 +187,7 @@ export default {
           this.recover = mnemonic
         }
 
-        this.publickey = G.multiply(BigInteger.fromHex(this.privatekey))
-          .getEncoded(true)
-          .slice(1)
-          .toString('hex')
-
+        this.publickey = getPublicKey(this.privatekey)
         this.loading = false
       }, 1)
     },

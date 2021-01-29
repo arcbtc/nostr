@@ -93,6 +93,7 @@ export default {
   methods: {
     sendPost() {
       this.$store.dispatch('sendPost', {message: this.publishtext})
+      this.publishtext = ''
     }
   }
 }

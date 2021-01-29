@@ -25,13 +25,13 @@
         <div class="row" style="width: 100%">
           <q-form
             style="width: 100%"
-            @submit="sendPost(replytext, [['e', post.id]])"
             class="q-gutter-md"
+            @submit="sendPost(replytext, [['e', post.id]])"
           >
             <q-input
+              v-model="replytext"
               dense
               style="font-size: 20px"
-              v-model="replytext"
               autogrow
               maxlength="280"
             >
@@ -51,22 +51,22 @@
                   <q-btn
                     v-for="emoji in emojis1"
                     :key="emoji.item"
-                    @click="replytext = replytext + emoji.item"
                     flat
                     rounded
                     unelevated
                     dense
+                    @click="replytext = replytext + emoji.item"
                     >{{ emoji.item }}</q-btn
                   >
                   <br />
                   <q-btn
                     v-for="emoji in emojis2"
                     :key="emoji.item"
-                    @click="replytext = replytext + emoji.item"
                     flat
                     rounded
                     unelevated
                     dense
+                    @click="replytext = replytext + emoji.item"
                     >{{ emoji.item }}</q-btn
                   >
                 </q-popup-proxy>

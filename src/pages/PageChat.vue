@@ -4,12 +4,12 @@
       <strong class="text-h6 q-pa-lg fixed-top">Chat</strong>
     </center>
     <q-btn
+      v-go-back.single
       flat
       color="white"
       icon="arrow_back"
       label="back"
       class="small-screen-only fixed-top-left"
-      v-go-back.single
     />
     <div class="row">
       <br />
@@ -18,8 +18,8 @@
       <div class="q-pa-md q-pt-xl column row justify-end" style="width: 100%">
         <q-chat-message
           v-for="message in messages"
-          :avatar="avatarMake($store.state.main.myProfile.pubkey)"
           :key="[message.text]"
+          :avatar="avatarMake($store.state.main.myProfile.pubkey)"
           :name="message.from"
           :text="[message.text]"
           :sent="message.from === 'me' ? true : false"
@@ -31,16 +31,16 @@
           <q-toolbar-title>
             <div class="q-pa-md" style="max-width: 400px">
               <q-form
+                class="q-gutter-md"
                 @submit="submitMessage"
                 @reset="resetMessage"
-                class="q-gutter-md"
               >
                 <div class="row">
                   <div class="col-9">
                     <q-input
+                      v-model="text"
                       filled
                       type="text"
-                      v-model="text"
                       hint="500 char message"
                     ></q-input>
                   </div>
@@ -86,6 +86,12 @@ export default {
       )
     }
   },
+  created() {
+    if (this.$store.getters.disabled) {
+      this.$router.push('/help')
+      return
+    }
+  },
 
   methods: {
     async submitMessage() {
@@ -100,12 +106,6 @@ export default {
 
     resetMessage() {
       this.text = ''
-    }
-  },
-  created() {
-    if (this.$store.getters.disabled) {
-      this.$router.push('/help')
-      return
     }
   }
 }

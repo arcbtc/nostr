@@ -4,23 +4,23 @@
       <strong class="text-h6 q-pa-lg fixed-top">Encrypted Messages</strong>
     </center>
     <q-btn
+      v-go-back.single
       flat
       color="white"
       icon="arrow_back"
       label="back"
       class="small-screen-only fixed-top-left"
-      v-go-back.single
     />
 
     <br /><br />
 
     <q-list>
       <q-item
-        clickable
-        v-ripple
         v-for="followed in $store.state.main.theirProfile"
         v-if="followed.pubkey !== $store.state.main.myProfile.pubkey"
         :key="followed.id"
+        v-ripple
+        clickable
         :to="'/chat/' + followed.pubkey"
       >
         <q-item-section avatar>
@@ -42,9 +42,9 @@
         <div class="row">
           <div class="col-10">
             <q-input
+              v-model="pubkey"
               filled
               type="text"
-              v-model="pubkey"
               hint="Public key"
             ></q-input>
           </div>

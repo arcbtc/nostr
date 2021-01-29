@@ -10,6 +10,7 @@
     "pwa": "quasar dev -m pwa",
     "build": "quasar run build",
     "prettier": "prettier --write src/",
+    "eslint": "eslint --fix src/",
     "styling": "prettier --check src/",
     "linting": "eslint src/"
   },

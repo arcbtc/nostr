@@ -37,8 +37,8 @@
               color="primary"
               flat
               icon="chat_bubble_outline"
-              @click="dialogReply = post"
               size="sm"
+              @click="dialogReply = post"
             />
 
             <q-btn
@@ -48,9 +48,9 @@
               unelevated
               color="pink"
               flat
-              @click="postAgain(post)"
               icon="settings_backup_restore"
               size="sm"
+              @click="postAgain(post)"
             />
             <q-btn
               v-if="post.retry"
@@ -59,9 +59,9 @@
               unelevated
               color="pink"
               flat
-              @click="deletePost(post)"
               icon="cancel"
               size="sm"
+              @click="deletePost(post)"
             />
           </div>
         </q-card-section>
@@ -72,8 +72,8 @@
     </q-dialog>
     <q-infinite-scroll
       v-if="$store.state.main.kind1.length > 20"
-      @load="onLoad($store.state.main.kind1.length + 10)"
       :offset="250"
+      @load="onLoad($store.state.main.kind1.length + 10)"
     >
       <template #loading>
         <div class="row justify-center q-my-md">
@@ -85,7 +85,6 @@
 </template>
 
 <script>
-import {date} from 'quasar'
 import helpersMixin from '../utils/mixin'
 
 export default {
@@ -96,6 +95,14 @@ export default {
     return {
       dialogReply: null
     }
+  },
+  created() {
+    if (this.$store.getters.disabled) {
+      this.$router.push('/help')
+      return
+    }
+
+    this.$store.dispatch('getAllPosts')
   },
   methods: {
     onLoad(index) {
@@ -108,14 +115,6 @@ export default {
         }
       }, 2000)
     }
-  },
-  created() {
-    if (this.$store.getters.disabled) {
-      this.$router.push('/help')
-      return
-    }
-
-    this.$store.dispatch('getAllPosts')
   }
 }
 </script>

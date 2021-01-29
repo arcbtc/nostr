@@ -10,8 +10,8 @@
         Nostr.org uses a word list of 12 words is used to create your keys, to
         restore either enter a word list or a Nostr private key.
         <q-input
-          :loading="loading"
           v-model="recover"
+          :loading="loading"
           autogrow
           type="textarea"
           label="Word List/Private Key"
@@ -19,23 +19,23 @@
         ><br />
 
         <q-btn
-          @click="createKeys"
           color="primary"
           label="Generate"
           class="q-mr-md"
+          @click="createKeys"
         />
         <q-btn
-          @click="createKeys"
           color="primary"
           label="Restore"
           class="q-mr-md"
+          @click="createKeys"
         />
 
         <q-btn
           v-if="privatekey"
-          @click="step = 2"
           color="primary"
           label="Continue"
+          @click="step = 2"
         />
       </q-step>
 
@@ -49,14 +49,14 @@
           filled
           :type="isPwd ? 'password' : 'text'"
         >
-          <template v-slot:prepend>
+          <template #prepend>
             <q-icon
               name="content_copy"
               class="cursor-pointer"
               @click="copyToClip(privatekey)"
             ></q-icon>
           </template>
-          <template v-slot:append>
+          <template #append>
             <q-icon
               :name="isPwd ? 'visibility_off' : 'visibility'"
               class="cursor-pointer"
@@ -69,7 +69,7 @@
         send you private messages.
         <br />
         <q-input v-model="publickey" filled type="text">
-          <template v-slot:prepend>
+          <template #prepend>
             <q-icon
               name="content_copy"
               class="cursor-pointer"
@@ -79,13 +79,13 @@
         </q-input>
 
         <q-stepper-navigation>
-          <q-btn @click="step = 3" color="primary" label="Continue" />
+          <q-btn color="primary" label="Continue" @click="step = 3" />
           <q-btn
             flat
-            @click="step = 1"
             color="primary"
             label="Back"
             class="q-ml-sm"
+            @click="step = 1"
           />
         </q-stepper-navigation>
       </q-step>
@@ -93,40 +93,38 @@
       <q-step :name="3" title="Key storage" icon="lock">
         To publish your posts this client needs to sign messages with your
         private key. Choose how this client will access your private key.
-        <template>
-          <div class="q-pa-md q-gutter-sm">
-            <div class="q-gutter-sm">
-              <q-radio
-                dense
-                v-model="keystoreoption"
-                val="local"
-                label="Local Storage (Recommended)"
-              /><br />
-              <q-radio
-                dense
-                disable
-                v-model="keystoreoption"
-                val="url"
-                label="URL (coming soon)"
-              /><br />
-              <q-radio
-                dense
-                disable
-                v-model="keystoreoption"
-                val="external"
-                label="Hardware wallet (coming soon)"
-              /><br />
-            </div>
+        <div class="q-pa-md q-gutter-sm">
+          <div class="q-gutter-sm">
+            <q-radio
+              v-model="keystoreoption"
+              dense
+              val="local"
+              label="Local Storage (Recommended)"
+            /><br />
+            <q-radio
+              v-model="keystoreoption"
+              dense
+              disable
+              val="url"
+              label="URL (coming soon)"
+            /><br />
+            <q-radio
+              v-model="keystoreoption"
+              dense
+              disable
+              val="external"
+              label="Hardware wallet (coming soon)"
+            /><br />
           </div>
-        </template>
+        </div>
         <q-stepper-navigation>
-          <q-btn color="primary" @click="finalGenerate" label="Finish" />
+          <q-btn color="primary" label="Finish" @click="finalGenerate" />
           <q-btn
             flat
-            @click="step = 2"
             color="primary"
             label="Back"
             class="q-ml-sm"
+            @click="step = 2"
           />
         </q-stepper-navigation>
       </q-step>

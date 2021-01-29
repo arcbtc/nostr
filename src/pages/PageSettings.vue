@@ -4,26 +4,26 @@
       <strong class="text-h6 q-pa-lg fixed-top">Settings</strong>
     </center>
     <q-btn
+      v-go-back.single
       flat
       color="white"
       icon="arrow_back"
       label="back"
       class="small-screen-only fixed-top-left"
-      v-go-back.single
     />
 
     <br /><br />
 
     <div class="q-mx-auto" style="max-width: 400px">
-      <q-form @submit="setProfile" class="q-gutter-md">
+      <q-form class="q-gutter-md" @submit="setProfile">
         <p>
           If your desired handle is available our relay will use open-timestamps
           to secure it to your public key, and share it with other relays.
         </p>
         <q-input
+          v-model="handle"
           filled
           type="text"
-          v-model="handle"
           hint="Desired handle (3-10 chars)"
           lazy-rules
           :rules="[
@@ -35,16 +35,16 @@
           </template>
         </q-input>
         <q-input
+          v-model="about"
           filled
           type="text"
-          v-model="about"
           hint="About (in 150 chars)"
           maxlength="150"
         />
         <q-input
+          v-model="imagetemp"
           filled
           type="text"
-          v-model="imagetemp"
           hint="Profile picture (imgur url)"
           maxlength="150"
         />
@@ -60,11 +60,11 @@
       <br /><br />
       <q-separator />
       <br /><br />
-      <q-form @submit="relayAdd" class="q-gutter-md">
+      <q-form class="q-gutter-md" @submit="relayAdd">
         <q-input
+          v-model="relay"
           filled
           type="textarea"
-          v-model="relay"
           autogrow
           hint="Add a relay"
         />
@@ -82,10 +82,10 @@
       <br /><br />
       <q-separator />
       <br /><br />
-      <q-form @submit="relayRem" class="q-gutter-md">
+      <q-form class="q-gutter-md" @submit="relayRem">
         <q-select
-          filled
           v-model="relay"
+          filled
           multiple
           :options="$store.state.main.myProfile.relays"
           label="Remove relay(s)"
@@ -108,8 +108,8 @@
       <q-btn
         unelevated
         label="Delete Local Storage"
-        @click="deletels"
         color="negative"
+        @click="deletels"
       />
     </div>
   </q-page>
@@ -120,6 +120,7 @@ import helpersMixin from '../utils/mixin'
 
 export default {
   name: 'PageSettings',
+  mixins: [helpersMixin],
   data() {
     return {
       relay: '',
@@ -128,7 +129,11 @@ export default {
       about: ''
     }
   },
-  mixins: [helpersMixin],
+  created() {
+    if (this.$store.getters.disabled) {
+      this.$router.push('/help')
+    }
+  },
   methods: {
     setProfile() {
       this.$store.dispatch('saveMeta', {
@@ -148,11 +153,6 @@ export default {
     deletels() {
       this.$q.localStorage.clear()
       window.location.reload()
-    }
-  },
-  created() {
-    if (this.$store.getters.disabled) {
-      this.$router.push('/help')
     }
   }
 }

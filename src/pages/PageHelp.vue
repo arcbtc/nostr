@@ -5,12 +5,12 @@
     </center>
     <br />
     <q-btn
+      v-go-back.single
       flat
       color="white"
       icon="arrow_back"
       label="back"
       class="small-screen-only fixed-top-left"
-      v-go-back.single
     />
 
     <br />

@@ -1,12 +1,12 @@
 <template>
   <q-page>
     <q-btn
+      v-go-back.single
       flat
       color="white"
       icon="arrow_back"
       label="back"
       class="small-screen-only fixed-top-left q-ma-xs"
-      v-go-back.single
     />
 
     <center><strong class="text-h6 q-ma-sm fixed-top">Profile</strong></center>
@@ -35,22 +35,22 @@
         class="float-right q-mr-xs"
         round
         unelevated
-        @click="unFollow($route.params.pubkey)"
         color="red"
         flat
         icon="cancel"
         size="sm"
+        @click="unFollow($route.params.pubkey)"
       />
       <q-btn
         v-if="!isFollowing"
         class="float-right q-mr-xs"
         round
         unelevated
-        @click="addPubFollow($route.params.pubkey)"
         color="primary"
         flat
         icon="add_circle"
         size="sm"
+        @click="addPubFollow($route.params.pubkey)"
       />
 
       <q-btn
@@ -102,8 +102,8 @@
               color="primary"
               flat
               icon="chat_bubble_outline"
-              @click="dialogReply = post"
               size="sm"
+              @click="dialogReply = post"
             />
 
             <q-btn
@@ -113,9 +113,9 @@
               unelevated
               color="pink"
               flat
-              @click="postAgain(post)"
               icon="settings_backup_restore"
               size="sm"
+              @click="postAgain(post)"
             />
             <q-btn
               v-if="post.retry"
@@ -124,9 +124,9 @@
               unelevated
               color="pink"
               flat
-              @click="deletePost(post)"
               icon="cancel"
               size="sm"
+              @click="deletePost(post)"
             />
           </div>
         </q-card-section>
@@ -137,8 +137,8 @@
     </q-dialog>
     <q-infinite-scroll
       v-if="profilePosts.length > 20"
-      @load="onLoad(profilePosts.length + 10)"
       :offset="250"
+      @load="onLoad(profilePosts.length + 10)"
     >
       <template #loading>
         <div class="row justify-center q-my-md">
@@ -151,7 +151,6 @@
 
 <script>
 import 'md-gum-polyfill'
-import {date} from 'quasar'
 import helpersMixin from '../utils/mixin'
 
 export default {
@@ -181,17 +180,6 @@ export default {
     }
   },
 
-  methods: {
-    unFollow() {
-      this.$store.dispatch('stopFollowing', this.$route.params.pubkey)
-      this.$router.push('/')
-    },
-
-    addPubFollow() {
-      this.$store.dispatch('startFollowing', this.$route.params.pubkey)
-    }
-  },
-
   async created() {
     if (this.$store.getters.disabled) {
       this.$router.push('/help')
@@ -205,12 +193,24 @@ export default {
     })
 
     var posts = []
-    for (var i = 0; i < this.$store.state.main.kind1.length; i++) {
+    for (let i = 0; i < this.$store.state.main.kind1.length; i++) {
+      let post = this.$store.state.main.kind1[i]
       if (post[i].pubkey === this.$route.params.pubkey) {
         posts.push(this.$store.state.main.kind1[i])
       }
     }
     this.profilePosts = posts
+  },
+
+  methods: {
+    unFollow() {
+      this.$store.dispatch('stopFollowing', this.$route.params.pubkey)
+      this.$router.push('/')
+    },
+
+    addPubFollow() {
+      this.$store.dispatch('startFollowing', this.$route.params.pubkey)
+    }
   }
 }
 </script>

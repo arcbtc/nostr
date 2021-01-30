@@ -24,7 +24,7 @@ export function decrypt(privkey, pubkey, ciphertext, iv) {
   var decipher = crypto.createDecipheriv(
     'aes-256-cbc',
     Buffer.from(normalizedKey, 'hex'),
-    iv
+    Buffer.from(iv, 'base64')
   )
   decipher.update(ciphertext, 'base64')
   let decryptedMessage = decipher.final('utf8')

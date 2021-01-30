@@ -43,11 +43,22 @@ export function launch(store) {
         break
 
       case 4:
+        // a direct encrypted message
         if (
           event.tags.find(
             tag => tag[0] === 'p' && tag[1] === store.state.myProfile.pubkey
           )
         ) {
+          // it is addressed to us, interesting!
+          let lsKey = `messages.${event.pubkey}`
+          var messages = LocalStorage.getItem(lsKey) || []
+
+          if (messages.find(({id}) => id === event.id.slice(0, 5))) {
+            // we already have this one, discard
+            return
+          }
+
+          // decrypt it
           let [ciphertext, iv] = event.content.split('?iv=')
           let text = decrypt(
             store.state.myProfile.privkey,
@@ -56,11 +67,11 @@ export function launch(store) {
             iv
           )
 
-          let lsKey = `messages.${event.pubkey}`
-          var messages = LocalStorage.getItem(lsKey) || []
-          messages.push({text, from: 'them'})
+          // store it locally
+          messages.push({text, from: 'them', id: event.id.slice(0, 5)})
           LocalStorage.set(lsKey, messages)
 
+          // a hack to update the UI
           store.commit('chatUpdated')
         }
         break
@@ -242,13 +253,7 @@ export function finalGenerate(store, {keystoreoption, publickey, privatekey}) {
 export async function sendChatMessage(store, {pubkey, text}) {
   let [ciphertext, iv] = encrypt(store.state.myProfile.privkey, pubkey, text)
 
-  // store messages on localstorage
-  let lsKey = `messages.${pubkey}`
-  var messages = LocalStorage.getItem(lsKey) || []
-  messages.push({text, from: 'me'})
-  LocalStorage.set(lsKey, messages)
-
-  // publish event
+  // make event
   let event = {
     pubkey: store.state.myProfile.pubkey,
     created_at: Math.floor(Date.now() / 1000),
@@ -257,5 +262,13 @@ export async function sendChatMessage(store, {pubkey, text}) {
     content: ciphertext + '?iv=' + iv
   }
   event.id = await getEventHash(event)
+
+  // store messages on localstorage
+  let lsKey = `messages.${pubkey}`
+  var messages = LocalStorage.getItem(lsKey) || []
+  messages.push({text, from: 'me', id: event.id.slice(0, 5)})
+  LocalStorage.set(lsKey, messages)
+
+  // publish event
   await pool.publish(event)
 }

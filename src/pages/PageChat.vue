@@ -67,7 +67,7 @@
 import helpersMixin from '../utils/mixin'
 
 export default {
-  name: 'PageCjhat',
+  name: 'PageChat',
   mixins: [helpersMixin],
 
   data() {

@@ -46,7 +46,7 @@ export function launch(store) {
           let [ciphertext, iv] = event.content.split('?iv=')
           let text = decrypt(
             store.state.myProfile.privkey,
-            '02' + event.pubkey,
+            event.pubkey,
             ciphertext,
             iv
           )
@@ -190,11 +190,13 @@ export function getAllPosts(store) {
 }
 
 export function startFollowing(store, key) {
-  if (!(key in store.state.theirProfile)) {
+  if (key in store.state.theirProfile) {
     Notify.create({
       message: 'Already following',
       color: 'secondary'
     })
+
+    return
   }
 
   pool.subKey(key)
@@ -237,11 +239,7 @@ export function finalGenerate(store, {keystoreoption, publickey, privatekey}) {
 }
 
 export async function sendChatMessage(store, {pubkey, text}) {
-  let [ciphertext, iv] = encrypt(
-    store.state.myProfile.privkey,
-    '02' + pubkey,
-    text
-  )
+  let [ciphertext, iv] = encrypt(store.state.myProfile.privkey, pubkey, text)
 
   // store messages on localstorage
   let lsKey = `messages.${pubkey}`

@@ -12,6 +12,11 @@ export function launch(store) {
     pool.addRelay(relay)
   })
 
+  for (let key in store.state.theirProfile) {
+    pool.subKey(key)
+  }
+  pool.subKey(store.state.myProfile.pubkey)
+
   pool.onEvent((event, context, relay) => {
     switch (event.kind) {
       case 0:
@@ -78,10 +83,6 @@ export async function relayRemove(store, url) {
 
 export async function getRelayPosts(store, {limit, offset, pubkey = null}) {
   if (pubkey === null) {
-    for (let key in store.state.theirProfile) {
-      pool.subKey(key)
-    }
-    pool.subKey(store.state.myProfile.pubkey)
     pool.reqFeed({
       limit,
       offset

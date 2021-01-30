@@ -15,50 +15,53 @@
       <br />
       <br />
       <br />
-      <div class="q-pa-md q-pt-xl column row justify-end" style="width: 100%">
+      <div
+        class="q-pa-md q-pt-xl column row flex justify-end no-wrap"
+        style="width: 100%; height: 100vh; overflow: hidden"
+      >
         <q-chat-message
           v-for="message in messages"
-          :key="[message.text]"
+          :key="message.id"
           :avatar="$store.getters.avatar($store.state.myProfile.pubkey)"
           :name="message.from"
           :text="[message.text]"
           :sent="message.from === 'me' ? true : false"
           bg-color="primary"
         />
+        <div class="bg-dark q-mb-lg">
+          <q-toolbar>
+            <q-toolbar-title>
+              <div class="q-pa-md" style="max-width: 400px">
+                <q-form
+                  class="q-gutter-md"
+                  @submit="submitMessage"
+                  @reset="resetMessage"
+                >
+                  <div class="row">
+                    <div class="col-9">
+                      <q-input
+                        v-model="text"
+                        filled
+                        type="text"
+                        hint="500 char message"
+                      ></q-input>
+                    </div>
+                    <div class="col-3">
+                      <q-btn
+                        unelevated
+                        class="q-ma-sm"
+                        label="send"
+                        type="submit"
+                        color="primary"
+                      />
+                    </div>
+                  </div>
+                </q-form>
+              </div>
+            </q-toolbar-title>
+          </q-toolbar>
+        </div>
       </div>
-      <q-footer class="bg-dark q-mb-lg">
-        <q-toolbar>
-          <q-toolbar-title>
-            <div class="q-pa-md" style="max-width: 400px">
-              <q-form
-                class="q-gutter-md"
-                @submit="submitMessage"
-                @reset="resetMessage"
-              >
-                <div class="row">
-                  <div class="col-9">
-                    <q-input
-                      v-model="text"
-                      filled
-                      type="text"
-                      hint="500 char message"
-                    ></q-input>
-                  </div>
-                  <div class="col-3">
-                    <q-btn
-                      unelevated
-                      class="q-ma-sm"
-                      label="send"
-                      type="submit"
-                      color="primary"
-                    />
-                  </div>
-                </div>
-              </q-form>
-            </div>
-          </q-toolbar-title>
-        </q-toolbar>
-      </q-footer>
     </div>
   </q-page>
 </template>

@@ -334,7 +334,7 @@ export default {
         })
     },
     addPubFollow() {
-      this.$store.dispatch('startFollowing', this.addPubKey)
+      this.$store.dispatch('startFollowing', this.addPubKey.trim())
     }
   }
 }

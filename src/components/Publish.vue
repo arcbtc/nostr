@@ -1,6 +1,6 @@
 <template>
-  <q-card class="q-pa-md q-pt-lg no-border-radius" flat>
-    <div class="row" style="width: 100%">
+  <q-card style="width: 100%" class="q-pa-md q-pt-lg no-border-radius" flat>
+    <div class="row">
       <q-form style="width: 100%" class="q-gutter-md" @submit="sendPost">
         <q-input
           v-model="publishtext"

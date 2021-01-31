@@ -1,9 +1,5 @@
 <template>
   <q-page>
-    <q-dialog v-model="dialogReply" position="top">
-      <Reply :post="dialogReply" />
-    </q-dialog>
-
     <Publish v-if="!$store.getters.disabled" />
     <Post v-for="post in $store.state.kind1" :key="post.id" :post="post" />
     <q-infinite-scroll
@@ -26,9 +22,7 @@ export default {
   mixins: [helpersMixin],
 
   data() {
-    return {
-      dialogReply: false
-    }
+    return {}
   },
   created() {
     this.$store.dispatch('getAllPosts')

@@ -9,7 +9,7 @@
 
       <q-separator vertical style="display: none" />
       <q-card-section class="col no-shadow">
-        <q-card-section class="q-pa-none" @click="dialogReply = true">
+        <q-card-section class="q-pa-none" @click="dialogReply = post">
           <q-item-label
             >{{ $store.getters.handle(post.pubkey) }}
             <small style="color: grey">{{
@@ -29,7 +29,7 @@
             flat
             icon="chat_bubble_outline"
             size="sm"
-            @click="dialogReply = true"
+            @click="dialogReply = post"
           />
 
           <q-btn

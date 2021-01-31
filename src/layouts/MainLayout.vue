@@ -1,12 +1,17 @@
 <template>
   <q-layout>
-    <q-dialog v-model="dialogPublish" position="top">
+    <q-dialog v-model="dialogPublish" position="top" style="width: 100%">
       <Publish />
     </q-dialog>
 
     <q-dialog v-model="dialogGenerate" position="top">
       <Generate />
     </q-dialog>
+
+    <q-dialog v-model="dialogReply" position="top">
+      <Reply :post="dialogReply" />
+    </q-dialog>
+
     <div class="flex-center column">
       <div class="row" style="width: 100%">
         <div
@@ -302,6 +307,7 @@ export default {
       showInstallBanner: null,
       dialogGenerate: false,
       dialogPublish: false,
+      dialogReply: false,
       addPubKey: ''
     }
   },

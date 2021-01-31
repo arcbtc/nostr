@@ -5,7 +5,6 @@
         <q-input
           v-model="publishtext"
           style="font-size: 20px"
-          autogrow
           label="Say something"
           maxlength="280"
         >

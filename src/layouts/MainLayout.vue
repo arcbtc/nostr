@@ -144,7 +144,9 @@
                 @click="dialogGenerate = true"
               ></q-btn>
               <br /><br />
+
               <q-btn
+                v-if="!$store.getters.disabled"
                 flat
                 color="primary"
                 size="md"
@@ -158,7 +160,12 @@
           </div>
 
           <div class="col-4 large-screen-only">
-            <q-card flat bordered class="no-border-radius">
+            <q-card
+              flat
+              bordered
+              class="no-border-radius"
+              style="border-color: #152424"
+            >
               <q-card-section>
                 <q-page-container>
                   <router-view />

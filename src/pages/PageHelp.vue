@@ -41,7 +41,7 @@
     </p>
     <center>
       <q-btn
-        v-if="!$q.localStorage.getItem('pubkey')"
+        v-if="$store.getters.disabled"
         dense
         flat
         class="small-screen-only q-pa-lg"

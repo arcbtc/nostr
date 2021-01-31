@@ -1,5 +1,5 @@
 <template>
-  <q-card class="q-pa-md q-pt-lg">
+  <q-card class="q-pa-md q-pt-lg" flat>
     <div class="row" style="width: 100%">
       <q-form style="width: 100%" class="q-gutter-md" @submit="sendPost">
         <q-input

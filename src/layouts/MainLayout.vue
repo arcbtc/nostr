@@ -16,6 +16,7 @@
         >
           <div class="col-4 large-screen-only" style="overflow: auto">
             <q-card
+              flat
               no-box-shadow
               class="float-right q-pr-md"
               style="font-size: 20px"
@@ -42,6 +43,7 @@
                   :active="$route.name === 'home'"
                   active-class="my-menu-link"
                   :to="'/'"
+                  style="padding: 15px"
                 >
                   <q-item-section avatar>
                     <q-icon name="home"></q-icon>
@@ -61,6 +63,7 @@
 
                   <q-item-section>Messages</q-item-section>
                 </q-item>
+
                 <q-item
                   v-else
                   v-ripple
@@ -68,6 +71,7 @@
                   :active="$route.name === 'messages'"
                   active-class="my-menu-link"
                   :to="'/messages'"
+                  style="padding: 15px; width: 200px"
                 >
                   <q-item-section avatar>
                     <q-icon name="email"></q-icon>
@@ -94,6 +98,7 @@
                   :active="$route.name === 'settings'"
                   active-class="my-menu-link"
                   :to="'/settings'"
+                  style="padding: 15px"
                 >
                   <q-item-section avatar>
                     <q-icon name="settings"></q-icon>

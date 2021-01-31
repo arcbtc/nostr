@@ -23,10 +23,6 @@ export function avatar(state) {
 
     let kind0 = state.kind0[pubkey]
     if (kind0 && kind0.picture) return profile.picture
-
-    return identicon.generateSync({
-      id: pubkey,
-      size: 40
-    })
+    return identicon.generateSync({id: pubkey, size: 40})
   }
 }

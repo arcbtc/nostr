@@ -1,13 +1,12 @@
 <template>
   <q-layout>
-    <q-dialog v-model="dialogPublish">
+    <q-dialog v-model="dialogPublish" position="top">
       <Publish />
     </q-dialog>
 
     <q-dialog v-model="dialogGenerate" position="top">
       <Generate />
     </q-dialog>
-
     <div class="flex-center column">
       <div class="row" style="width: 100%">
         <div
@@ -131,7 +130,7 @@
                 color="primary"
                 size="md"
                 label="Publish"
-                @click="dialogueStarted()"
+                @click="dialogPublish = true"
               ></q-btn>
               <q-btn
                 v-else
@@ -303,7 +302,6 @@ export default {
       showInstallBanner: null,
       dialogGenerate: false,
       dialogPublish: false,
-
       addPubKey: ''
     }
   },

@@ -1,10 +1,9 @@
 <template>
   <q-page>
+    <q-dialog v-model="dialogReply" position="top"> <Reply post:/> </q-dialog>
+
     <Publish v-if="!$store.getters.disabled" />
     <Post v-for="post in $store.state.kind1" :key="post.id" :post="post" />
-    <q-dialog v-model="dialogReply" position="top">
-      <Reply :post="dialogReply" />
-    </q-dialog>
     <q-infinite-scroll
       v-if="$store.state.kind1.length > 20"
       :offset="250"
@@ -26,7 +25,7 @@ export default {
 
   data() {
     return {
-      dialogReply: null
+      dialogReply: false
     }
   },
   created() {

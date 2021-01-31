@@ -71,6 +71,7 @@
             type="submit"
             class="float-right"
             color="primary"
+            v-close-popup
           />
         </div>
       </q-form>

@@ -9,7 +9,7 @@
     </q-dialog>
 
     <div class="flex-center column">
-      <div class="row" style="width: 100%; padding: 5px">
+      <div class="row" style="width: 100%">
         <div
           id="parent"
           class="fit row wrap justify-center items-start content-start"
@@ -147,7 +147,7 @@
           </div>
 
           <div class="col-4 large-screen-only">
-            <q-card>
+            <q-card flat bordered class="no-border-radius">
               <q-card-section>
                 <q-page-container>
                   <router-view />
@@ -157,7 +157,7 @@
           </div>
 
           <div class="col-12 small-screen-only">
-            <q-card>
+            <q-card flat bordered class="no-border-radius">
               <q-card-section>
                 <q-page-container>
                   <router-view />

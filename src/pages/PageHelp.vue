@@ -12,24 +12,28 @@
       label="back"
       class="small-screen-only fixed-top-left"
     />
+    <br /><br />
 
-    <br />
-    <strong>What is Nostr?</strong>
+    <strong>What is Nostr (Notes and other stuff relays)?</strong><br /><br />
     <p>
-      Nostr (Notes and other stuff relays), is an open-source protocol for
-      sending data between users. Instead of using a centralised or P2P service,
-      data is signed by a client and sent to a desired relay, where other users
-      can follow that data via its public key.
+      Nostr is a decentralised collection of relays passing data between
+      clients. Anyone can run a client or relay. This particular 240char limited
+      client is just one way to send data through Nostr.
+    </p>
+    <center>
+      <img class="q-px-auto" src="https://i.imgur.com/R3dQpk0.png" />
+      <br />
+    </center>
+
+    <p>
+      Nostr uses public key cryptography. Posts are signed with your private key
+      and people can follow your posts using your public key. Direct messages in
+      this client are encrypted before being sent through nostr network.
     </p>
     <p>
-      In this client example, small 240chars messages are sent through the Nostr
-      network, but the Nostr protocol be used for lots of different types of
-      information. Anyone is free to participate, by hosting relays or building
-      clients!
-    </p>
-    <p>
-      Private messages are made possible by a user using another users public
-      key to encrypt the data before posting it on the relay.
+      <a href="https://github.com/fiatjaf/nostr" target="_blank"
+        >Learn more about the Nostr protocol</a
+      >
     </p>
     <center>
       <q-btn

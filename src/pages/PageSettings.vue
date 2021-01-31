@@ -14,7 +14,7 @@
 
     <br /><br />
 
-    <div class="q-mx-auto" style="max-width: 400px">
+    <div class="q-mx-auto q-px-md">
       <q-form class="q-gutter-md" @submit="setProfile">
         <p>
           If your desired handle is available our relay will use open-timestamps

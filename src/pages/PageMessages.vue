@@ -35,7 +35,7 @@
         </q-item>
       </q-list>
 
-      <q-footer class="bg-dark q-mb-sm">
+      <q-footer class="bg-dark q-mb-lg">
         <q-form class="q-gutter-md q-ma-md">
           <p>All private messages are end-to-end encrypted.</p>
 

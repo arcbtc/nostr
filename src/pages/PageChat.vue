@@ -14,7 +14,7 @@
     <div class="row">
       <br />
       <br />
-      <br />
+
       <div
         class="q-pa-md q-pt-xl column row flex justify-end no-wrap"
         style="width: 100%; height: 100vh; overflow: hidden"
@@ -31,33 +31,31 @@
         <div class="bg-dark q-mb-lg">
           <q-toolbar>
             <q-toolbar-title>
-              <div class="q-pa-md" style="max-width: 400px">
-                <q-form
-                  class="q-gutter-md"
-                  @submit="submitMessage"
-                  @reset="resetMessage"
-                >
-                  <div class="row">
-                    <div class="col-9">
-                      <q-input
-                        v-model="text"
-                        filled
-                        type="text"
-                        hint="500 char message"
-                      ></q-input>
-                    </div>
-                    <div class="col-3">
-                      <q-btn
-                        unelevated
-                        class="q-ma-sm"
-                        label="send"
-                        type="submit"
-                        color="primary"
-                      />
-                    </div>
+              <q-form
+                class="q-gutter-md"
+                @submit="submitMessage"
+                @reset="resetMessage"
+              >
+                <div class="row">
+                  <div class="col-9">
+                    <q-input
+                      v-model="text"
+                      filled
+                      type="text"
+                      hint="500 char message"
+                    ></q-input>
                   </div>
-                </q-form>
-              </div>
+                  <div class="col-3">
+                    <q-btn
+                      unelevated
+                      class="q-ma-sm"
+                      label="send"
+                      type="submit"
+                      color="primary"
+                    />
+                  </div>
+                </div>
+              </q-form>
             </q-toolbar-title>
           </q-toolbar>
         </div>

@@ -21,7 +21,11 @@
       client is just one way to send data through Nostr.
     </p>
     <center>
-      <img class="q-px-auto" src="https://i.imgur.com/R3dQpk0.png" />
+      <img
+        class="q-px-auto"
+        style="width: 100%"
+        src="https://i.imgur.com/R3dQpk0.png"
+      />
       <br />
     </center>
 

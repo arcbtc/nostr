@@ -143,6 +143,17 @@
                 label="Generate or Restore User Account"
                 @click="dialogGenerate = true"
               ></q-btn>
+              <br /><br />
+              <q-btn
+                flat
+                color="primary"
+                size="md"
+                dense
+                :label="$store.getters.handle($store.state.myProfile.pubkey)"
+                @click="copyToClip($store.state.myProfile.pubkey)"
+              >
+                <q-tooltip> Copy public key </q-tooltip></q-btn
+              >
             </q-card>
           </div>
 

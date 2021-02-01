@@ -19,6 +19,7 @@
           <div></div>
         </q-card-section>
       </q-card-section>
+
       <q-card-section class="no-shadow q-pa-none q-pl-xl">
         <div class="row" style="width: 100%">
           <q-form
@@ -102,6 +103,18 @@ import helpersMixin from '../utils/mixin'
 export default {
   mixins: [helpersMixin],
 
-  props: ['post']
+  props: ['post'],
+  data() {
+    return {
+      publishtext: '',
+      replytext: ''
+    }
+  },
+  methods: {
+    sendPost() {
+      this.$store.dispatch('sendPost', {message: this.publishtext})
+      this.publishtext = ''
+    }
+  }
 }
 </script>

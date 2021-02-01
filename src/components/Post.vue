@@ -1,5 +1,9 @@
 <template>
   <q-card class="my-card" flat style="border: none">
+    <q-dialog v-model="dialogReply" position="top">
+      <Reply :post="post" />
+    </q-dialog>
+
     <q-card-section class="no-shadow" horizontal>
       <q-card-section class="no-shadow">
         <q-avatar class="no-shadow">
@@ -9,7 +13,7 @@
 
       <q-separator vertical style="display: none" />
       <q-card-section class="col no-shadow">
-        <q-card-section class="q-pa-none" @click="dialogReply = post">
+        <q-card-section class="q-pa-none" @click="dialogReply = true">
           <q-item-label
             >{{ $store.getters.handle(post.pubkey) }}
             <small style="color: grey">{{
@@ -29,7 +33,7 @@
             flat
             icon="chat_bubble_outline"
             size="sm"
-            @click="dialogReply = post"
+            @click="dialogReply = true"
           />
 
           <q-btn
@@ -66,6 +70,11 @@ import helpersMixin from '../utils/mixin'
 export default {
   mixins: [helpersMixin],
   props: ['post'],
+  data() {
+    return {
+      dialogReply: false
+    }
+  },
   methods: {
     postAgain(post) {
       this.$store.dispatch('postAgain', post)

@@ -1,7 +1,7 @@
 <template>
   <q-page>
     <center>
-      <strong class="text-h6 q-pa-lg fixed-top">Help</strong>
+      <strong class="text-h6 q-pa-lg">Help</strong>
     </center>
     <br />
     <q-btn

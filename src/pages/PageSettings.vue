@@ -1,7 +1,7 @@
 <template>
   <q-page>
     <center>
-      <strong class="text-h6 q-pa-lg fixed-top">Settings</strong>
+      <strong class="text-h6 q-pa-lg">Settings</strong>
     </center>
     <q-btn
       v-go-back.single

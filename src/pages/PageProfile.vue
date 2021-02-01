@@ -9,7 +9,7 @@
       class="small-screen-only fixed-top-left q-ma-xs"
     />
 
-    <center><strong class="text-h6 q-ma-sm fixed-top">Profile</strong></center>
+    <center><strong class="text-h6 q-ma-sm">Profile</strong></center>
     <br />
     <br />
 

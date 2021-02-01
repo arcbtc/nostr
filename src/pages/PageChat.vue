@@ -1,7 +1,7 @@
 <template>
   <q-page>
     <center>
-      <strong class="text-h6 q-pa-lg fixed-top">Chat</strong>
+      <strong class="text-h6 q-pa-lg">Chat</strong>
     </center>
     <q-btn
       v-go-back.single

@@ -1,6 +1,6 @@
 <template>
   <q-layout>
-    <q-dialog v-model="dialogPublish" position="top" style="width: 100%">
+    <q-dialog v-model="dialogPublish" position="top">
       <Publish />
     </q-dialog>
 

@@ -135,7 +135,7 @@
 <script>
 import crypto from 'crypto'
 import {getPublicKey} from 'nostr-tools'
-
+import {copyToClipboard} from 'quasar'
 import helpersMixin from '../utils/mixin'
 
 const bip39 = require('bip39')
@@ -190,6 +190,17 @@ export default {
         this.publickey = getPublicKey(this.privatekey)
         this.loading = false
       }, 1)
+    },
+    copyToClip(text) {
+      copyToClipboard(text)
+        .then(() => {
+          this.$q.notify({
+            message: 'COPIED'
+          })
+        })
+        .catch(() => {
+          this.$q.notify({type: 'negative', message: 'FAILED'})
+        })
     },
 
     finalGenerate() {

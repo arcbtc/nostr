@@ -44,17 +44,7 @@ export function launch(store) {
 
       case 4:
         // a direct encrypted message
-        var theTags = event.tags.find(tag => tag[0] === 'p')
-        let lsKey = `messages.${theTags[1]}`
-        var messagesS = LocalStorage.getItem(lsKey)
-        if (messagesS.length > 0) {
-          for (var i = 0; i < messagesS.length; i++) {
-            if (messagesS[i].id === event.id && messagesS[i].loading === true) {
-              messagesS[i].loading = false
-            }
-          }
-          LocalStorage.set(lsKey, messages)
-        }
+
         if (
           event.tags.find(
             tag => tag[0] === 'p' && tag[1] === store.state.myProfile.pubkey
@@ -89,6 +79,27 @@ export function launch(store) {
           // a hack to update the UI
           store.commit('chatUpdated')
         }
+        var theTags = event.tags.find(tag => tag[0] === 'p')
+        let lsKey = `messages.${theTags[1]}`
+        var messagesS = LocalStorage.getItem(lsKey)
+        if (
+          event.tags.find(
+            tag => tag[0] === 'p' && tag[1] !== store.state.myProfile.pubkey
+          )
+        ) {
+          if (messagesS.length > 0) {
+            for (var i = 0; i < messagesS.length; i++) {
+              if (
+                messagesS[i].id === event.id &&
+                messagesS[i].loading === true
+              ) {
+                messagesS[i].loading = false
+              }
+            }
+            LocalStorage.set(lsKey, messagesS)
+          }
+        }
+
         break
     }
   })
@@ -294,7 +305,9 @@ export async function sendChatMessage(store, {pubkey, text}) {
     loading: true,
     retry: false
   })
-  LocalStorage.set(lsKey, messages)
+  console.log(messages)
+  console.log(pubkey)
+  await LocalStorage.set(lsKey, messages)
   await pool.publish(event)
   await pool.reqEvent({id: event.id})
 }

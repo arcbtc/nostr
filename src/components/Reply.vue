@@ -25,7 +25,7 @@
           <q-form
             style="width: 100%"
             class="q-gutter-md"
-            @submit="sendPost(replytext, [['e', post.id]])"
+            @submit="sendReply(replytext, [['e', post.id]])"
           >
             <q-input
               v-model="replytext"
@@ -111,9 +111,13 @@ export default {
     }
   },
   methods: {
-    sendPost() {
-      this.$store.dispatch('sendPost', {message: this.publishtext})
-      this.publishtext = ''
+    sendReply() {
+      console.log(this.post.id)
+      this.$store.dispatch('sendPost', {
+        message: this.replytext,
+        tags: [['e', this.post.id]]
+      })
+      this.replytext = ''
     }
   }
 }

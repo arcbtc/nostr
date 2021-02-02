@@ -198,6 +198,7 @@
                       @click="addPubFollow"
                     />
                   </template>
+                  <q-tooltip> Add public-key to follow </q-tooltip>
                 </q-input>
               </q-card-section>
               <q-card-section

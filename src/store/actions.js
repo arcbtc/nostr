@@ -68,7 +68,12 @@ export function launch(store) {
           )
 
           // store it locally
-          messages.push({text, from: 'them', id: event.id.slice(0, 5)})
+          messages.push({
+            text,
+            from: event.pubkey,
+            id: event.id,
+            created_at: event.created_at
+          })
           LocalStorage.set(lsKey, messages)
 
           // a hack to update the UI
@@ -263,10 +268,17 @@ export async function sendChatMessage(store, {pubkey, text}) {
   }
   event.id = await getEventHash(event)
 
+  await pool.publish(event)
+
   // store messages on localstorage
   let lsKey = `messages.${pubkey}`
   var messages = LocalStorage.getItem(lsKey) || []
-  messages.push({text, from: 'me', id: event.id.slice(0, 5)})
+  messages.push({
+    text,
+    from: store.state.myProfile.pubkey,
+    id: event.id,
+    created_at: event.created_at
+  })
   LocalStorage.set(lsKey, messages)
 
   // publish event

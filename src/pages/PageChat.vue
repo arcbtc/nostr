@@ -22,12 +22,13 @@
         <q-chat-message
           v-for="message in messages"
           :key="message.id"
-          :avatar="$store.getters.avatar($store.state.myProfile.pubkey)"
-          :name="message.from"
+          :name="message.from.substring(0, 6) + '...'"
           :text="[message.text]"
-          :sent="message.from === 'me' ? true : false"
+          :avatar="$store.getters.avatar(message.from)"
+          :sent="message.from === $store.state.myProfile.pubkey ? true : false"
           bg-color="primary"
-        />
+        >
+        </q-chat-message>
         <div class="bg-dark q-mb-lg">
           <q-toolbar>
             <q-toolbar-title>

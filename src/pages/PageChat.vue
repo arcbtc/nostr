@@ -19,17 +19,39 @@
         class="q-pa-md q-pt-xl column row flex justify-end no-wrap"
         style="width: 100%; height: 100vh; overflow: hidden"
       >
-        <q-chat-message
-          v-for="message in messages"
-          :key="message.id"
-          :name="message.from.substring(0, 6) + '...'"
-          :text="[message.text]"
-          :avatar="$store.getters.avatar(message.from)"
-          :sent="message.from === $store.state.myProfile.pubkey ? true : false"
-          bg-color="primary"
-          >{{ message.loading }}
-          <q-spinner-dots v-if="message.loading" color="secondary" />
-        </q-chat-message>
+        <q-scroll-area
+          :thumb-style="thumbStyle"
+          style="height: 100%; max-width: 100%"
+          v-model="dmScroll"
+        >
+          <div v-for="message in messages">
+            <q-chat-message
+              v-if="message.loading"
+              :key="message.id"
+              :name="message.from.substring(0, 6) + '...'"
+              :avatar="$store.getters.avatar(message.from)"
+              :sent="
+                message.from === $store.state.myProfile.pubkey ? true : false
+              "
+              bg-color="primary"
+            >
+              <q-spinner-dots size="2rem" color="dark" bg-color="dark" />
+            </q-chat-message>
+
+            <q-chat-message
+              v-else
+              :text="[message.text]"
+              :key="message.id"
+              :name="message.from.substring(0, 6) + '...'"
+              :avatar="$store.getters.avatar(message.from)"
+              :sent="
+                message.from === $store.state.myProfile.pubkey ? true : false
+              "
+              bg-color="primary"
+            >
+            </q-chat-message>
+          </div>
+        </q-scroll-area>
         <div class="bg-dark q-mb-lg">
           <q-toolbar>
             <q-toolbar-title>
@@ -68,6 +90,8 @@
 
 <script>
 import helpersMixin from '../utils/mixin'
+import {scroll} from 'quasar'
+const {getScrollPosition, setScrollPosition} = scroll
 
 export default {
   name: 'PageChat',
@@ -76,7 +100,13 @@ export default {
   data() {
     return {
       text: '',
-      reload: 0 // a hack to recompute messages
+      reload: 0, // a hack to recompute messages,
+      thumbStyle: {
+        left: '102%',
+        backgroundColor: '#26A69A',
+        width: '10px',
+        opacity: 0.35
+      }
     }
   },
   computed: {

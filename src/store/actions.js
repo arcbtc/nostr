@@ -54,6 +54,11 @@ export function launch(store) {
           let lsKey = `messages.${event.pubkey}`
           var messages = LocalStorage.getItem(lsKey) || []
 
+          if (messages.find(({id}) => id === event.id)) {
+            // we already have this one, discard
+            return
+          }
+
           // decrypt it
           let [ciphertext, iv] = event.content.split('?iv=')
           let text = decrypt(
@@ -94,9 +99,9 @@ export function launch(store) {
                 messagesS[i].loading === true
               ) {
                 messagesS[i].loading = false
+                LocalStorage.set(lsKey, messagesS)
               }
             }
-            LocalStorage.set(lsKey, messagesS)
           }
         }
 

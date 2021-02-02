@@ -264,7 +264,7 @@ export function finalGenerate(store, {keystoreoption, publickey, privatekey}) {
 export async function sendChatMessage(store, {pubkey, text}) {
   let [ciphertext, iv] = encrypt(store.state.myProfile.privkey, pubkey, text)
 
-  // make eventt
+  // make event
   let event = {
     pubkey: store.state.myProfile.pubkey,
     created_at: Math.floor(Date.now() / 1000),
@@ -273,15 +273,13 @@ export async function sendChatMessage(store, {pubkey, text}) {
     content: ciphertext + '?iv=' + iv
   }
 
-  let lsKey = `messages.${event.pubkey}`
+  let lsKey = `messages.${pubkey}`
   var messages = LocalStorage.getItem(lsKey) || []
 
   if (messages.length > 0) {
     event.tags.push(['e', messages[messages.length - 1].id])
   }
   event.id = await getEventHash(event)
-
-  await pool.publish(event)
 
   messages.push({
     text,
@@ -293,4 +291,6 @@ export async function sendChatMessage(store, {pubkey, text}) {
     retry: false
   })
   LocalStorage.set(lsKey, messages)
+  await pool.publish(event)
+  await pool.reqEvent({id: event.id})
 }

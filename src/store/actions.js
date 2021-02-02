@@ -308,7 +308,7 @@ export async function sendChatMessage(store, {pubkey, text}) {
     created_at: event.created_at,
     tags: event.tags,
     loading: true,
-    retry: false
+    failed: false
   })
   console.log(messages)
   console.log(pubkey)

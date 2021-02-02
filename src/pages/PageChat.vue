@@ -28,15 +28,28 @@
             <q-chat-message
               v-if="message.loading"
               :key="message.id"
+              :text="[message.text + ' <br/><small>sending...</small>']"
               :name="message.from.substring(0, 6) + '...'"
               :avatar="$store.getters.avatar(message.from)"
               :sent="
                 message.from === $store.state.myProfile.pubkey ? true : false
               "
               bg-color="primary"
-            >
-              <q-spinner-dots size="2rem" color="dark" bg-color="dark" />
-            </q-chat-message>
+            />
+
+            <q-chat-message
+              v-else-if="message.failed"
+              :key="message.id"
+              :text="[
+                message.text + ' <br/><small>failed (rate-limit)</small>'
+              ]"
+              :name="message.from.substring(0, 6) + '...'"
+              :avatar="$store.getters.avatar(message.from)"
+              :sent="
+                message.from === $store.state.myProfile.pubkey ? true : false
+              "
+              bg-color="primary"
+            />
 
             <q-chat-message
               v-else
@@ -90,7 +103,7 @@
 
 <script>
 import helpersMixin from '../utils/mixin'
-
+import {LocalStorage} from 'quasar'
 export default {
   name: 'PageChat',
   mixins: [helpersMixin],
@@ -111,10 +124,7 @@ export default {
     messages() {
       this.$store.state.chatUpdated // hack to recompute
       this.scroll()
-      return (
-        this.$q.localStorage.getItem(`messages.${this.$route.params.pubkey}`) ||
-        []
-      )
+      return LocalStorage.getItem(`messages.${this.$route.params.pubkey}`) || []
     }
   },
 
@@ -124,6 +134,23 @@ export default {
       const scrollTarget = scrollArea.getScrollTarget()
       const duration = 350
       scrollArea.setScrollPosition(scrollTarget.scrollHeight, duration)
+    },
+    async failed() {
+      var messages = this.$q.localStorage.getItem(
+        `messages.${this.$route.params.pubkey}`
+      )
+      if (messages) {
+        for (var i = 0; i < messages.length; i++) {
+          if (messages[i].loading == true) {
+            messages[i].failed = true
+            messages[i].loading = false
+            this.$q.localStorage.set(
+              `messages.${this.$route.params.pubkey}`,
+              messages
+            )
+          }
+        }
+      }
     },
     async submitMessage() {
       await this.$store.dispatch('sendChatMessage', {
@@ -135,7 +162,8 @@ export default {
       this.$store.commit('chatUpdated')
       this.scroll()
       setTimeout(() => {
-        this.$store.commit('chatUpdated') // hack doing a hack for a hack
+        this.$store.commit('chatUpdated') // another hack if post fails
+        this.failed()
       }, 2000)
     },
 
@@ -146,7 +174,8 @@ export default {
   created() {
     setTimeout(() => {
       this.scroll()
-    }, 300)
+      this.failed()
+    }, 200)
   }
 }
 </script>

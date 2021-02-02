@@ -56,7 +56,7 @@
       <Generate />
     </q-dialog>
 
-    <q-dialog v-model="warningPrompt" persistent>
+    <q-dialog v-model="warningPrompt" v-if="$store.getters.disabled" persistent>
       <q-card style="min-width: 350px">
         <q-card-section>
           <div class="text-h6">Warning!</div>

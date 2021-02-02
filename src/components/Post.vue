@@ -34,7 +34,8 @@
             icon="chat_bubble_outline"
             size="sm"
             @click="dialogReply = true"
-          />
+          >
+          </q-btn>
 
           <q-btn
             v-if="post.retry"

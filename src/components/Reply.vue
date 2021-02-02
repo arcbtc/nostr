@@ -26,8 +26,9 @@
             style="width: 100%"
             class="q-gutter-md"
             @submit="sendReply(replytext, [['e', post.id]])"
-          >
+            ><q-tooltip> Coming soon </q-tooltip>
             <q-input
+              disable
               v-model="replytext"
               dense
               style="font-size: 20px"
@@ -38,6 +39,7 @@
 
             <div class="float-right">
               <q-btn
+                disable
                 v-if="replytext.length < 280"
                 class="float-left q-mr-md"
                 round
@@ -82,6 +84,7 @@
               />
 
               <q-btn
+                disable
                 label="Reply"
                 rounded
                 unelevated

@@ -264,7 +264,7 @@ export function finalGenerate(store, {keystoreoption, publickey, privatekey}) {
 export async function sendChatMessage(store, {pubkey, text}) {
   let [ciphertext, iv] = encrypt(store.state.myProfile.privkey, pubkey, text)
 
-  // make event
+  // make eventt
   let event = {
     pubkey: store.state.myProfile.pubkey,
     created_at: Math.floor(Date.now() / 1000),

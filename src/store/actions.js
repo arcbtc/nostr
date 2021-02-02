@@ -44,6 +44,17 @@ export function launch(store) {
 
       case 4:
         // a direct encrypted message
+        var theTags = event.tags.find(tag => tag[0] === 'p')
+        let lsKey = `messages.${theTags[1]}`
+        var messagesS = LocalStorage.getItem(lsKey)
+        if (messagesS.length > 0) {
+          for (var i = 0; i < messagesS.length; i++) {
+            if (messagesS[i].id === event.id && messagesS[i].loading === true) {
+              messagesS[i].loading = false
+            }
+          }
+          LocalStorage.set(lsKey, messages)
+        }
         if (
           event.tags.find(
             tag => tag[0] === 'p' && tag[1] === store.state.myProfile.pubkey
@@ -52,13 +63,6 @@ export function launch(store) {
           // it is addressed to us, interesting!
           let lsKey = `messages.${event.pubkey}`
           var messages = LocalStorage.getItem(lsKey) || []
-
-          const found = messages.find(({id}) => id === event.id)
-          if (found) {
-            const tags = messages.find(element => element[0] === 'e')
-            console.log(tags)
-            return
-          }
 
           // decrypt it
           let [ciphertext, iv] = event.content.split('?iv=')

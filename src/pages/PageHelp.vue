@@ -55,6 +55,31 @@
     <q-dialog v-model="dialogGenerate" position="top">
       <Generate />
     </q-dialog>
+
+    <q-dialog v-model="warningPrompt" persistent>
+      <q-card style="min-width: 350px">
+        <q-card-section>
+          <div class="text-h6">Warning!</div>
+        </q-card-section>
+
+        <q-card-section class="q-pt-none">
+          <p>
+            This is extremely experimental software running for testing purposes
+            ONLY, any data you put on here will be lost!<br />
+          </p>
+        </q-card-section>
+
+        <q-card-actions align="right" class="text-primary">
+          <q-btn flat label="Cancel" v-close-popup />
+          <q-btn
+            flat
+            label="Proceed"
+            v-close-popup
+            @click="warningPrompt = false"
+          />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
   </q-page>
 </template>
 
@@ -67,8 +92,14 @@ export default {
 
   data() {
     return {
-      dialogGenerate: false
+      dialogGenerate: false,
+      warningPrompt: false
     }
+  },
+  created() {
+    setTimeout(() => {
+      this.warningPrompt = true
+    }, 400)
   }
 }
 </script>

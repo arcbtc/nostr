@@ -22,7 +22,7 @@
         <q-scroll-area
           :thumb-style="thumbStyle"
           style="height: 100%; max-width: 100%"
-          v-model="dmScroll"
+          ref="chatScroll"
         >
           <div v-for="message in messages">
             <q-chat-message
@@ -90,8 +90,6 @@
 
 <script>
 import helpersMixin from '../utils/mixin'
-import {scroll} from 'quasar'
-const {getScrollPosition, setScrollPosition} = scroll
 
 export default {
   name: 'PageChat',
@@ -112,14 +110,21 @@ export default {
   computed: {
     messages() {
       this.$store.state.chatUpdated // hack to recompute
-
+      this.scroll()
       return (
         this.$q.localStorage.getItem(`messages.${this.$route.params.pubkey}`) ||
         []
       )
     }
   },
+
   methods: {
+    async scroll() {
+      const scrollArea = this.$refs.chatScroll
+      const scrollTarget = scrollArea.getScrollTarget()
+      const duration = 350
+      scrollArea.setScrollPosition(scrollTarget.scrollHeight, duration)
+    },
     async submitMessage() {
       await this.$store.dispatch('sendChatMessage', {
         pubkey: this.$route.params.pubkey,
@@ -128,11 +133,20 @@ export default {
 
       this.text = ''
       this.$store.commit('chatUpdated')
+      this.scroll()
+      setTimeout(() => {
+        this.$store.commit('chatUpdated') // hack doing a hack for a hack
+      }, 2000)
     },
 
     resetMessage() {
       this.text = ''
     }
+  },
+  created() {
+    setTimeout(() => {
+      this.scroll()
+    }, 300)
   }
 }
 </script>

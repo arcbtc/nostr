@@ -357,7 +357,11 @@ export default {
         })
     },
     addPubFollow() {
-      this.$store.dispatch('startFollowing', this.addPubKey.trim())
+      if (this.addPubKey.trim() !== this.$store.state.myProfile.pubkey) {
+        this.$store.dispatch('startFollowing', this.addPubKey.trim())
+      } else {
+        this.$q.notify({type: 'negative', message: 'You cant follow yourself!'})
+      }
     }
   }
 }

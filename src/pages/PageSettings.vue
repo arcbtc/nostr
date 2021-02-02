@@ -18,11 +18,13 @@
       <q-form class="q-gutter-md" @submit="setProfile">
         <p>
           If your desired handle is available our relay will use open-timestamps
-          to secure it to your public key, and share it with other relays.
+          to secure it to your public key, and share the proof with other
+          relays.
         </p>
         <q-input
           v-model="handle"
           filled
+          disable
           type="text"
           hint="Desired handle (3-10 chars)"
           lazy-rules
@@ -35,6 +37,7 @@
           </template>
         </q-input>
         <q-input
+          disable
           v-model="about"
           filled
           type="text"
@@ -42,6 +45,7 @@
           maxlength="150"
         />
         <q-input
+          disable
           v-model="imagetemp"
           filled
           type="text"
@@ -49,6 +53,7 @@
           maxlength="150"
         />
         <q-btn
+          disable
           class="float-right"
           unelevated
           label="Submit"
@@ -56,6 +61,7 @@
           color="primary"
         />
         <br />
+        <q-tooltip> Coming soon </q-tooltip>
       </q-form>
       <br /><br />
       <q-separator />

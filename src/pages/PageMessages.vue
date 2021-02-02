@@ -13,6 +13,10 @@
     />
 
     <br /><br />
+    <p>
+      Currently you can only private message a key you are following. <br />All
+      private messages are end-to-end encrypted.
+    </p>
     <div class="q-mx-auto q-px-md">
       <q-list>
         <q-item
@@ -36,9 +40,7 @@
       </q-list>
 
       <q-footer class="bg-dark q-mb-lg">
-        <q-form class="q-gutter-md q-ma-md">
-          <p>All private messages are end-to-end encrypted.</p>
-
+        <q-form hidden class="q-gutter-md q-ma-md">
           <div class="row">
             <div class="col-10">
               <q-input

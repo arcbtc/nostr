@@ -17,7 +17,7 @@
 
       <div
         class="q-pa-md q-pt-xl column row flex justify-end no-wrap"
-        style="width: 100%; height: 100vh; overflow: hidden"
+        style="width: 100%; height: 90vh; overflow: hidden"
       >
         <q-scroll-area
           :thumb-style="thumbStyle"
@@ -65,7 +65,7 @@
             </q-chat-message>
           </div>
         </q-scroll-area>
-        <div class="bg-dark q-mb-lg">
+        <div class="bg-dark q-mb-xl">
           <q-toolbar>
             <q-toolbar-title>
               <q-form

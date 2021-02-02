@@ -151,7 +151,7 @@ export default {
       recover: '',
       privatekey: null,
       publickey: null,
-      keystoreoption: null,
+      keystoreoption: 'local',
       isPwd: true
     }
   },

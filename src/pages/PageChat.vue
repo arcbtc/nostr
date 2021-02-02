@@ -27,7 +27,8 @@
           :avatar="$store.getters.avatar(message.from)"
           :sent="message.from === $store.state.myProfile.pubkey ? true : false"
           bg-color="primary"
-        >
+          >{{ message.loading }}
+          <q-spinner-dots v-if="message.loading" color="secondary" />
         </q-chat-message>
         <div class="bg-dark q-mb-lg">
           <q-toolbar>

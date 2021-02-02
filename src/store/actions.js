@@ -53,8 +53,10 @@ export function launch(store) {
           let lsKey = `messages.${event.pubkey}`
           var messages = LocalStorage.getItem(lsKey) || []
 
-          if (messages.find(({id}) => id === event.id.slice(0, 5))) {
-            // we already have this one, discard
+          const found = messages.find(({id}) => id === event.id)
+          if (found) {
+            const tags = messages.find(element => element[0] === 'e')
+            console.log(tags)
             return
           }
 
@@ -72,8 +74,12 @@ export function launch(store) {
             text,
             from: event.pubkey,
             id: event.id,
-            created_at: event.created_at
+            created_at: event.created_at,
+            tags: event.tags,
+            loading: false,
+            retry: false
           })
+
           LocalStorage.set(lsKey, messages)
 
           // a hack to update the UI
@@ -266,21 +272,25 @@ export async function sendChatMessage(store, {pubkey, text}) {
     tags: [['p', pubkey]],
     content: ciphertext + '?iv=' + iv
   }
+
+  let lsKey = `messages.${event.pubkey}`
+  var messages = LocalStorage.getItem(lsKey) || []
+
+  if (messages.length > 0) {
+    event.tags.push(['e', messages[messages.length - 1].id])
+  }
   event.id = await getEventHash(event)
 
   await pool.publish(event)
 
-  // store messages on localstorage
-  let lsKey = `messages.${pubkey}`
-  var messages = LocalStorage.getItem(lsKey) || []
   messages.push({
     text,
     from: store.state.myProfile.pubkey,
     id: event.id,
-    created_at: event.created_at
+    created_at: event.created_at,
+    tags: event.tags,
+    loading: true,
+    retry: false
   })
   LocalStorage.set(lsKey, messages)
-
-  // publish event
-  await pool.publish(event)
 }

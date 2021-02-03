@@ -144,7 +144,9 @@ export async function sendPost(store, {message, tags = [], kind = 1}) {
     tags,
     content: message
   }
+
   event.id = await getEventHash(event)
+  console.log('event')
   await pool.publish(event)
 
   store.commit('addKind1', {
@@ -199,8 +201,8 @@ export async function saveMeta(store, {image, handle, about}) {
   pool.publish(event)
 }
 
-export function deletePost(store, id) {
-  store.commit('deleteKind1', id)
+export function deletePost(store, post) {
+  store.commit('deleteKind1', post.id)
 }
 
 export function getAllPosts(store) {
@@ -227,6 +229,10 @@ export function getAllPosts(store) {
           index: i,
           event: {...store.state.kind1[i], retry: true, loading: false}
         })
+        Notify.create({
+          message: 'Relay rate-limit hit, try again in a few moments',
+          color: 'pink'
+        })
       }
     }
   }, 1000)
@@ -236,9 +242,8 @@ export function startFollowing(store, key) {
   if (key in store.state.theirProfile) {
     Notify.create({
       message: 'Already following',
-      color: 'secondary'
+      color: 'pink'
     })
-
     return
   }
 
@@ -251,7 +256,7 @@ export async function stopFollowing(store, key) {
   if (!(key in store.state.theirProfile)) {
     Notify.create({
       message: 'No such user',
-      color: 'secondary'
+      color: 'pink'
     })
     return
   }

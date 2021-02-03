@@ -6,29 +6,42 @@
   "author": "benarc <ben@arc.wales>",
   "private": true,
   "scripts": {
-    "test": "echo \"No test specified\" && exit 0"
+    "dev": "quasar dev",
+    "pwa": "quasar dev -m pwa",
+    "build": "quasar run build",
+    "prettier": "prettier --write src/",
+    "eslint": "eslint --fix src/",
+    "styling": "prettier --check src/",
+    "linting": "eslint src/"
   },
+  "pre-commit": [
+    "styling",
+    "linting"
+  ],
   "dependencies": {
     "@quasar/cli": "^1.1.3",
     "@quasar/extras": "^1.9.13",
     "axios": "^0.18.1",
-    "bigi": "^1.4.2",
-    "bip-schnorr": "^0.6.2",
     "bip32": "^2.0.6",
     "bip39": "^3.0.3",
     "bitcoinjs-lib": "^5.2.0",
     "bs58": "^4.0.1",
     "core-js": "^3.8.2",
-    "ecurve": "^1.0.6",
     "identicon": "^3.0.1",
     "md-gum-polyfill": "^1.0.0",
     "noble-secp256k1": "^1.1.1",
-    "nostr-tools": "^0.1.3",
+    "nostr-tools": "^0.3.0",
     "quasar": "^1.15.0",
     "wif": "^2.0.6"
   },
   "devDependencies": {
     "@quasar/app": "^2.1.14",
+    "babel-eslint": "^10.1.0",
+    "eslint": "^7.18.0",
+    "eslint-plugin-babel": "^5.3.1",
+    "eslint-plugin-vue": "^7.5.0",
+    "pre-commit": "^1.2.2",
+    "prettier": "^2.2.1",
     "workbox-webpack-plugin": "^5.1.4"
   },
   "browserslist": [

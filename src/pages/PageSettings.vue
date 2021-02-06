@@ -88,7 +88,7 @@
       <br /><br />
       <q-separator />
       <br /><br />
-      <q-form class="q-gutter-md" @submit="relayRem(relay)">
+      <q-form class="q-gutter-md" @submit="relayRem">
         <q-select
           v-model="relay"
           filled
@@ -149,7 +149,7 @@ export default {
       this.$store.dispatch('relayPush', this.relay)
       this.relay = ''
     },
-    relayRem(relay) {
+    relayRem() {
       this.$store.dispatch('relayRemove', this.relay)
       this.relay = ''
     },

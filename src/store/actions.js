@@ -283,7 +283,6 @@ export function finalGenerate(store, {keystoreoption, publickey, privatekey}) {
     pubkey: publickey,
     privkey: privatekey,
     relays: [
-      'wss://moonbreeze.richardbondi.net/ws',
       'wss://freedom-relay.herokuapp.com/ws',
       'wss://relay.nostr.org',
       'wss://nostr-relay.herokuapp.com/ws'

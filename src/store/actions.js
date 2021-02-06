@@ -44,13 +44,12 @@ export function launch(store) {
 
       case 4:
         // a direct encrypted message
-
         if (
           event.tags.find(
             tag => tag[0] === 'p' && tag[1] === store.state.myProfile.pubkey
           )
         ) {
-          // it is addressed to us, interesting!
+          // it is addressed to us
           let lsKey = `messages.${event.pubkey}`
           var messages = LocalStorage.getItem(lsKey) || []
 
@@ -83,23 +82,25 @@ export function launch(store) {
 
           // a hack to update the UI
           store.commit('chatUpdated')
-        }
-        var theTags = event.tags.find(tag => tag[0] === 'p')
-        let lsKey = `messages.${theTags[1]}`
-        var messagesS = LocalStorage.getItem(lsKey)
-        if (
-          event.tags.find(
-            tag => tag[0] === 'p' && tag[1] !== store.state.myProfile.pubkey
-          )
-        ) {
-          if (messagesS.length > 0) {
-            for (var i = 0; i < messagesS.length; i++) {
-              if (
-                messagesS[i].id === event.id &&
-                messagesS[i].loading === true
-              ) {
-                messagesS[i].loading = false
-                LocalStorage.set(lsKey, messagesS)
+        } else if (event.pubkey === store.state.myProfile.pubkey) {
+          // it is coming from us
+          let p = event.tags.find(tag => tag[0] === 'p')
+          let lsKey = `messages.${p[1]}`
+          var messagesS = LocalStorage.getItem(lsKey)
+          if (
+            event.tags.find(
+              tag => tag[0] === 'p' && tag[1] !== store.state.myProfile.pubkey
+            )
+          ) {
+            if (messagesS.length > 0) {
+              for (var i = 0; i < messagesS.length; i++) {
+                if (
+                  messagesS[i].id === event.id &&
+                  messagesS[i].loading === true
+                ) {
+                  messagesS[i].loading = false
+                  LocalStorage.set(lsKey, messagesS)
+                }
               }
             }
           }
@@ -107,6 +108,13 @@ export function launch(store) {
 
         break
     }
+  })
+
+  pool.onNotice((notice, relay) => {
+    Notify.create({
+      message: `Relay ${relay.url} says: ${notice}`,
+      color: 'pink'
+    })
   })
 }
 
@@ -201,8 +209,8 @@ export async function saveMeta(store, {image, handle, about}) {
   pool.publish(event)
 }
 
-export function deletePost(store, post) {
-  store.commit('deleteKind1', post.id)
+export function deletePost(store, postId) {
+  store.commit('deleteKind1', postId)
 }
 
 export function getAllPosts(store) {
@@ -228,10 +236,6 @@ export function getAllPosts(store) {
         store.commit('replaceKind1', {
           index: i,
           event: {...store.state.kind1[i], retry: true, loading: false}
-        })
-        Notify.create({
-          message: 'Relay rate-limit hit, try again in a few moments',
-          color: 'pink'
         })
       }
     }
@@ -331,6 +335,17 @@ export async function sendChatMessage(store, {pubkey, text}) {
     loading: true,
     failed: false
   })
-  await LocalStorage.set(lsKey, messages)
+  LocalStorage.set(lsKey, messages)
   await pool.publish(event)
+}
+
+export function deleteChatMessage(store, {pubkey, id}) {
+  let lsKey = `messages.${pubkey}`
+  var messages = LocalStorage.getItem(lsKey) || []
+
+  let index = messages.findIndex(message => message.id === id)
+  if (index === -1) return
+
+  messages.splice(index, 1)
+  LocalStorage.set(lsKey, messages)
 }

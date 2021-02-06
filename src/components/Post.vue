@@ -82,7 +82,7 @@ export default {
     },
 
     deletePost(post) {
-      this.$store.dispatch('deletePost', post)
+      this.$store.dispatch('deletePost', post.id)
     }
   }
 }

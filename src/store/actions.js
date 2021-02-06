@@ -44,13 +44,12 @@ export function launch(store) {
 
       case 4:
         // a direct encrypted message
-
         if (
           event.tags.find(
             tag => tag[0] === 'p' && tag[1] === store.state.myProfile.pubkey
           )
         ) {
-          // it is addressed to us, interesting!
+          // it is addressed to us
           let lsKey = `messages.${event.pubkey}`
           var messages = LocalStorage.getItem(lsKey) || []
 
@@ -83,23 +82,25 @@ export function launch(store) {
 
           // a hack to update the UI
           store.commit('chatUpdated')
-        }
-        var theTags = event.tags.find(tag => tag[0] === 'p')
-        let lsKey = `messages.${theTags[1]}`
-        var messagesS = LocalStorage.getItem(lsKey)
-        if (
-          event.tags.find(
-            tag => tag[0] === 'p' && tag[1] !== store.state.myProfile.pubkey
-          )
-        ) {
-          if (messagesS.length > 0) {
-            for (var i = 0; i < messagesS.length; i++) {
-              if (
-                messagesS[i].id === event.id &&
-                messagesS[i].loading === true
-              ) {
-                messagesS[i].loading = false
-                LocalStorage.set(lsKey, messagesS)
+        } else if (event.pubkey === store.state.myProfile.pubkey) {
+          // it is coming from us
+          let p = event.tags.find(tag => tag[0] === 'p')
+          let lsKey = `messages.${p[1]}`
+          var messagesS = LocalStorage.getItem(lsKey)
+          if (
+            event.tags.find(
+              tag => tag[0] === 'p' && tag[1] !== store.state.myProfile.pubkey
+            )
+          ) {
+            if (messagesS.length > 0) {
+              for (var i = 0; i < messagesS.length; i++) {
+                if (
+                  messagesS[i].id === event.id &&
+                  messagesS[i].loading === true
+                ) {
+                  messagesS[i].loading = false
+                  LocalStorage.set(lsKey, messagesS)
+                }
               }
             }
           }
@@ -107,6 +108,13 @@ export function launch(store) {
 
         break
     }
+  })
+
+  pool.onNotice((notice, relay) => {
+    Notify.create({
+      message: `Relay ${relay.url} says: ${notice}`,
+      color: 'pink'
+    })
   })
 }
 
@@ -137,6 +145,8 @@ export async function getRelayPosts(store, {limit, offset, pubkey = null}) {
 }
 
 export async function sendPost(store, {message, tags = [], kind = 1}) {
+  if (message.length === 0) return
+
   let event = {
     pubkey: store.state.myProfile.pubkey,
     created_at: Math.floor(Date.now() / 1000),
@@ -146,7 +156,6 @@ export async function sendPost(store, {message, tags = [], kind = 1}) {
   }
 
   event.id = await getEventHash(event)
-  console.log('event')
   await pool.publish(event)
 
   store.commit('addKind1', {
@@ -158,7 +167,6 @@ export async function sendPost(store, {message, tags = [], kind = 1}) {
   setTimeout(() => {
     store.dispatch('getAllPosts')
   }, 3000)
-  console.log(event)
 }
 
 export function postAgain(store, event) {
@@ -201,8 +209,8 @@ export async function saveMeta(store, {image, handle, about}) {
   pool.publish(event)
 }
 
-export function deletePost(store, post) {
-  store.commit('deleteKind1', post.id)
+export function deletePost(store, postId) {
+  store.commit('deleteKind1', postId)
 }
 
 export function getAllPosts(store) {
@@ -229,10 +237,6 @@ export function getAllPosts(store) {
           index: i,
           event: {...store.state.kind1[i], retry: true, loading: false}
         })
-        Notify.create({
-          message: 'Relay rate-limit hit, try again in a few moments',
-          color: 'pink'
-        })
       }
     }
   }, 1000)
@@ -242,6 +246,15 @@ export function startFollowing(store, key) {
   if (key in store.state.theirProfile) {
     Notify.create({
       message: 'Already following',
+      color: 'pink'
+    })
+    return
+  }
+
+  if (!key.match(/^[0-9a-fA-F]{64}$/)) {
+    Notify.create({
+      message:
+        'Invalid public key. Must be 32 bytes hex-encoded (64 characters).',
       color: 'pink'
     })
     return
@@ -269,7 +282,12 @@ export function finalGenerate(store, {keystoreoption, publickey, privatekey}) {
   var profile = {
     pubkey: publickey,
     privkey: privatekey,
-    relays: ['wss://nostr-relay.herokuapp.com', 'wss://relay.nostr.org'],
+    relays: [
+      'wss://moonbreeze.richardbondi.net/ws',
+      'wss://freedom-relay.herokuapp.com/ws',
+      'wss://relay.nostr.org',
+      'wss://nostr-relay.herokuapp.com/ws'
+    ],
     avatar: null,
     handle: null,
     about: null
@@ -287,6 +305,8 @@ export function finalGenerate(store, {keystoreoption, publickey, privatekey}) {
 }
 
 export async function sendChatMessage(store, {pubkey, text}) {
+  if (text.length === 0) return
+
   let [ciphertext, iv] = encrypt(store.state.myProfile.privkey, pubkey, text)
 
   // make event
@@ -315,9 +335,17 @@ export async function sendChatMessage(store, {pubkey, text}) {
     loading: true,
     failed: false
   })
-  console.log(messages)
-  console.log(pubkey)
-  await LocalStorage.set(lsKey, messages)
+  LocalStorage.set(lsKey, messages)
   await pool.publish(event)
-  await pool.reqEvent({id: event.id})
+}
+
+export function deleteChatMessage(store, {pubkey, id}) {
+  let lsKey = `messages.${pubkey}`
+  var messages = LocalStorage.getItem(lsKey) || []
+
+  let index = messages.findIndex(message => message.id === id)
+  if (index === -1) return
+
+  messages.splice(index, 1)
+  LocalStorage.set(lsKey, messages)
 }

@@ -20,47 +20,32 @@
         style="width: 100%; height: 90vh; overflow: hidden"
       >
         <q-scroll-area
+          ref="chatScroll"
           :thumb-style="thumbStyle"
           style="height: 100%; max-width: 100%"
-          ref="chatScroll"
         >
-          <div v-for="message in messages">
+          <div v-for="message in messages" :key="message.id">
             <q-chat-message
-              v-if="message.loading"
-              :key="message.id"
-              :text="[message.text + ' <br/><small>sending...</small>']"
-              :name="message.from.substring(0, 6) + '...'"
-              :avatar="$store.getters.avatar(message.from)"
-              :sent="
-                message.from === $store.state.myProfile.pubkey ? true : false
-              "
-              bg-color="primary"
-            />
-
-            <q-chat-message
-              v-else-if="message.failed"
-              :key="message.id"
               :text="[
-                message.text + ' <br/><small>failed (rate-limit)</small>'
+                message.text +
+                  (message.loading
+                    ? '<small>sending...</small>'
+                    : message.failed
+                    ? '<small>failed. <a class=delete><i class=material-icons>cancel</i></a> <a class=retry><i class=material-icons>settings_backup_restore</i></a></small>'
+                    : '')
               ]"
               :name="message.from.substring(0, 6) + '...'"
               :avatar="$store.getters.avatar(message.from)"
               :sent="
                 message.from === $store.state.myProfile.pubkey ? true : false
               "
-              bg-color="primary"
-            />
-
-            <q-chat-message
-              v-else
-              :text="[message.text]"
-              :key="message.id"
-              :name="message.from.substring(0, 6) + '...'"
-              :avatar="$store.getters.avatar(message.from)"
-              :sent="
-                message.from === $store.state.myProfile.pubkey ? true : false
+              :stamp="new Date(message.created_at * 1000) | niceDate"
+              :bg-color="
+                message.from === $store.state.myProfile.pubkey
+                  ? 'primary'
+                  : 'tertiary'
               "
-              bg-color="primary"
+              @click="ev => clickMessageAction(ev, message.id, message.text)"
             >
             </q-chat-message>
           </div>
@@ -127,7 +112,12 @@ export default {
       return LocalStorage.getItem(`messages.${this.$route.params.pubkey}`) || []
     }
   },
-
+  created() {
+    setTimeout(() => {
+      this.scroll()
+      this.failed()
+    }, 200)
+  },
   methods: {
     async scroll() {
       const scrollArea = this.$refs.chatScroll
@@ -141,7 +131,7 @@ export default {
       )
       if (messages) {
         for (var i = 0; i < messages.length; i++) {
-          if (messages[i].loading == true) {
+          if (messages[i].loading === true) {
             messages[i].failed = true
             messages[i].loading = false
             this.$q.localStorage.set(
@@ -161,21 +151,48 @@ export default {
       this.text = ''
       this.$store.commit('chatUpdated')
       this.scroll()
+
       setTimeout(() => {
         this.$store.commit('chatUpdated') // another hack if post fails
         this.failed()
       }, 2000)
     },
-
+    clickMessageAction(ev, id, text) {
+      ev.preventDefault()
+      let action = ev.path[1]
+      if (action.classList.contains('retry')) {
+        this.$store.dispatch('deleteChatMessage', {
+          pubkey: this.$route.params.pubkey,
+          id
+        })
+        this.text = text
+        this.submitMessage()
+      } else if (action.classList.contains('delete')) {
+        this.$store.dispatch('deleteChatMessage', {
+          pubkey: this.$route.params.pubkey,
+          id
+        })
+        this.$store.commit('chatUpdated')
+      }
+    },
     resetMessage() {
       this.text = ''
     }
-  },
-  created() {
-    setTimeout(() => {
-      this.scroll()
-      this.failed()
-    }, 200)
   }
 }
 </script>
+
+<style>
+small {
+  margin-top: 0.2rem;
+  font-size: 0.8rem;
+  text-align: right;
+  display: block;
+}
+.delete {
+  cursor: pointer;
+}
+.retry {
+  cursor: pointer;
+}
+</style>

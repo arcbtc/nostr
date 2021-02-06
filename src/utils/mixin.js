@@ -11,8 +11,7 @@ export default {
   },
   filters: {
     niceDate(value) {
-      let formattedString = date.formatDate(value, 'YYYY MMM D h:mm A')
-      return formattedString
+      return date.formatDate(value, 'YYYY MMM D h:mm A')
     }
   },
   methods: {

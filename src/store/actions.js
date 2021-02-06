@@ -146,7 +146,6 @@ export async function sendPost(store, {message, tags = [], kind = 1}) {
   }
 
   event.id = await getEventHash(event)
-  console.log('event')
   await pool.publish(event)
 
   store.commit('addKind1', {
@@ -158,7 +157,6 @@ export async function sendPost(store, {message, tags = [], kind = 1}) {
   setTimeout(() => {
     store.dispatch('getAllPosts')
   }, 3000)
-  console.log(event)
 }
 
 export function postAgain(store, event) {
@@ -278,7 +276,12 @@ export function finalGenerate(store, {keystoreoption, publickey, privatekey}) {
   var profile = {
     pubkey: publickey,
     privkey: privatekey,
-    relays: ['wss://nostr-relay.herokuapp.com', 'wss://relay.nostr.org'],
+    relays: [
+      'wss://moonbreeze.richardbondi.net/ws',
+      'wss://freedom-relay.herokuapp.com/ws',
+      'wss://relay.nostr.org',
+      'wss://nostr-relay.herokuapp.com/ws'
+    ],
     avatar: null,
     handle: null,
     about: null
@@ -324,9 +327,6 @@ export async function sendChatMessage(store, {pubkey, text}) {
     loading: true,
     failed: false
   })
-  console.log(messages)
-  console.log(pubkey)
   await LocalStorage.set(lsKey, messages)
   await pool.publish(event)
-  await pool.reqEvent({id: event.id})
 }

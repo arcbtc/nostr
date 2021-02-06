@@ -247,6 +247,15 @@ export function startFollowing(store, key) {
     return
   }
 
+  if (!key.match(/^[0-9a-fA-F]{64}$/)) {
+    Notify.create({
+      message:
+        'Invalid public key. Must be 32 bytes hex-encoded (64 characters).',
+      color: 'pink'
+    })
+    return
+  }
+
   pool.subKey(key)
   store.commit('startFollowing', key)
   store.dispatch('getAllPosts')

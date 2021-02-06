@@ -88,11 +88,10 @@
       <br /><br />
       <q-separator />
       <br /><br />
-      <q-form class="q-gutter-md" @submit="relayRem">
+      <q-form class="q-gutter-md" @submit="relayRem(relay)">
         <q-select
           v-model="relay"
           filled
-          multiple
           :options="$store.state.myProfile.relays"
           label="Remove relay(s)"
           style="width: 250px"

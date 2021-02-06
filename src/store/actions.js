@@ -137,6 +137,8 @@ export async function getRelayPosts(store, {limit, offset, pubkey = null}) {
 }
 
 export async function sendPost(store, {message, tags = [], kind = 1}) {
+  if (message.length === 0) return
+
   let event = {
     pubkey: store.state.myProfile.pubkey,
     created_at: Math.floor(Date.now() / 1000),
@@ -299,6 +301,8 @@ export function finalGenerate(store, {keystoreoption, publickey, privatekey}) {
 }
 
 export async function sendChatMessage(store, {pubkey, text}) {
+  if (text.length === 0) return
+
   let [ciphertext, iv] = encrypt(store.state.myProfile.privkey, pubkey, text)
 
   // make event

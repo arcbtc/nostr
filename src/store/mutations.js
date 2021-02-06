@@ -14,10 +14,9 @@ export function relaySplice(state, url) {
 
 export function startFollowing(state, key) {
   // use metadata from kind0 or leave everything blank
-  state.theirProfile[key] = state.kind0[key] || {
-    name: null,
-    about: null,
-    picture: null
+  state.theirProfile = {
+    [key]: state.kind0[key] || {name: null, about: null, picture: null},
+    ...state.theirProfile
   }
 }
 

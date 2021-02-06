@@ -68,7 +68,7 @@
       <br /><br />
       <q-form class="q-gutter-md" @submit="relayAdd">
         <q-input
-          v-model="relay"
+          v-model="relaya"
           filled
           type="textarea"
           autogrow
@@ -90,7 +90,7 @@
       <br /><br />
       <q-form class="q-gutter-md" @submit="relayRem">
         <q-select
-          v-model="relay"
+          v-model="relayr"
           filled
           :options="$store.state.myProfile.relays"
           label="Remove relay(s)"
@@ -134,7 +134,8 @@ export default {
       imagetemp,
       handle,
       about,
-      relay: ''
+      relayr: '',
+      relaya: ''
     }
   },
   methods: {
@@ -146,12 +147,12 @@ export default {
       })
     },
     relayAdd() {
-      this.$store.dispatch('relayPush', this.relay)
-      this.relay = ''
+      this.$store.dispatch('relayPush', this.relaya)
+      this.relaya = ''
     },
     relayRem() {
-      this.$store.dispatch('relayRemove', this.relay)
-      this.relay = ''
+      this.$store.dispatch('relayRemove', this.relayr)
+      this.relayr = ''
     },
     deletels() {
       this.$q.localStorage.clear()

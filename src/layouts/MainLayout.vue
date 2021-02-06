@@ -363,6 +363,8 @@ export default {
       } else {
         this.$q.notify({color: 'pink', message: 'You cant follow yourself!'})
       }
+
+      this.addPubKey = ''
     }
   }
 }

@@ -2,15 +2,6 @@
   <q-page>
     <Publish v-if="!$store.getters.disabled" />
     <Post v-for="post in $store.state.kind1" :key="post.id" :post="post" />
-    <q-infinite-scroll
-      v-if="$store.state.kind1.length > 20"
-      :offset="250"
-      @load="onLoad($store.state.kind1.length + 10)"
-    >
-      <div v-if="post.loading" class="row justify-center q-my-md">
-        <q-spinner-dots color="primary" size="40px" />
-      </div>
-    </q-infinite-scroll>
   </q-page>
 </template>
 

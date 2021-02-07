@@ -1,4 +1,5 @@
-# NOSTR-twitter (Currently very buggy not even MVP, but we'll get there!)
+# NOSTR-twitter 
+## Currently very buggy not even MVP, but we'll get there!
 
 280 character limited social network using the decentralised, censorship-resistant nostr protocol
 

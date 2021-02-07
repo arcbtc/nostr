@@ -158,6 +158,7 @@ export default {
   methods: {
     async createKeys() {
       this.loading = true
+      this.recover = this.recover.trim()
 
       setTimeout(() => {
         if (this.recover.split(/ +/).length === 12) {
@@ -168,7 +169,7 @@ export default {
           this.privatekey = root.privateKey.toString('hex')
 
           this.recover = mnemonic
-        } else if (/^[0-9a-e]{64}$/.exec(this.recover.toLowerCase())) {
+        } else if (/^[0-9a-f]{64}$/.exec(this.recover.toLowerCase())) {
           // recover private key
           this.privatekey = this.recover.toLowerCase()
 

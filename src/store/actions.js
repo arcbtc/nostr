@@ -285,7 +285,8 @@ export function finalGenerate(store, {keystoreoption, publickey, privatekey}) {
     relays: [
       'wss://freedom-relay.herokuapp.com/ws',
       'wss://relay.nostr.org',
-      'wss://nostr-relay.herokuapp.com/ws'
+      'wss://nostr-relay.herokuapp.com/ws',
+      'wss://nodestr-relay.dolu.dev/ws'
     ],
     avatar: null,
     handle: null,

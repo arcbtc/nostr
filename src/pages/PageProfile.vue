@@ -66,11 +66,12 @@
     </div>
 
     <Post
-      v-for="post in profilePosts"
+      v-for="post in $store.state.kind1"
       v-if="post.pubkey === $route.params.pubkey"
       :key="post.id"
       :post="post"
     />
+
     <q-dialog v-model="dialogReply" position="top">
       <Reply :post="dialogReply" />
     </q-dialog>

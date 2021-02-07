@@ -2,6 +2,8 @@
 
 280 character limited social network using the decentralised, censorship-resistant nostr protocol
 
+<img src="https://i.imgur.com/hAYJGnV.png" width="650px"> 
+
 | Easily make/restore accounts!  | Send encrypted private messages! |
 | ------------- | ------------- |
 | <img src="https://i.imgur.com/E0wpuzJ.gif" width="300px">  | <img src="https://i.imgur.com/2nEwjCg.gif" width="300px"> |

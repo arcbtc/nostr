@@ -1,6 +1,12 @@
-# Nostr (nostr)
+# NOSTR-twitter (nostr)
 
-280 character limited social network using the nostr protocol
+280 character limited social network using the decentralised, censorship-resistant nostr protocol
+
+| Easily make/restore accounts!  | Send encrypted private messages! |
+| ------------- | ------------- |
+| ![](https://i.imgur.com/E0wpuzJ.gif)  | ![](https://i.imgur.com/2nEwjCg.gif)  |
+
+
 
 ## Install Quasar
 ```bash

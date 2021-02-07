@@ -64,7 +64,7 @@
 
         <q-card-section class="q-pt-none">
           <p>
-            This is extremely experimental software running for testing purposes
+            This is buggy and experimental software running for testing purposes
             ONLY, any data you put on here will be lost!<br />
           </p>
         </q-card-section>

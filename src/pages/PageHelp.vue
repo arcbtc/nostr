@@ -39,6 +39,11 @@
         >Learn more about the Nostr protocol</a
       >
     </p>
+    <p>
+      <a href="https://github.com/arcbtc/nostr" target="_blank"
+        >https://github.com/arcbtc/nostr</a
+      >
+    </p>
     <center>
       <q-btn
         v-if="$store.getters.disabled"

@@ -8,7 +8,7 @@
   "scripts": {
     "dev": "quasar dev",
     "pwa": "quasar dev -m pwa",
-    "build": "quasar run build",
+    "build": "quasar build",
     "prettier": "prettier --write src/",
     "eslint": "eslint --fix src/",
     "styling": "prettier --check src/",

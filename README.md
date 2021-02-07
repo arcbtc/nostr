@@ -4,7 +4,7 @@
 
 | Easily make/restore accounts!  | Send encrypted private messages! |
 | ------------- | ------------- |
-| <img src="https://i.imgur.com/E0wpuzJ.gif" width="500px">  | ![](https://i.imgur.com/2nEwjCg.gif)  |
+| <img src="https://i.imgur.com/E0wpuzJ.gif" width="400px">  | ![](https://i.imgur.com/2nEwjCg.gif)  |
 
 
 

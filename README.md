@@ -8,7 +8,8 @@
 | ------------- | ------------- |
 | <img src="https://i.imgur.com/E0wpuzJ.gif" width="300px">  | <img src="https://i.imgur.com/2nEwjCg.gif" width="300px"> |
 
-
+https://www.youtube.com/watch?v=BpvjL6pAw7o
+https://www.youtube.com/watch?v=G6xFOBWI7S8
 
 ## Install Quasar
 ```bash

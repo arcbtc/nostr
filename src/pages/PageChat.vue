@@ -159,20 +159,25 @@ export default {
     },
     clickMessageAction(ev, id, text) {
       ev.preventDefault()
-      let action = ev.path[1]
-      if (action.classList.contains('retry')) {
-        this.$store.dispatch('deleteChatMessage', {
-          pubkey: this.$route.params.pubkey,
-          id
-        })
-        this.text = text
-        this.submitMessage()
-      } else if (action.classList.contains('delete')) {
-        this.$store.dispatch('deleteChatMessage', {
-          pubkey: this.$route.params.pubkey,
-          id
-        })
-        this.$store.commit('chatUpdated')
+
+      var action = ev.target
+      for (let i = 0; i < 5; i++) {
+        if (action.classList.contains('retry')) {
+          this.$store.dispatch('deleteChatMessage', {
+            pubkey: this.$route.params.pubkey,
+            id
+          })
+          this.text = text
+          this.submitMessage()
+        } else if (action.classList.contains('delete')) {
+          this.$store.dispatch('deleteChatMessage', {
+            pubkey: this.$route.params.pubkey,
+            id
+          })
+          this.$store.commit('chatUpdated')
+        }
+
+        action = action.parentNode
       }
     },
     resetMessage() {

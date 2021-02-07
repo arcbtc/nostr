@@ -187,16 +187,16 @@
           <div class="col-4 large-screen-only">
             <q-card class="float-left no-shadow">
               <q-card-section>
-                <q-form>
+                <q-form @submit="addPubFollow">
                   <q-input v-model="addPubKey" dense rounded outlined>
                     <template #append>
                       <q-btn
                         round
                         dense
                         flat
-                        @click="addPubFollow"
                         icon="add"
                         :disabled="$store.getters.disabled"
+                        @click="addPubFollow"
                       />
                     </template>
                     <q-tooltip> Add public key to follow </q-tooltip>

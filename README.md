@@ -17,12 +17,14 @@ https://www.youtube.com/watch?v=G6xFOBWI7S8
 ## NOSTR (Notes and Other Stuff Relays) protocol
 https://github.com/fiatjaf/nostr
 
-## Install Quasar
+## Installing Nostr-twitter
+
+### Install Quasar
 ```bash
 npm install -g @quasar/cli
 ```
 
-## Install the dependencies
+### Install the dependencies
 ```bash
 npm install
 ```

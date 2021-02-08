@@ -1,8 +1,8 @@
 # NOSTR-twitter 
 ## Currently very buggy not even MVP, but we'll get there!
 
-280 character limited social network using the decentralised, censorship-resistant nostr protocol
-Checkout an example running nostr.com
+280 character limited social network using the decentralised, censorship-resistant nostr protocol. <br/>
+Checkout an example running <a target="_blank" href="https://nostr.com">nostr.com</a>
 
 <img src="https://i.imgur.com/hAYJGnV.png" width="650px"> 
 

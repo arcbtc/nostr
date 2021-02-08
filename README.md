@@ -10,8 +10,12 @@ Checkout an example running <a target="_blank" href="https://nostr.com">nostr.co
 | ------------- | ------------- |
 | <img src="https://i.imgur.com/E0wpuzJ.gif" width="300px">  | <img src="https://i.imgur.com/2nEwjCg.gif" width="300px"> |
 
+## Tutorials
 https://www.youtube.com/watch?v=BpvjL6pAw7o <br/>
 https://www.youtube.com/watch?v=G6xFOBWI7S8
+
+## NOSTR (Notes and Other Stuff Relays) protocol
+https://github.com/fiatjaf/nostr
 
 ## Install Quasar
 ```bash

@@ -11,8 +11,8 @@ export function encrypt(privkey, pubkey, text) {
     Buffer.from(normalizedKey, 'hex'),
     iv
   )
-  cipher.update(text, 'utf8')
-  let encryptedMessage = cipher.final('base64')
+  let encryptedMessage = cipher.update(text, 'utf8', 'base64')
+  encryptedMessage += cipher.final('base64')
 
   return [encryptedMessage, Buffer.from(iv.buffer).toString('base64')]
 }
@@ -26,8 +26,8 @@ export function decrypt(privkey, pubkey, ciphertext, iv) {
     Buffer.from(normalizedKey, 'hex'),
     Buffer.from(iv, 'base64')
   )
-  decipher.update(ciphertext, 'base64')
-  let decryptedMessage = decipher.final('utf8')
+  let decryptedMessage = decipher.update(ciphertext, 'base64')
+  decryptedMessage += decipher.final('utf8')
 
   return decryptedMessage
 }

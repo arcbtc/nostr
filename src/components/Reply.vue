@@ -1,5 +1,5 @@
 <template>
-  <q-card class="my-card q-mt-md" flat style="border: none">
+  <q-card class="my-card q-mt-md" flat style="border: none; width: 90%;">
     <q-card-section class="no-shadow" vertical>
       <q-card-section class="no-shadow" horizontal>
         <q-card-section class="no-shadow q-pb-none">

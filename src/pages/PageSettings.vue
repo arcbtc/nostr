@@ -15,6 +15,33 @@
     <br /><br />
 
     <div class="q-mx-auto q-px-md">
+      <q-form class="q-gutter-md" @submit="addPubFollow">
+        <div class="row">
+          <div class="col-9">
+            <q-input
+              v-model="addPubKey"
+              filled
+              type="textarea"
+              autogrow
+              hint="Add a public key to follow"
+            />
+          </div>
+          <div class="col-3">
+            <q-btn
+              unelevated
+              label="Add"
+              type="submit"
+              color="primary"
+              class="q-ml-md q-pa-sm"
+            />
+          </div>
+        </div>
+      </q-form>
+
+      <br />
+      <q-separator />
+      <br />
+
       <q-form class="q-gutter-md" @submit="setProfile">
         <p>
           If your desired handle is available our relay will use open-timestamps
@@ -65,46 +92,49 @@
       </q-form>
       <br /><br />
       <q-separator />
-      <br /><br />
+      <br />
       <q-form class="q-gutter-md" @submit="relayAdd">
-        <q-input
-          v-model="relaya"
-          filled
-          type="textarea"
-          autogrow
-          hint="Add a relay"
-        />
-
-        <div>
-          <q-btn
-            class="float-right"
-            unelevated
-            label="Add"
-            type="submit"
-            color="primary"
-          />
+        <div class="row">
+          <div class="col-9">
+            <q-input
+              v-model="relaya"
+              filled
+              type="textarea"
+              autogrow
+              hint="Add a relay"
+            />
+          </div>
+          <div class="col-3">
+            <q-btn
+              unelevated
+              label="Add"
+              type="submit"
+              color="primary"
+              class="q-ml-md q-pa-sm"
+            />
+          </div>
         </div>
       </q-form>
       <br /><br />
-      <q-separator />
-      <br /><br />
       <q-form class="q-gutter-md" @submit="relayRem">
-        <q-select
-          v-model="relayr"
-          filled
-          :options="$store.state.myProfile.relays"
-          label="Remove relay(s)"
-          style="width: 250px"
-        />
-
-        <div>
-          <q-btn
-            class="float-right"
-            unelevated
-            label="Remove"
-            type="submit"
-            color="primary"
-          />
+        <div class="row">
+          <div class="col-9">
+            <q-select
+              v-model="relayr"
+              filled
+              :options="$store.state.myProfile.relays"
+              label="Remove relay(s)"
+            />
+          </div>
+          <div class="col-3">
+            <q-btn
+              class="q-ml-md q-pa-sm"
+              unelevated
+              label="Remove"
+              type="submit"
+              color="primary"
+            />
+          </div>
         </div>
       </q-form>
       <br /><br />
@@ -224,10 +254,20 @@ export default {
       relayr: '',
       relaya: '',
       isPrivPwd: true,
-      isPwd: true
+      isPwd: true,
+      addPubKey: ''
     }
   },
   methods: {
+    addPubFollow() {
+      if (this.addPubKey.trim() !== this.$store.state.myProfile.pubkey) {
+        this.$store.dispatch('startFollowing', this.addPubKey.trim())
+      } else {
+        this.$q.notify({color: 'pink', message: 'You cant follow yourself!'})
+      }
+
+      this.addPubKey = ''
+    },
     setProfile() {
       this.$store.dispatch('saveMeta', {
         image: this.imagetemp,

@@ -123,7 +123,7 @@
               v-model="relayr"
               filled
               :options="$store.state.myProfile.relays"
-              label="Remove relay(s)"
+              hint="Remove a relay"
             />
           </div>
           <div class="col-3">

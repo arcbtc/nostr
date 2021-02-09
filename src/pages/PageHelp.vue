@@ -24,7 +24,7 @@
       <img
         class="q-px-auto"
         style="width: 100%"
-        src="https://i.imgur.com/R3dQpk0.png"
+        src="https://i.imgur.com/NsnaiBP.png"
       />
       <br />
     </center>
@@ -35,12 +35,18 @@
       this client are encrypted before being sent through nostr network.
     </p>
     <p>
-      <a href="https://github.com/fiatjaf/nostr" target="_blank"
+      <a
+        href="https://github.com/fiatjaf/nostr"
+        target="_blank"
+        style="color:#26a69a;"
         >Learn more about the Nostr protocol</a
       >
     </p>
     <p>
-      <a href="https://github.com/arcbtc/nostr" target="_blank"
+      <a
+        href="https://github.com/arcbtc/nostr"
+        target="_blank"
+        style="color:#26a69a;"
         >https://github.com/arcbtc/nostr</a
       >
     </p>

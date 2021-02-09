@@ -115,14 +115,97 @@
         unelevated
         label="Delete Local Storage"
         color="negative"
-        @click="deletels"
+        @click="deleteAccDialog = true"
+      />
+      <q-btn
+        unelevated
+        class="q-ml-md"
+        label="View your keys"
+        color="negative"
+        @click="privateKey"
       />
     </div>
+
+    <q-dialog v-model="privateKeyDialog">
+      <q-card style="min-width: 350px">
+        <q-card-section>
+          <div class="text-h6">Your keys <q-icon name="vpn_key" /></div>
+          <p>
+            Make sure you back up your private key! <br />
+            <small
+              >*Posts are published using your private key. Others can see your
+              posts/follow you using your public key.</small
+            >
+          </p>
+        </q-card-section>
+
+        <q-card-section class="q-pt-none">
+          <p>
+            Private key:
+          </p>
+          <q-input
+            v-model="privatekey"
+            filled
+            :type="isPrivPwd ? 'password' : 'text'"
+          >
+            <template #prepend>
+              <q-icon
+                name="content_copy"
+                class="cursor-pointer"
+                @click="copyToClip(privatekey)"
+              ></q-icon>
+            </template>
+            <template #append>
+              <q-icon
+                :name="isPrivPwd ? 'visibility_off' : 'visibility'"
+                class="cursor-pointer"
+                @click="isPrivPwd = !isPrivPwd"
+              ></q-icon>
+            </template>
+          </q-input>
+          <br />
+          <p>
+            Public key:
+          </p>
+          <q-input v-model="publickey" filled>
+            <template #prepend>
+              <q-icon
+                name="content_copy"
+                class="cursor-pointer"
+                @click="copyToClip(publickey)"
+              ></q-icon>
+            </template>
+          </q-input>
+        </q-card-section>
+
+        <q-card-actions align="right" class="text-primary">
+          <q-btn flat label="Close" v-close-popup />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+
+    <q-dialog v-model="deleteAccDialog">
+      <q-card style="min-width: 350px">
+        <q-card-section>
+          <div class="text-h6">Are you sure?</div>
+          <p>
+            Deleting storage will remove all traces of this account!
+          </p>
+        </q-card-section>
+
+        <q-card-actions align="right" class="text-primary">
+          <q-btn flat label="Cancel" v-close-popup />
+          <q-btn flat label="Yes, delete storage" @click="deletels" />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
   </q-page>
 </template>
 
 <script>
 import helpersMixin from '../utils/mixin'
+import {copyToClipboard} from 'quasar'
+const bip39 = require('bip39')
 
 export default {
   name: 'PageSettings',
@@ -131,11 +214,17 @@ export default {
     const {imagetemp, handle, about} = this.$store.state.myProfile
 
     return {
+      privatekey: null,
+      publickey: null,
+      deleteAccDialog: false,
+      privateKeyDialog: false,
       imagetemp,
       handle,
       about,
       relayr: '',
-      relaya: ''
+      relaya: '',
+      isPrivPwd: true,
+      isPwd: true
     }
   },
   methods: {
@@ -145,6 +234,22 @@ export default {
         handle: this.handle,
         about: this.about
       })
+    },
+    privateKey() {
+      this.privateKeyDialog = true
+      this.privatekey = this.$store.state.myProfile.privkey
+      this.publickey = this.$store.state.myProfile.pubkey
+    },
+    copyToClip(text) {
+      copyToClipboard(text)
+        .then(() => {
+          this.$q.notify({
+            message: 'COPIED'
+          })
+        })
+        .catch(() => {
+          this.$q.notify({type: 'negative', message: 'FAILED'})
+        })
     },
     relayAdd() {
       this.$store.dispatch('relayPush', this.relaya)

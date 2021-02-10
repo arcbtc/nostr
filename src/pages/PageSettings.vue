@@ -170,9 +170,7 @@
         </q-card-section>
 
         <q-card-section class="q-pt-none">
-          <p>
-            Private key:
-          </p>
+          <p>Private key:</p>
           <q-input
             v-model="privatekey"
             filled
@@ -194,9 +192,7 @@
             </template>
           </q-input>
           <br />
-          <p>
-            Public key:
-          </p>
+          <p>Public key:</p>
           <q-input v-model="publickey" filled>
             <template #prepend>
               <q-icon
@@ -218,9 +214,7 @@
       <q-card style="min-width: 350px">
         <q-card-section>
           <div class="text-h6">Are you sure?</div>
-          <p>
-            Deleting storage will remove all traces of this account!
-          </p>
+          <p>Deleting storage will remove all traces of this account!</p>
         </q-card-section>
 
         <q-card-actions align="right" class="text-primary">

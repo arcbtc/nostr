@@ -67,7 +67,7 @@ export function launch(store) {
             iv
           )
 
-          // store it locally
+          // store it locally push
           messages.push({
             text,
             from: event.pubkey,
@@ -82,27 +82,50 @@ export function launch(store) {
 
           // a hack to update the UI
           store.commit('chatUpdated')
-        } else if (event.pubkey === store.state.myProfile.pubkey) {
+        } else if (
+          event.pubkey === store.state.myProfile.pubkey &&
+          event.tags[0][1] in store.state.theirProfile
+        ) {
           // it is coming from us
           let p = event.tags.find(tag => tag[0] === 'p')
           let lsKey = `messages.${p[1]}`
           var messagesS = LocalStorage.getItem(lsKey)
-          if (
-            event.tags.find(
-              tag => tag[0] === 'p' && tag[1] !== store.state.myProfile.pubkey
-            )
-          ) {
-            if (messagesS.length > 0) {
-              for (var i = 0; i < messagesS.length; i++) {
-                if (
-                  messagesS[i].id === event.id &&
-                  messagesS[i].loading === true
-                ) {
-                  messagesS[i].loading = false
-                  LocalStorage.set(lsKey, messagesS)
-                }
+
+          if (messagesS.length > 0) {
+            for (var i = 0; i < messagesS.length; i++) {
+              if (
+                messagesS[i].id === event.id &&
+                messagesS[i].loading === true
+              ) {
+                messagesS[i].loading = false
+                LocalStorage.set(lsKey, messagesS)
+                return
               }
             }
+
+            if (messagesS.find(({id}) => id === event.id)) {
+              // we already have this one, discard
+              return
+            }
+
+            // decrypt it
+            let [ciphertext, iv] = event.content.split('?iv=')
+            let text = decrypt(
+              store.state.myProfile.privkey,
+              p[1],
+              ciphertext,
+              iv
+            )
+            messagesS.push({
+              text,
+              from: event.pubkey,
+              id: event.id,
+              created_at: event.created_at,
+              tags: event.tags,
+              loading: false,
+              retry: false
+            })
+            LocalStorage.set(lsKey, messagesS)
           }
         }
 
@@ -215,7 +238,7 @@ export function deletePost(store, postId) {
 
 export function getAllPosts(store) {
   try {
-    if (store.state.kind1.length < 20) {
+    if (store.state.kind1.length < 100) {
       store.dispatch('getRelayPosts', {limit: 10, offset: 0})
     } else {
       store.dispatch('getRelayPosts', {limit: 3, offset: 0})
@@ -261,6 +284,7 @@ export function startFollowing(store, key) {
   }
 
   pool.subKey(key)
+  LocalStorage.set(`messages.${key}`, [])
   store.commit('startFollowing', key)
   store.dispatch('getAllPosts')
 }

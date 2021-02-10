@@ -38,7 +38,7 @@
       <a
         href="https://github.com/fiatjaf/nostr"
         target="_blank"
-        style="color:#26a69a;"
+        style="color: #26a69a"
         >Learn more about the Nostr protocol</a
       >
     </p>
@@ -46,7 +46,7 @@
       <a
         href="https://github.com/arcbtc/nostr"
         target="_blank"
-        style="color:#26a69a;"
+        style="color: #26a69a"
         >https://github.com/arcbtc/nostr</a
       >
     </p>

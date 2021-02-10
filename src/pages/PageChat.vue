@@ -109,10 +109,27 @@ export default {
     messages() {
       this.$store.state.chatUpdated // hack to recompute
       this.scroll()
-      return LocalStorage.getItem(`messages.${this.$route.params.pubkey}`) || []
+      //cars.sort(function(a, b){return a.year - b.year});
+      return (
+        LocalStorage.getItem(`messages.${this.$route.params.pubkey}`).sort(
+          function (a, b) {
+            return a.created_at - b.created_at
+          }
+        ) || []
+      )
     }
   },
   created() {
+    this.$store.dispatch('getRelayPosts', {
+      limit: 20,
+      offset: 0,
+      pubkey: this.$route.params.pubkey
+    })
+    this.$store.dispatch('getRelayPosts', {
+      limit: 20,
+      offset: 0,
+      pubkey: this.$store.state.myProfile.pubkey
+    })
     setTimeout(() => {
       this.scroll()
       this.failed()

@@ -105,18 +105,17 @@ export default {
   },
 
   computed: {
-    isFollowing() {
+    async isFollowing() {
+      await this.$store.dispatch('getRelayPosts', {
+        limit: 20,
+        offset: 0,
+        pubkey: this.$route.params.pubkey
+      })
       return this.$route.params.pubkey in this.$store.state.theirProfile
     }
   },
 
   async created() {
-    await this.$store.dispatch('getRelayPosts', {
-      limit: 20,
-      offset: 0,
-      pubkey: this.$route.params.pubkey
-    })
-
     var posts = []
     for (let i = 0; i < this.$store.state.kind1.length; i++) {
       let post = this.$store.state.kind1[i]

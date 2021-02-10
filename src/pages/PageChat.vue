@@ -69,6 +69,49 @@
                   </div>
                   <div class="col-3">
                     <q-btn
+                      v-if="text.length < 280"
+                      class="float-left q-ml-xs q-mt-sm"
+                      round
+                      unelevated
+                      color="primary"
+                      icon="insert_emoticon"
+                      size="sm"
+                    >
+                      <q-popup-proxy>
+                        <q-btn
+                          v-for="emoji in emojis1"
+                          :key="emoji.item"
+                          flat
+                          rounded
+                          unelevated
+                          dense
+                          @click="text = text + emoji.item"
+                          >{{ emoji.item }}</q-btn
+                        >
+                        <br />
+                        <q-btn
+                          v-for="emoji in emojis2"
+                          :key="emoji.item"
+                          flat
+                          rounded
+                          unelevated
+                          dense
+                          @click="text = text + emoji.item"
+                          >{{ emoji.item }}</q-btn
+                        >
+                      </q-popup-proxy>
+                    </q-btn>
+                    <q-btn
+                      v-else
+                      disable
+                      class="float-left q-ml-xs q-mt-sm"
+                      round
+                      unelevated
+                      color="primary"
+                      icon="insert_emoticon"
+                      size="sm"
+                    />
+                    <q-btn
                       unelevated
                       class="q-ma-sm"
                       label="send"

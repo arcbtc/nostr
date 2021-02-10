@@ -59,7 +59,7 @@
                 @reset="resetMessage"
               >
                 <div class="row">
-                  <div class="col-9">
+                  <div class="col-8">
                     <q-input
                       v-model="text"
                       filled
@@ -67,7 +67,7 @@
                       hint="500 char message"
                     ></q-input>
                   </div>
-                  <div class="col-3">
+                  <div class="col-4">
                     <q-btn
                       v-if="text.length < 280"
                       class="float-left q-ml-xs q-mt-sm"

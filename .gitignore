@@ -34,3 +34,6 @@ yarn-error.log*
 
 # Local Netlify folder
 .netlify
+
+yarn.lock
+package-lock.json

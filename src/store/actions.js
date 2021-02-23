@@ -28,12 +28,15 @@ export function restartHomeFeed(store) {
   homeSubscription = homeSubscription.sub({
     filter: [
       {
-        authors: Object.keys(store.state.theirProfile).concat(
-          store.state.myProfile.pubkey
-        )
+        authors: Object.keys(store.state.theirProfile).length
+          ? Object.keys(store.state.theirProfile)
+          : null
       },
       {
-        '#k': store.state.myProfile.pubkey
+        author: store.state.myProfile.pubkey
+      },
+      {
+        '#p': store.state.myProfile.pubkey
       }
     ],
     cb: (event, relay) => {

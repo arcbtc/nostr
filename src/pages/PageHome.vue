@@ -16,22 +16,9 @@ export default {
     return {}
   },
   created() {
-    this.$store.dispatch('getAllPosts')
     this.$store.state.kind1 = this.$store.state.kind1.sort(function (a, b) {
       return b.created_at - a.created_at
     })
-  },
-  methods: {
-    onLoad(index) {
-      setTimeout(() => {
-        if (this.$store.state.kind1) {
-          this.$store.dispatch('getRelayPosts', {
-            limit: index,
-            offset: this.$store.state.kind1.length
-          })
-        }
-      }, 2000)
-    }
   }
 }
 </script>

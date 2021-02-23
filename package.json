@@ -30,7 +30,7 @@
     "identicon": "^3.0.1",
     "md-gum-polyfill": "^1.0.0",
     "noble-secp256k1": "^1.1.1",
-    "nostr-tools": "^0.3.0",
+    "nostr-tools": "^0.4.2",
     "quasar": "^1.15.0",
     "wif": "^2.0.6"
   },

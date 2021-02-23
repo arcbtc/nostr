@@ -65,21 +65,12 @@
       />
     </div>
 
-    <Post
-      v-for="post in $store.state.kind1"
-      v-if="post.pubkey === $route.params.pubkey"
-      :key="post.id"
-      :post="post"
-    />
+    <Post v-for="post in posts" :key="post.id" :post="post" />
 
     <q-dialog v-model="dialogReply" position="top">
       <Reply :post="dialogReply" />
     </q-dialog>
-    <q-infinite-scroll
-      v-if="profilePosts.length > 20"
-      :offset="250"
-      @load="onLoad(profilePosts.length + 10)"
-    >
+    <q-infinite-scroll v-if="posts.length > 20" :offset="250">
       <template #loading>
         <div class="row justify-center q-my-md">
           <q-spinner-dots color="primary" size="40px" />
@@ -92,6 +83,7 @@
 <script>
 import 'md-gum-polyfill'
 import helpersMixin from '../utils/mixin'
+import {pool} from '../global'
 
 export default {
   name: 'PageHome',
@@ -99,31 +91,40 @@ export default {
 
   data() {
     return {
-      profilePosts: [],
-      dialogReply: null
+      posts: [],
+      dialogReply: null,
+      postsSet: new Set(),
+      sub: null
     }
   },
 
   computed: {
-    async isFollowing() {
-      await this.$store.dispatch('getRelayPosts', {
-        limit: 20,
-        offset: 0,
-        pubkey: this.$route.params.pubkey
-      })
+    isFollowing() {
       return this.$route.params.pubkey in this.$store.state.theirProfile
     }
   },
 
-  async created() {
-    var posts = []
-    for (let i = 0; i < this.$store.state.kind1.length; i++) {
-      let post = this.$store.state.kind1[i]
-      if (post[i].pubkey === this.$route.params.pubkey) {
-        posts.push(this.$store.state.kind1[i])
-      }
+  watch: {
+    '$route.params.pubkey'() {
+      this.posts = []
+      this.postsSet = new Set()
+
+      this.sub = pool.sub({
+        filter: {
+          author: this.$route.params.pubkey,
+          kind: 1
+        },
+        cb: event => {
+          if (this.postsSet.has(event.id)) return
+          this.postsSet.add(event.id)
+          this.posts.push(event)
+        }
+      })
     }
-    this.profilePosts = posts
+  },
+
+  beforeDestroy() {
+    this.sub.unsub()
   },
 
   methods: {

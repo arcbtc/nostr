@@ -12,98 +12,67 @@ export function launch(store) {
     pool.addRelay(relay)
   })
 
-  for (let key in store.state.theirProfile) {
-    pool.subKey(key)
-  }
-  pool.subKey(store.state.myProfile.pubkey)
+  pool.onNotice((notice, relay) => {
+    Notify.create({
+      message: `Relay ${relay.url} says: ${notice}`,
+      color: 'pink'
+    })
+  })
 
-  pool.onEvent((event, context, relay) => {
-    switch (event.kind) {
-      case 0:
-        store.commit('addKind0', event)
-        break
+  store.dispatch('restartHomeFeed')
+}
 
-      case 1:
-        for (let i = 0; i < store.state.kind1.length; i++) {
-          if (
-            (store.state.kind1[i].loading === true ||
-              store.state.kind1[i].retry === true) &&
-            store.state.kind1[i].id === event.id
-          ) {
-            event.retry = false
-            event.loading = false
-            store.commit('replaceKind1', {index: i, event})
-            return
-          } else if (store.state.kind1[i].id === event.id) {
-            return
-          }
-        }
+var homeSubscription = pool
 
-        store.commit('addKind1', event)
-        break
+export function restartHomeFeed(store) {
+  homeSubscription = homeSubscription.sub({
+    filter: [
+      {
+        authors: Object.keys(store.state.theirProfile).concat(
+          store.state.myProfile.pubkey
+        )
+      },
+      {
+        '#k': store.state.myProfile.pubkey
+      }
+    ],
+    cb: (event, relay) => {
+      switch (event.kind) {
+        case 0:
+          store.commit('addKind0', event)
+          break
 
-      case 4:
-        // a direct encrypted message
-        if (
-          event.tags.find(
-            tag => tag[0] === 'p' && tag[1] === store.state.myProfile.pubkey
-          )
-        ) {
-          // it is addressed to us
-          let lsKey = `messages.${event.pubkey}`
-          var messages = LocalStorage.getItem(lsKey) || []
-
-          if (messages.find(({id}) => id === event.id)) {
-            // we already have this one, discard
-            return
-          }
-
-          // decrypt it
-          let [ciphertext, iv] = event.content.split('?iv=')
-          let text = decrypt(
-            store.state.myProfile.privkey,
-            event.pubkey,
-            ciphertext,
-            iv
-          )
-
-          // store it locally push
-          messages.push({
-            text,
-            from: event.pubkey,
-            id: event.id,
-            created_at: event.created_at,
-            tags: event.tags,
-            loading: false,
-            retry: false
-          })
-
-          LocalStorage.set(lsKey, messages)
-
-          // a hack to update the UI
-          store.commit('chatUpdated')
-        } else if (
-          event.pubkey === store.state.myProfile.pubkey &&
-          event.tags[0][1] in store.state.theirProfile
-        ) {
-          // it is coming from us
-          let p = event.tags.find(tag => tag[0] === 'p')
-          let lsKey = `messages.${p[1]}`
-          var messagesS = LocalStorage.getItem(lsKey)
-
-          if (messagesS.length > 0) {
-            for (var i = 0; i < messagesS.length; i++) {
-              if (
-                messagesS[i].id === event.id &&
-                messagesS[i].loading === true
-              ) {
-                messagesS[i].loading = false
-                LocalStorage.set(lsKey, messagesS)
-                return
-              }
+        case 1:
+          for (let i = 0; i < store.state.kind1.length; i++) {
+            if (
+              (store.state.kind1[i].loading === true ||
+                store.state.kind1[i].retry === true) &&
+              store.state.kind1[i].id === event.id
+            ) {
+              event.retry = false
+              event.loading = false
+              store.commit('replaceKind1', {index: i, event})
+              return
+            } else if (store.state.kind1[i].id === event.id) {
+              return
             }
+          }
 
-            if (messagesS.find(({id}) => id === event.id)) {
+          store.commit('addKind1', event)
+          break
+
+        case 4:
+          // a direct encrypted message
+          if (
+            event.tags.find(
+              tag => tag[0] === 'p' && tag[1] === store.state.myProfile.pubkey
+            )
+          ) {
+            // it is addressed to us
+            let lsKey = `messages.${event.pubkey}`
+            var messages = LocalStorage.getItem(lsKey) || []
+
+            if (messages.find(({id}) => id === event.id)) {
               // we already have this one, discard
               return
             }
@@ -112,11 +81,13 @@ export function launch(store) {
             let [ciphertext, iv] = event.content.split('?iv=')
             let text = decrypt(
               store.state.myProfile.privkey,
-              p[1],
+              event.pubkey,
               ciphertext,
               iv
             )
-            messagesS.push({
+
+            // store it locally push
+            messages.push({
               text,
               from: event.pubkey,
               id: event.id,
@@ -125,19 +96,61 @@ export function launch(store) {
               loading: false,
               retry: false
             })
-            LocalStorage.set(lsKey, messagesS)
+
+            LocalStorage.set(lsKey, messages)
+
+            // a hack to update the UI
+            store.commit('chatUpdated')
+          } else if (
+            event.pubkey === store.state.myProfile.pubkey &&
+            event.tags[0][1] in store.state.theirProfile
+          ) {
+            // it is coming from us
+            let p = event.tags.find(tag => tag[0] === 'p')
+            let lsKey = `messages.${p[1]}`
+            var messagesS = LocalStorage.getItem(lsKey)
+
+            if (messagesS.length > 0) {
+              for (var i = 0; i < messagesS.length; i++) {
+                if (
+                  messagesS[i].id === event.id &&
+                  messagesS[i].loading === true
+                ) {
+                  messagesS[i].loading = false
+                  LocalStorage.set(lsKey, messagesS)
+                  return
+                }
+              }
+
+              if (messagesS.find(({id}) => id === event.id)) {
+                // we already have this one, discard
+                return
+              }
+
+              // decrypt it
+              let [ciphertext, iv] = event.content.split('?iv=')
+              let text = decrypt(
+                store.state.myProfile.privkey,
+                p[1],
+                ciphertext,
+                iv
+              )
+              messagesS.push({
+                text,
+                from: event.pubkey,
+                id: event.id,
+                created_at: event.created_at,
+                tags: event.tags,
+                loading: false,
+                retry: false
+              })
+              LocalStorage.set(lsKey, messagesS)
+            }
           }
-        }
 
-        break
+          break
+      }
     }
-  })
-
-  pool.onNotice((notice, relay) => {
-    Notify.create({
-      message: `Relay ${relay.url} says: ${notice}`,
-      color: 'pink'
-    })
   })
 }
 
@@ -154,19 +167,6 @@ export async function relayRemove(store, url) {
   pool.removeRelay(url)
 }
 
-export async function getRelayPosts(store, {limit, offset, pubkey = null}) {
-  if (pubkey === null) {
-    pool.reqFeed({
-      limit,
-      offset
-    })
-  } else {
-    pool.reqKey({
-      key: pubkey
-    })
-  }
-}
-
 export async function sendPost(store, {message, tags = [], kind = 1}) {
   if (message.length === 0) return
 
@@ -179,17 +179,13 @@ export async function sendPost(store, {message, tags = [], kind = 1}) {
   }
 
   event.id = await getEventHash(event)
-  await pool.publish(event)
+  pool.publish(event)
 
   store.commit('addKind1', {
     ...event,
     loading: true,
     retry: false
   })
-
-  setTimeout(() => {
-    store.dispatch('getAllPosts')
-  }, 3000)
 }
 
 export function postAgain(store, event) {
@@ -236,35 +232,6 @@ export function deletePost(store, postId) {
   store.commit('deleteKind1', postId)
 }
 
-export function getAllPosts(store) {
-  try {
-    if (store.state.kind1.length < 100) {
-      store.dispatch('getRelayPosts', {limit: 10, offset: 0})
-    } else {
-      store.dispatch('getRelayPosts', {limit: 3, offset: 0})
-    }
-  } catch (err) {
-    Notify.create({
-      message: 'Not able to connect to relay',
-      color: 'secondary'
-    })
-  }
-
-  setTimeout(() => {
-    for (let i = 0; i < store.state.kind1.length; i++) {
-      if (
-        Date.now() / 1000 - store.state.kind1[i].created_at > 3 &&
-        store.state.kind1[i].loading === true
-      ) {
-        store.commit('replaceKind1', {
-          index: i,
-          event: {...store.state.kind1[i], retry: true, loading: false}
-        })
-      }
-    }
-  }, 1000)
-}
-
 export function startFollowing(store, key) {
   if (key in store.state.theirProfile) {
     Notify.create({
@@ -283,10 +250,9 @@ export function startFollowing(store, key) {
     return
   }
 
-  pool.subKey(key)
   LocalStorage.set(`messages.${key}`, [])
   store.commit('startFollowing', key)
-  store.dispatch('getAllPosts')
+  store.dispatch('restartHomeFeed')
 }
 
 export async function stopFollowing(store, key) {
@@ -298,8 +264,8 @@ export async function stopFollowing(store, key) {
     return
   }
 
-  pool.unsubKey(key)
   store.commit('stopFollowing', key)
+  store.dispatch('restartHomeFeed')
 }
 
 export function finalGenerate(store, {keystoreoption, publickey, privatekey}) {
@@ -307,10 +273,11 @@ export function finalGenerate(store, {keystoreoption, publickey, privatekey}) {
     pubkey: publickey,
     privkey: privatekey,
     relays: [
-      'wss://freedom-relay.herokuapp.com/ws',
-      'wss://relay.nostr.org',
       'wss://nostr-relay.herokuapp.com/ws',
-      'wss://nodestr-relay.dolu.dev/ws'
+      'wss://nostr-relay.bigsun.xyz/ws',
+      'wss://freedom-relay.herokuapp.com/ws'
+      // 'wss://relay.nostr.org',
+      // 'wss://nodestr-relay.dolu.dev/ws'
     ],
     avatar: null,
     handle: null,
@@ -350,7 +317,7 @@ export async function sendChatMessage(store, {pubkey, text}) {
   }
   event.id = await getEventHash(event)
 
-  messages.push({
+  let message = {
     text,
     from: store.state.myProfile.pubkey,
     id: event.id,
@@ -358,9 +325,11 @@ export async function sendChatMessage(store, {pubkey, text}) {
     tags: event.tags,
     loading: true,
     failed: false
-  })
+  }
+
+  messages.push(message)
   LocalStorage.set(lsKey, messages)
-  await pool.publish(event)
+  pool.publish(event)
 }
 
 export function deleteChatMessage(store, {pubkey, id}) {

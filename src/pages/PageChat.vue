@@ -130,8 +130,9 @@
 </template>
 
 <script>
-import helpersMixin from '../utils/mixin'
 import {LocalStorage} from 'quasar'
+import helpersMixin from '../utils/mixin'
+
 export default {
   name: 'PageChat',
   mixins: [helpersMixin],
@@ -152,7 +153,7 @@ export default {
     messages() {
       this.$store.state.chatUpdated // hack to recompute
       this.scroll()
-      //cars.sort(function(a, b){return a.year - b.year});
+
       return (
         LocalStorage.getItem(`messages.${this.$route.params.pubkey}`).sort(
           function (a, b) {
@@ -161,22 +162,6 @@ export default {
         ) || []
       )
     }
-  },
-  created() {
-    this.$store.dispatch('getRelayPosts', {
-      limit: 20,
-      offset: 0,
-      pubkey: this.$route.params.pubkey
-    })
-    this.$store.dispatch('getRelayPosts', {
-      limit: 20,
-      offset: 0,
-      pubkey: this.$store.state.myProfile.pubkey
-    })
-    setTimeout(() => {
-      this.scroll()
-      this.failed()
-    }, 200)
   },
   methods: {
     async scroll() {

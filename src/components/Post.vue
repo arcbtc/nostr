@@ -6,9 +6,11 @@
 
     <q-card-section class="no-shadow" horizontal>
       <q-card-section class="no-shadow">
-        <q-avatar class="no-shadow">
-          <img :src="$store.getters.avatar(post.pubkey)" />
-        </q-avatar>
+        <q-btn round @click="toProfile(post.pubkey)">
+          <q-avatar class="no-shadow">
+            <img :src="$store.getters.avatar(post.pubkey)" />
+          </q-avatar>
+        </q-btn>
       </q-card-section>
 
       <q-separator vertical style="display: none" />
